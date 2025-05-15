@@ -47,10 +47,9 @@ class StudentScreen : AppCompatActivity() {
 
 
         val logoutButton = findViewById<Button>(R.id.logoutButton)
-
         logoutButton.setOnClickListener {
             val sharedPref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-            sharedPref.edit { clear() }
+            sharedPref.edit().clear().apply()
 
             FirebaseAuth.getInstance().signOut()
 
