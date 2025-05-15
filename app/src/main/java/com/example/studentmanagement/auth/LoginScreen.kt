@@ -18,11 +18,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginScreen : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
-    override fun onCreate(savedInstanceState: Bundle?) {
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login_screen)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -37,70 +38,50 @@ class LoginScreen : AppCompatActivity() {
         val goSignup = findViewById<TextView>(R.id.tvGoSignup)
 
         loginBtn.setOnClickListener {
-            auth.signInWithEmailAndPassword(email.text.toString(), pass.text.toString())
+            val emailText = email.text.toString()
+            val passText = pass.text.toString()
+
+            auth.signInWithEmailAndPassword(emailText, passText)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val user = auth.currentUser
                         if (user != null) {
-                            val db = FirebaseFirestore.getInstance()
                             val uid = user.uid
-
+                            val db = FirebaseFirestore.getInstance()
                             db.collection("users").document(uid).get()
                                 .addOnSuccessListener { document ->
                                     if (document != null && document.exists()) {
                                         val accountType = document.getString("accountType")
+
+                                        // Save login info in shared prefs (same name "MyPrefs")
+                                        val sharedPref = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                                        with(sharedPref.edit()) {
+                                            putBoolean("isLoggedIn", true)
+                                            putString("accountType", accountType)
+                                            putString("userId", uid)
+                                            apply()
+                                        }
+
                                         if (accountType == "teacher") {
                                             startActivity(Intent(this, TeacherScreen::class.java))
-                                            val sharedPref =
-                                                getSharedPreferences("UserPref", MODE_PRIVATE)
-                                            with(sharedPref.edit()) {
-                                                putBoolean("isLoggedIn", true)
-                                                putString("accountType", accountType)
-                                                putString(
-                                                    "userId",
-                                                    uid
-                                                )
-                                                apply()
-                                            }
-
                                         } else {
                                             startActivity(Intent(this, StudentScreen::class.java))
-                                            val sharedPref =
-                                                getSharedPreferences("UserPref", MODE_PRIVATE)
-                                            with(sharedPref.edit()) {
-                                                putBoolean("isLoggedIn", true)
-                                                putString("accountType", accountType)
-                                                putString(
-                                                    "userId",
-                                                    uid
-                                                )
-                                                apply()
-                                            }
-
                                         }
                                         finish()
                                     } else {
-                                        Toast.makeText(
-                                            this,
-                                            "User data not found.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(this, "User data not found.", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                                 .addOnFailureListener {
-                                    Toast.makeText(
-                                        this,
-                                        "Failed to retrieve user data.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast.makeText(this, "Failed to retrieve user data.", Toast.LENGTH_SHORT).show()
                                 }
                         }
                     } else {
                         Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
                     }
                 }
-
         }
+
         goSignup.setOnClickListener {
             startActivity(Intent(this, SignUpScreen::class.java))
         }
