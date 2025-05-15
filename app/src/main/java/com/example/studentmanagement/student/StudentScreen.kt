@@ -26,6 +26,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.core.content.edit
+import com.example.studentmanagement.auth.LoginTypeScreen
 
 class StudentScreen : AppCompatActivity() {
 
@@ -53,7 +54,7 @@ class StudentScreen : AppCompatActivity() {
 
             FirebaseAuth.getInstance().signOut()
 
-            val intent = Intent(this, LoginScreen::class.java)
+            val intent = Intent(this, LoginTypeScreen::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()

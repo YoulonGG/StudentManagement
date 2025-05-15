@@ -41,6 +41,8 @@ class LoginScreen : AppCompatActivity() {
             val emailText = email.text.toString()
             val passText = pass.text.toString()
 
+            val selectedAccountType = intent.getStringExtra("accountType")
+
             auth.signInWithEmailAndPassword(emailText, passText)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -53,21 +55,29 @@ class LoginScreen : AppCompatActivity() {
                                     if (document != null && document.exists()) {
                                         val accountType = document.getString("accountType")
 
-                                        // Save login info in shared prefs (same name "MyPrefs")
-                                        val sharedPref = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                                        with(sharedPref.edit()) {
-                                            putBoolean("isLoggedIn", true)
-                                            putString("accountType", accountType)
-                                            putString("userId", uid)
-                                            apply()
-                                        }
+                                        if (accountType == selectedAccountType) {
+                                            val sharedPref = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                                            with(sharedPref.edit()) {
+                                                putBoolean("isLoggedIn", true)
+                                                putString("accountType", accountType)
+                                                putString("userId", uid)
+                                                apply()
+                                            }
 
-                                        if (accountType == "teacher") {
-                                            startActivity(Intent(this, TeacherScreen::class.java))
+                                            if (accountType == "teacher") {
+                                                startActivity(Intent(this, TeacherScreen::class.java))
+                                            } else {
+                                                startActivity(Intent(this, StudentScreen::class.java))
+                                            }
+                                            finish()
                                         } else {
-                                            startActivity(Intent(this, StudentScreen::class.java))
+                                            Toast.makeText(
+                                                this,
+                                                "Account type mismatch. Please login as $selectedAccountType.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            auth.signOut()
                                         }
-                                        finish()
                                     } else {
                                         Toast.makeText(this, "User data not found.", Toast.LENGTH_SHORT).show()
                                     }

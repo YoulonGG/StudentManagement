@@ -1,5 +1,6 @@
 package com.example.studentmanagement
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -8,10 +9,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.studentmanagement.auth.LoginScreen
+import com.example.studentmanagement.auth.LoginTypeScreen
 import com.example.studentmanagement.student.StudentScreen
 import com.example.studentmanagement.teacher.TeacherScreen
 
+@SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,10 +38,10 @@ class SplashScreen : AppCompatActivity() {
                     startActivity(Intent(this, StudentScreen::class.java))
                 }
             } else {
-                startActivity(Intent(this, LoginScreen::class.java))
+                startActivity(Intent(this, LoginTypeScreen::class.java))
             }
             finish()
-        }, 2000) // 2-second splash delay
+        }, 2000)
     }
 }
 
