@@ -1,17 +1,20 @@
-package com.example.studentmanagement
+package com.example.studentmanagement.student
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.studentmanagement.R
+
 
 class StudentViewModel(private var students: List<Student>) :
     RecyclerView.Adapter<StudentViewModel.StudentViewHolder>() {
 
     class StudentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView = itemView.findViewById(R.id.studentName)
-        val email: TextView = itemView.findViewById(R.id.studentEmail)
+        val studentName: TextView = itemView.findViewById(R.id.studentName)
+        val studentEmail: TextView = itemView.findViewById(R.id.studentEmail)
+        val studentId: TextView = itemView.findViewById(R.id.studentId)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudentViewHolder {
@@ -20,20 +23,20 @@ class StudentViewModel(private var students: List<Student>) :
         return StudentViewHolder(view)
     }
 
+    override fun getItemCount(): Int = students.size
+
     override fun onBindViewHolder(holder: StudentViewHolder, position: Int) {
         val student = students[position]
-        holder.name.text = student.fullName
-        holder.email.text = student.email
+        holder.studentName.text = student.fullName
+        holder.studentEmail.text = student.email
+        holder.studentId.text = student.studentId
     }
-
-    override fun getItemCount(): Int = students.size
 
     fun updateList(newList: List<Student>) {
         students = newList
         notifyDataSetChanged()
     }
 }
-
 
 data class Student(
     val firstName: String = "",
@@ -42,6 +45,8 @@ data class Student(
     val studentId: String = "",
     val phone: String = ""
 ) {
+    constructor() : this("", "", "", "", "")
+
     val fullName: String
         get() = "$firstName $lastName"
 }

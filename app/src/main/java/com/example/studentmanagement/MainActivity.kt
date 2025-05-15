@@ -10,6 +10,10 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.studentmanagement.auth.LoginScreen
+import com.example.studentmanagement.course.Course
+import com.example.studentmanagement.student.StudentScreen
+import com.example.studentmanagement.teacher.TeacherScreen
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.FirebaseApp
@@ -65,7 +69,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, Course::class.java))
         }
 
-        // Optional: set user name/email from Firebase
         val headerView = navView.getHeaderView(0)
         val user = auth.currentUser
         headerView.findViewById<TextView>(R.id.userName).text = user?.displayName ?: "Unknown"
