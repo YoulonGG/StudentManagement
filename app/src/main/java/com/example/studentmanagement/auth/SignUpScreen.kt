@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,11 +14,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.studentmanagement.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SignUpScreen : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var progressBar: ProgressBar
     private lateinit var errorText: TextView
+    private lateinit var accountTypeGroup: RadioGroup
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,13 +37,14 @@ class SignUpScreen : AppCompatActivity() {
 
         val email = findViewById<EditText>(R.id.signupEmail)
         val pass = findViewById<EditText>(R.id.signupPassword)
+        accountTypeGroup = findViewById(R.id.accountTypeGroup)
         val signupBtn = findViewById<Button>(R.id.btnSignup)
-        progressBar = findViewById(R.id.progressBar) // Initialize ProgressBar
-        errorText = findViewById(R.id.errorText) // Initialize Error TextView
+        progressBar = findViewById(R.id.progressBar)
+        errorText = findViewById(R.id.errorText)
 
         signupBtn.setOnClickListener {
-            val emailText = email.text.toString()
-            val passwordText = pass.text.toString()
+            val emailText = email.text.toString().trim()
+            val passwordText = pass.text.toString().trim()
 
             errorText.visibility = View.GONE
 
@@ -63,18 +67,42 @@ class SignUpScreen : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Show loading indicator
+            // Get selected account type
+            val selectedAccountTypeId = accountTypeGroup.checkedRadioButtonId
+            val accountType = when (selectedAccountTypeId) {
+                R.id.radioStudent -> "student"
+                R.id.radioTeacher -> "teacher"
+                else -> "student"
+            }
+
             progressBar.visibility = View.VISIBLE
 
             auth.createUserWithEmailAndPassword(emailText, passwordText)
-                .addOnCompleteListener {
-                    progressBar.visibility = View.GONE  // Hide loading indicator
+                .addOnCompleteListener { task ->
+                    progressBar.visibility = View.GONE
+                    if (task.isSuccessful) {
+                        val user = auth.currentUser
+                        val db = FirebaseFirestore.getInstance()
 
-                    if (it.isSuccessful) {
-                        startActivity(Intent(this, LoginScreen::class.java))
-                        finish()
+                        val userData = hashMapOf(
+                            "email" to emailText,
+                            "accountType" to accountType
+                        )
+
+                        user?.uid?.let { uid ->
+                            db.collection("users").document(uid)
+                                .set(userData)
+                                .addOnSuccessListener {
+                                    startActivity(Intent(this, LoginScreen::class.java))
+                                    finish()
+                                }
+                                .addOnFailureListener { e ->
+                                    errorText.text = "Failed to save user data: ${e.message}"
+                                    errorText.visibility = View.VISIBLE
+                                }
+                        }
                     } else {
-                        errorText.text = "Signup failed: ${it.exception?.message}"
+                        errorText.text = "Signup failed: ${task.exception?.message}"
                         errorText.visibility = View.VISIBLE
                     }
                 }
@@ -86,5 +114,9 @@ class SignUpScreen : AppCompatActivity() {
             "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
         return email.matches(emailRegex.toRegex())
     }
+
+    private fun enableEdgeToEdge() {
+    }
 }
+
 

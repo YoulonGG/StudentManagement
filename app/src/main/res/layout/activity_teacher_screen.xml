@@ -7,4 +7,13 @@
     android:layout_height="match_parent"
     tools:context=".teacher.TeacherScreen">
 
+    <TextView
+        android:gravity="center"
+        android:text="Teacher Screen"
+        android:textColor="@color/black"
+        android:textSize="20.sp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
