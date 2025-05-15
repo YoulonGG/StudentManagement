@@ -21,7 +21,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.R
+import com.example.studentmanagement.auth.LoginScreen
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class StudentScreen : AppCompatActivity() {
@@ -41,44 +43,44 @@ class StudentScreen : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        FirebaseApp.initializeApp(this)
-        db = FirebaseFirestore.getInstance()
-
-        val searchField = findViewById<EditText>(R.id.searchField)
-        val addButton = findViewById<Button>(R.id.btnAddStudent)
-        val recyclerView = findViewById<RecyclerView>(R.id.studentRecyclerView)
-
-        allStudents = mutableListOf()
-        viewmodel = StudentViewModel(allStudents)
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = viewmodel
-
-        recyclerView.addItemDecoration(
-            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        )
-
-        if (isNetworkAvailable()) {
-            fetchStudents()
-        } else {
-            Toast.makeText(this, "No internet connection", Toast.LENGTH_LONG).show()
-        }
-
-        searchField.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                filterStudents(s.toString())
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        addButton.setOnClickListener {
-            val intent = Intent(this, AddStudentScreen::class.java)
-            startActivityForResult(intent, ADD_STUDENT_REQUEST_CODE)
-        }
+//
+//        FirebaseApp.initializeApp(this)
+//        db = FirebaseFirestore.getInstance()
+//
+//        val searchField = findViewById<EditText>(R.id.searchField)
+//        val addButton = findViewById<Button>(R.id.btnAddStudent)
+//        val recyclerView = findViewById<RecyclerView>(R.id.studentRecyclerView)
+//
+//        allStudents = mutableListOf()
+//        viewmodel = StudentViewModel(allStudents)
+//
+//        recyclerView.layoutManager = LinearLayoutManager(this)
+//        recyclerView.adapter = viewmodel
+//
+//        recyclerView.addItemDecoration(
+//            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+//        )
+//
+//        if (isNetworkAvailable()) {
+//            fetchStudents()
+//        } else {
+//            Toast.makeText(this, "No internet connection", Toast.LENGTH_LONG).show()
+//        }
+//
+//        searchField.addTextChangedListener(object : TextWatcher {
+//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+//
+//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//                filterStudents(s.toString())
+//            }
+//
+//            override fun afterTextChanged(s: Editable?) {}
+//        })
+//
+//        addButton.setOnClickListener {
+//            val intent = Intent(this, AddStudentScreen::class.java)
+//            startActivityForResult(intent, ADD_STUDENT_REQUEST_CODE)
+//        }
     }
 
     @SuppressLint("ServiceCast")
@@ -103,6 +105,19 @@ class StudentScreen : AppCompatActivity() {
             fetchStudents()
         }
     }
+
+
+    fun logout() {
+        val sharedPref = getSharedPreferences("UserPref", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            clear()
+            apply()
+        }
+        FirebaseAuth.getInstance().signOut()
+        startActivity(Intent(this, LoginScreen::class.java))
+        finish()
+    }
+
 
     private fun filterStudents(query: String) {
         val lowercaseQuery = query.lowercase()
