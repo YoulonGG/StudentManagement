@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.studentmanagement.auth.LoginTypeScreen
-import com.example.studentmanagement.student.StudentScreen
-import com.example.studentmanagement.teacher.TeacherScreen
+import com.example.studentmanagement.presentation.student.StudentScreen
+import com.example.studentmanagement.presentation.teacher.TeacherScreen
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {

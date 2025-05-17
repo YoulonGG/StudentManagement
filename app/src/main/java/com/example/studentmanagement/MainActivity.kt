@@ -12,8 +12,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.studentmanagement.auth.LoginScreen
 import com.example.studentmanagement.course.Course
-import com.example.studentmanagement.student.StudentScreen
-import com.example.studentmanagement.teacher.TeacherScreen
+import com.example.studentmanagement.presentation.student.StudentScreen
+import com.example.studentmanagement.presentation.teacher.TeacherScreen
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.FirebaseApp
