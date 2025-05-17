@@ -62,7 +62,14 @@ class StudentScreen : AppCompatActivity() {
     private fun setupLogoutButton() {
         binding.btnLogout.setOnClickListener {
             auth.signOut()
-            startActivity(Intent(this, LoginScreen::class.java))
+
+            val sharedPref = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+            sharedPref.edit().clear().apply()
+
+            val intent = Intent(this, LoginScreen::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
             finish()
         }
     }
