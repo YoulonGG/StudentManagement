@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.studentmanagement.R
 import com.example.studentmanagement.auth.LoginScreen
+import com.example.studentmanagement.core.StringRes
 import com.example.studentmanagement.databinding.ActivityStudentScreenBinding
 import com.example.studentmanagement.presentation.student.fragment.StudentCoursesFragment
 import com.example.studentmanagement.presentation.student.fragment.StudentGradesFragment
@@ -48,9 +49,9 @@ class StudentScreen : AppCompatActivity() {
         )
 
         val titles = listOf(
-            "Personal Info",
-            "My Courses",
-            "Grades"
+            StringRes.PERSONAL_INFO,
+            StringRes.MY_COURSES,
+            StringRes.GRADES
         )
 
         binding.viewPager.adapter = StudentPagerAdapter(this, fragments)

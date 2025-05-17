@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.StringRes
 import com.example.studentmanagement.presentation.student.StudentScreen
 import com.example.studentmanagement.presentation.teacher.TeacherScreen
 import com.google.firebase.auth.FirebaseAuth
@@ -76,7 +77,8 @@ class LoginScreen : AppCompatActivity() {
                                                 startActivity(
                                                     Intent(
                                                         this,
-                                                        StudentScreen::class.java                                                    )
+                                                        StudentScreen::class.java
+                                                    )
                                                 )
                                             }
                                             finish()
@@ -105,7 +107,7 @@ class LoginScreen : AppCompatActivity() {
                                 }
                         }
                     } else {
-                        Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, StringRes.LOGIN_FAILED, Toast.LENGTH_SHORT).show()
                     }
                 }
         }
@@ -115,3 +117,5 @@ class LoginScreen : AppCompatActivity() {
         }
     }
 }
+
+
