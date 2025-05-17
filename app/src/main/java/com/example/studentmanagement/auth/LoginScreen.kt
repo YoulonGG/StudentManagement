@@ -11,8 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.studentmanagement.R
-import com.example.studentmanagement.student.StudentScreen
-import com.example.studentmanagement.teacher.TeacherScreen
+import com.example.studentmanagement.presentation.student.StudentScreen
+import com.example.studentmanagement.presentation.teacher.TeacherScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -56,7 +56,8 @@ class LoginScreen : AppCompatActivity() {
                                         val accountType = document.getString("accountType")
 
                                         if (accountType == selectedAccountType) {
-                                            val sharedPref = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                                            val sharedPref =
+                                                getSharedPreferences("MyPrefs", MODE_PRIVATE)
                                             with(sharedPref.edit()) {
                                                 putBoolean("isLoggedIn", true)
                                                 putString("accountType", accountType)
@@ -65,9 +66,18 @@ class LoginScreen : AppCompatActivity() {
                                             }
 
                                             if (accountType == "teacher") {
-                                                startActivity(Intent(this, TeacherScreen::class.java))
+                                                startActivity(
+                                                    Intent(
+                                                        this,
+                                                        TeacherScreen::class.java
+                                                    )
+                                                )
                                             } else {
-                                                startActivity(Intent(this, StudentScreen::class.java))
+                                                startActivity(
+                                                    Intent(
+                                                        this,
+                                                        StudentScreen::class.java                                                    )
+                                                )
                                             }
                                             finish()
                                         } else {
@@ -79,11 +89,19 @@ class LoginScreen : AppCompatActivity() {
                                             auth.signOut()
                                         }
                                     } else {
-                                        Toast.makeText(this, "User data not found.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            this,
+                                            "User data not found.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
                                 .addOnFailureListener {
-                                    Toast.makeText(this, "Failed to retrieve user data.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        this,
+                                        "Failed to retrieve user data.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                         }
                     } else {

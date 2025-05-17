@@ -1,0 +1,64 @@
+package com.example.studentmanagement.presentation.teacher
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import com.example.studentmanagement.auth.LoginScreen
+import com.example.studentmanagement.databinding.ActivityTeacherScreenBinding
+import com.example.studentmanagement.presentation.teacher.fragment.TeacherCourseManagementFragment
+import com.example.studentmanagement.presentation.teacher.fragment.TeacherPersonalInfoFragment
+import com.example.studentmanagement.presentation.teacher.fragment.TeacherStudentsFragment
+import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
+
+class TeacherScreen : AppCompatActivity() {
+    private lateinit var binding: ActivityTeacherScreenBinding
+    private lateinit var auth: FirebaseAuth
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityTeacherScreenBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        auth = FirebaseAuth.getInstance()
+
+        setupViewPager()
+        setupLogoutButton()
+    }
+
+    private fun setupViewPager() {
+        val fragments = listOf(
+            TeacherPersonalInfoFragment(),
+            TeacherStudentsFragment(),
+            TeacherCourseManagementFragment()
+        )
+
+        val titles = listOf(
+            "Personal Info",
+            "Students",
+            "Courses"
+        )
+
+        binding.viewPager.adapter = TeacherPagerAdapter(this, fragments)
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = titles[position]
+        }.attach()
+    }
+
+    private fun setupLogoutButton() {
+        binding.btnLogout.setOnClickListener {
+            auth.signOut()
+            startActivity(Intent(this, LoginScreen::class.java))
+            finish()
+        }
+    }
+}
+
+class TeacherPagerAdapter(
+    activity: AppCompatActivity,
+    private val fragments: List<Fragment>
+) : androidx.viewpager2.adapter.FragmentStateAdapter(activity) {
+    override fun getItemCount(): Int = fragments.size
+    override fun createFragment(position: Int): Fragment = fragments[position]
+}

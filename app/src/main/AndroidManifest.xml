@@ -25,10 +25,10 @@
             android:name=".course.Course"
             android:exported="false" />
         <activity
-            android:name=".student.StudentScreen"
+            android:name=".presentation.student.StudentScreen"
             android:exported="false" />
         <activity
-            android:name=".teacher.TeacherScreen"
+            android:name=".presentation.teacher.TeacherScreen"
             android:exported="false" />
         <activity
             android:name=".auth.SignUpScreen"
