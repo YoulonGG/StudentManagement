@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
-
+    id("kotlin-kapt")
 }
 
 android {
@@ -57,4 +57,8 @@ dependencies {
     implementation (libs.firebase.auth)
     implementation (libs.firebase.firestore)
     implementation (libs.firebase.storage)
+
+    implementation (libs.glide)
+    kapt (libs.compiler)
+
 }
