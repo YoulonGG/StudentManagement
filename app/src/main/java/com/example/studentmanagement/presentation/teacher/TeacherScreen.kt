@@ -3,7 +3,6 @@ package com.example.studentmanagement.presentation.teacher
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import com.example.studentmanagement.auth.LoginScreen
 import com.example.studentmanagement.databinding.ActivityTeacherScreenBinding
 import com.example.studentmanagement.presentation.teacher.fragment.TeacherCourseManagementFragment
@@ -40,7 +39,7 @@ class TeacherScreen : AppCompatActivity() {
             "Courses"
         )
 
-        binding.viewPager.adapter = TeacherPagerAdapter(this, fragments)
+        binding.viewPager.adapter = TeacherViewModel(this, fragments)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = titles[position]
         }.attach()
@@ -62,10 +61,3 @@ class TeacherScreen : AppCompatActivity() {
     }
 }
 
-class TeacherPagerAdapter(
-    activity: AppCompatActivity,
-    private val fragments: List<Fragment>
-) : androidx.viewpager2.adapter.FragmentStateAdapter(activity) {
-    override fun getItemCount(): Int = fragments.size
-    override fun createFragment(position: Int): Fragment = fragments[position]
-}

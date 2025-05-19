@@ -6,7 +6,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
 import com.example.studentmanagement.R
 import com.example.studentmanagement.auth.LoginScreen
 import com.example.studentmanagement.core.StringRes
@@ -33,8 +32,6 @@ class StudentScreen : AppCompatActivity() {
             insets
         }
 
-
-
         auth = FirebaseAuth.getInstance()
 
         setupViewPager()
@@ -54,7 +51,7 @@ class StudentScreen : AppCompatActivity() {
             StringRes.GRADES
         )
 
-        binding.viewPager.adapter = StudentPagerAdapter(this, fragments)
+        binding.viewPager.adapter = StudentViewModel.StudentPagerAdapter(this, fragments)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = titles[position]
         }.attach()
@@ -74,12 +71,4 @@ class StudentScreen : AppCompatActivity() {
             finish()
         }
     }
-}
-
-class StudentPagerAdapter(
-    activity: AppCompatActivity,
-    private val fragments: List<Fragment>
-) : androidx.viewpager2.adapter.FragmentStateAdapter(activity) {
-    override fun getItemCount(): Int = fragments.size
-    override fun createFragment(position: Int): Fragment = fragments[position]
 }
