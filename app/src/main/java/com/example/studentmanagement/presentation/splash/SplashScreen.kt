@@ -7,13 +7,12 @@ import android.os.Handler
 import android.os.Looper
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.studentmanagement.R
 import com.example.studentmanagement.auth.LoginTypeScreen
 import com.example.studentmanagement.presentation.student.StudentScreen
 import com.example.studentmanagement.presentation.teacher.TeacherScreen
 
+@Suppress("DEPRECATION")
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,11 +28,14 @@ class SplashScreen : AppCompatActivity() {
             if (isLoggedIn && accountType != null) {
                 if (accountType == "teacher") {
                     startActivity(Intent(this, TeacherScreen::class.java))
+                    overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
                 } else {
                     startActivity(Intent(this, StudentScreen::class.java))
+                    overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
                 }
             } else {
                 startActivity(Intent(this, LoginTypeScreen::class.java))
+                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
             }
             finish()
         }, 2000)
