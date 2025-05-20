@@ -1,5 +1,6 @@
 package com.example.studentmanagement.auth
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -21,6 +23,7 @@ class SignUpScreen : AppCompatActivity() {
     private lateinit var errorText: TextView
     private lateinit var accountTypeGroup: RadioGroup
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -41,13 +44,22 @@ class SignUpScreen : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         errorText = findViewById(R.id.errorText)
 
+
+        val signupTitle = findViewById<TextView>(R.id.signupTitle)
+        val accountTypeFromIntent = intent.getStringExtra("accountType") ?: "student"
+
+        signupTitle.text = if (accountTypeFromIntent == "teacher") {
+            "Sign Up for Teacher"
+        } else {
+            "Sign Up for Student"
+        }
+
         signupBtn.setOnClickListener {
             val emailText = email.text.toString().trim()
             val passwordText = pass.text.toString().trim()
 
             errorText.visibility = View.GONE
 
-            // Validate email
             if (emailText.isEmpty()) {
                 errorText.text = "Email cannot be empty"
                 errorText.visibility = View.VISIBLE
@@ -59,14 +71,12 @@ class SignUpScreen : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Validate password
             if (passwordText.isEmpty()) {
                 errorText.text = "Password cannot be empty"
                 errorText.visibility = View.VISIBLE
                 return@setOnClickListener
             }
 
-            // Get selected account type
             val selectedAccountTypeId = accountTypeGroup.checkedRadioButtonId
             val accountType = when (selectedAccountTypeId) {
                 R.id.radioStudent -> "student"
@@ -114,8 +124,6 @@ class SignUpScreen : AppCompatActivity() {
         return email.matches(emailRegex.toRegex())
     }
 
-    private fun enableEdgeToEdge() {
-    }
 }
 
 

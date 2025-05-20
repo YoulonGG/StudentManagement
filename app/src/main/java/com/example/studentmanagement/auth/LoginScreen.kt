@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.studentmanagement.R
@@ -37,6 +38,21 @@ class LoginScreen : AppCompatActivity() {
         val pass = findViewById<EditText>(R.id.loginPassword)
         val loginBtn = findViewById<Button>(R.id.btnLogin)
         val goSignup = findViewById<TextView>(R.id.tvGoSignup)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val selectionAccountType = intent.getStringExtra("accountType") ?: "student"
+        val roleTitle = if (selectionAccountType == "teacher") "Teacher" else "Student"
+
+        supportActionBar?.title = "Login as $roleTitle"
+
+
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
 
         loginBtn.setOnClickListener {
             val emailText = email.text.toString()
@@ -113,8 +129,12 @@ class LoginScreen : AppCompatActivity() {
         }
 
         goSignup.setOnClickListener {
-            startActivity(Intent(this, SignUpScreen::class.java))
+            val selectedAccountType = intent.getStringExtra("accountType") ?: "student" // fallback
+            val intent = Intent(this, SignUpScreen::class.java)
+            intent.putExtra("accountType", selectedAccountType)
+            startActivity(intent)
         }
+
     }
 }
 

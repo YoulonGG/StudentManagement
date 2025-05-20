@@ -8,6 +8,18 @@
     android:padding="16dp"
     tools:context=".auth.SignUpScreen">
 
+
+    <TextView
+        android:id="@+id/signupTitle"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="Sign Up for Student"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
     <EditText
         android:id="@+id/signupEmail"
         android:layout_width="match_parent"

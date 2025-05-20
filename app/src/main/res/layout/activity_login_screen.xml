@@ -4,8 +4,11 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".auth.LoginScreen">
+
+    <include layout="@layout/toolbar_with_back"/>
 
     <EditText
         android:id="@+id/loginEmail"

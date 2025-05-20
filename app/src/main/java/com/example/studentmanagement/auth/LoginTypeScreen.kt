@@ -34,7 +34,6 @@ class LoginTypeScreen : AppCompatActivity() {
             startActivity(Intent(this, LoginScreen::class.java).apply {
                 putExtra("accountType", "student")
             })
-            finish()
         }
     }
 }
