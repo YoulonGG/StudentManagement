@@ -5,19 +5,17 @@
     android:layout_height="?attr/actionBarSize"
     android:background="@color/white"
     android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/ivBack"
+        android:id="@+id/goBack"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/baseline_arrow_back_ios_24"
         app:tint="@color/black" />
 
     <TextView
-        android:id="@+id/tvTitle"
+        android:id="@+id/titleToolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

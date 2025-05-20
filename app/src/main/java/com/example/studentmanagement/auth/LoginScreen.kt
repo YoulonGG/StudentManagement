@@ -1,14 +1,15 @@
 package com.example.studentmanagement.auth
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.studentmanagement.R
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class LoginScreen : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,19 +41,19 @@ class LoginScreen : AppCompatActivity() {
         val loginBtn = findViewById<Button>(R.id.btnLogin)
         val goSignup = findViewById<TextView>(R.id.tvGoSignup)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        val toolbar = findViewById<ImageView>(R.id.goBack)
+        val toolbarTitle = findViewById<TextView>(R.id.titleToolbar)
 
         val selectionAccountType = intent.getStringExtra("accountType") ?: "student"
         val roleTitle = if (selectionAccountType == "teacher") "Teacher" else "Student"
 
-        supportActionBar?.title = "Login as $roleTitle"
+        toolbarTitle.text = "Login as $roleTitle"
 
 
-        toolbar.setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+        toolbar.setOnClickListener {
+            finish()
         }
+
 
 
         loginBtn.setOnClickListener {
