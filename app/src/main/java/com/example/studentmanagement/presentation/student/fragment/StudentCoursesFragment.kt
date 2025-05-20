@@ -92,7 +92,6 @@ class StudentCoursesFragment : Fragment() {
                 val course = querySnapshot.documents[0]
                 val courseId = course.id
 
-                // Check if already enrolled
                 db.collection("enrollments")
                     .whereEqualTo("studentId", studentId)
                     .whereEqualTo("courseId", courseId)
@@ -117,7 +116,6 @@ class StudentCoursesFragment : Fragment() {
                         db.collection("enrollments")
                             .add(enrollment)
                             .addOnSuccessListener {
-                                // Update user's courses list
                                 db.collection("users").document(studentId)
                                     .update("courses", FieldValue.arrayUnion(courseId))
                                     .addOnSuccessListener {
@@ -196,7 +194,6 @@ class StudentCoursesFragment : Fragment() {
                             batch.delete(enrollment.reference)
                         }
 
-                        // Update user's courses list
                         batch.update(
                             db.collection("users").document(studentId),
                             "courses", FieldValue.arrayRemove(courseId)

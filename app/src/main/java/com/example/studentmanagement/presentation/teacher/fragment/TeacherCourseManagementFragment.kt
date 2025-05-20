@@ -58,6 +58,7 @@ class TeacherCourseManagementFragment : Fragment() {
         recyclerView.adapter = adapter
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun loadTeacherCourses() {
         val teacherId = auth.currentUser?.uid ?: return
 
@@ -161,10 +162,8 @@ class TeacherCourseManagementFragment : Fragment() {
             .setTitle("Confirm Delete")
             .setMessage("Delete ${course.name}? This will also remove all enrollments.")
             .setPositiveButton("Delete") { _, _ ->
-                // Delete course and all enrollments
                 val batch = db.batch()
 
-                // First delete enrollments
                 db.collection("enrollments")
                     .whereEqualTo("courseId", course.id)
                     .get()
@@ -172,17 +171,13 @@ class TeacherCourseManagementFragment : Fragment() {
                         for (enrollment in enrollments) {
                             batch.delete(enrollment.reference)
 
-                            // Remove course from student's courses list
                             val studentId = enrollment.getString("studentId") ?: continue
                             batch.update(
                                 db.collection("users").document(studentId),
                                 "courses", FieldValue.arrayRemove(course.id)
                             )
                         }
-
-                        // Then delete the course
                         batch.delete(db.collection("courses").document(course.id))
-
                         batch.commit()
                             .addOnSuccessListener {
                                 loadTeacherCourses()

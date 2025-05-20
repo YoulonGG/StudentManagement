@@ -35,26 +35,19 @@ class LoginScreen : AppCompatActivity() {
         }
 
         auth = FirebaseAuth.getInstance()
-
         val email = findViewById<EditText>(R.id.loginEmail)
         val pass = findViewById<EditText>(R.id.loginPassword)
         val loginBtn = findViewById<Button>(R.id.btnLogin)
-        val goSignup = findViewById<TextView>(R.id.tvGoSignup)
-
+        val signup = findViewById<TextView>(R.id.tvGoSignup)
         val toolbar = findViewById<ImageView>(R.id.goBack)
         val toolbarTitle = findViewById<TextView>(R.id.titleToolbar)
-
         val selectionAccountType = intent.getStringExtra("accountType") ?: "student"
         val roleTitle = if (selectionAccountType == "teacher") "Teacher" else "Student"
-
         toolbarTitle.text = "Login as $roleTitle"
-
 
         toolbar.setOnClickListener {
             finish()
         }
-
-
 
         loginBtn.setOnClickListener {
             val emailText = email.text.toString()
@@ -130,13 +123,12 @@ class LoginScreen : AppCompatActivity() {
                 }
         }
 
-        goSignup.setOnClickListener {
-            val selectedAccountType = intent.getStringExtra("accountType") ?: "student" // fallback
+        signup.setOnClickListener {
+            val selectedAccountType = intent.getStringExtra("accountType") ?: "student"
             val intent = Intent(this, SignUpScreen::class.java)
             intent.putExtra("accountType", selectedAccountType)
             startActivity(intent)
         }
-
     }
 }
 

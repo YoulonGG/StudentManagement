@@ -1,5 +1,6 @@
 package com.example.studentmanagement.presentation.student.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +33,7 @@ class StudentPersonalInfoFragment : Fragment() {
         loadStudentInfo()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun loadStudentInfo() {
         auth.currentUser?.uid?.let { userId ->
             db.collection("users").document(userId).get()

@@ -58,7 +58,6 @@ class TeacherStudentsFragment : Fragment() {
         view?.findViewById<ProgressBar>(R.id.progressBar)?.visibility = View.VISIBLE
         view?.findViewById<TextView>(R.id.tvNoStudents)?.visibility = View.GONE
 
-        // First get courses taught by this teacher
         db.collection("courses")
             .whereEqualTo("instructorId", teacherId)
             .get()
@@ -70,7 +69,6 @@ class TeacherStudentsFragment : Fragment() {
 
                 val courseIds = courses.map { it.id }
 
-                // Then get enrollments in these courses
                 db.collection("enrollments")
                     .whereIn("courseId", courseIds)
                     .get()
@@ -83,7 +81,6 @@ class TeacherStudentsFragment : Fragment() {
                         val studentIds =
                             enrollments.map { it.getString("studentId") ?: "" }.distinct()
 
-                        // Finally get student details
                         db.collection("users")
                             .whereIn("id", studentIds)
                             .get()
@@ -145,7 +142,6 @@ class TeacherStudentsFragment : Fragment() {
                     batch.delete(enrollment.reference)
                 }
 
-                // Update student's courses list
                 batch.update(
                     db.collection("users").document(studentId),
                     "courses", FieldValue.arrayRemove(courseId)

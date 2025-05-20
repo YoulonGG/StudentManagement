@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseAuth
 class TeacherScreen : AppCompatActivity() {
     private lateinit var binding: ActivityTeacherScreenBinding
     private lateinit var auth: FirebaseAuth
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTeacherScreenBinding.inflate(layoutInflater)

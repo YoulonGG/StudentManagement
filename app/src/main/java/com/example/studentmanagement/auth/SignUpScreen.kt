@@ -39,15 +39,12 @@ class SignUpScreen : AppCompatActivity() {
 
         val email = findViewById<EditText>(R.id.signupEmail)
         val pass = findViewById<EditText>(R.id.signupPassword)
-        accountTypeGroup = findViewById(R.id.accountTypeGroup)
         val signupBtn = findViewById<Button>(R.id.btnSignup)
+        accountTypeGroup = findViewById(R.id.accountTypeGroup)
         progressBar = findViewById(R.id.progressBar)
         errorText = findViewById(R.id.errorText)
-
-
         val signupTitle = findViewById<TextView>(R.id.signupTitle)
         val accountTypeFromIntent = intent.getStringExtra("accountType") ?: "student"
-
         signupTitle.text = if (accountTypeFromIntent == "teacher") {
             "Sign Up for Teacher"
         } else {

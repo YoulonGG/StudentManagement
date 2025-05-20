@@ -17,10 +17,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 
 class StudentScreen : AppCompatActivity() {
-
     private lateinit var binding: ActivityStudentScreenBinding
     private lateinit var auth: FirebaseAuth
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

@@ -19,9 +19,6 @@
             android:name=".auth.LoginTypeScreen"
             android:exported="false" />
         <activity
-            android:name=".student.AddStudentScreen"
-            android:exported="false" />
-        <activity
             android:name=".course.Course"
             android:exported="false" />
         <activity

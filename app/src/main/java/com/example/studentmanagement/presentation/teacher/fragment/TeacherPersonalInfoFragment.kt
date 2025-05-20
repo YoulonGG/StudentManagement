@@ -14,7 +14,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 class TeacherPersonalInfoFragment : Fragment() {
     private lateinit var db: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
