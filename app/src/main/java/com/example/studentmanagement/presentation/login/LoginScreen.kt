@@ -1,6 +1,8 @@
 package com.example.studentmanagement.presentation.login
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -8,16 +10,19 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
+import com.example.studentmanagement.data.local.PreferencesKeys
 import java.util.Locale
 
 class LoginFragment : Fragment(R.layout.activity_login_screen) {
 
     private lateinit var viewModel: LoginViewModel
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,6 +75,15 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
                     }
 
                     is LoginUiState.Success -> {
+
+                        val sharedPref =
+                            requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+                        with(sharedPref.edit()) {
+                            putBoolean(PreferencesKeys.IS_LOGGED_IN, true)
+                            putString(PreferencesKeys.ACCOUNT_TYPE, state.accountType)
+                            apply()
+                        }
+
                         val action = if (state.accountType == "teacher")
                             R.id.navigate_login_to_teacher
                         else

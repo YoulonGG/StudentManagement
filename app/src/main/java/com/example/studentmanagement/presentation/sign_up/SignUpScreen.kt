@@ -1,11 +1,13 @@
 package com.example.studentmanagement.presentation.sign_up
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +26,8 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.startIntentCollector()
 
         emailInput = view.findViewById(R.id.signupEmail)
         passwordInput = view.findViewById(R.id.signupPassword)
@@ -52,7 +56,10 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
 
                     is SignUpState.Success -> {
                         progressBar.visibility = View.GONE
-                        findNavController().navigate(R.id.action_signUp_to_login)
+                        findNavController().navigate(
+                            R.id.action_signUp_to_login,
+                            bundleOf("accountType" to "teacher")
+                        )
                     }
 
                     is SignUpState.Error -> {
@@ -70,6 +77,7 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         }
     }
 }
+
 
 
 

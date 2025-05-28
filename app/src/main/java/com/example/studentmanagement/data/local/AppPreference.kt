@@ -6,4 +6,7 @@ package com.example.studentmanagement.data.local
  * @Email: johnyoulong@gmail.com.
  */
 
-object PreferencesKeys {}
+object PreferencesKeys {
+    const val IS_LOGGED_IN = "isLoggedIn"
+    const val ACCOUNT_TYPE = "accountType"
+}

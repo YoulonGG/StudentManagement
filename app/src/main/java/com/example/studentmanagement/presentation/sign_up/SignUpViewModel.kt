@@ -1,5 +1,6 @@
 package com.example.studentmanagement.presentation.sign_up
 
+import android.util.Log
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -50,6 +51,7 @@ class SignUpViewModel : BaseViewModel<SignUpAction, SignUpState>() {
 
 
     override suspend fun handleIntent(intent: SignUpAction) {
+        Log.e("SignUpViewModel", "handleIntent called with $intent")
         when (intent) {
             is SignUpAction.Submit -> {
                 updateState(SignUpState.Loading)
