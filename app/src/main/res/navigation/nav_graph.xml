@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splash">
+
+    <fragment
+        android:id="@+id/splash"
+        android:name="com.example.studentmanagement.presentation.splash.SplashFragment"
+        android:label="Splash Screen">
+
+        <action
+            android:id="@+id/navigate_splash_to_loginType"
+            app:destination="@id/loginType" />
+
+        <action
+            android:id="@+id/navigate_splash_to_teacher_screen"
+            app:destination="@id/teacher" />
+
+        <action
+            android:id="@+id/navigate_splash_to_student_screen"
+            app:destination="@id/student" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginType"
+        android:name="com.example.studentmanagement.presentation.choose_login_type.ChooseLoginTypeScreen"
+        android:label="Login Type Screen">
+
+        <action
+            android:id="@+id/navigate_choose_login_type_to_login"
+            app:destination="@id/login" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/login"
+        android:name="com.example.studentmanagement.presentation.login.LoginFragment"
+        android:label="Login Screen">
+
+        <action
+            android:id="@+id/navigate_login_to_teacher"
+            app:destination="@id/teacher" />
+
+        <action
+            android:id="@+id/navigate_login_to_student"
+            app:destination="@id/student" />
+
+        <action
+            android:id="@+id/navigate_login_to_signUp"
+            app:destination="@id/signUp" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/signUp"
+        android:name="com.example.studentmanagement.presentation.sign_up.SignUpFragment"
+        android:label="Sign Up Screen">
+
+        <action
+            android:id="@+id/action_signUp_to_login"
+            app:destination="@id/login" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/teacher"
+        android:name="com.example.studentmanagement.presentation.teacher.TeacherScreen"
+        android:label="Teacher Screen" />
+
+    <fragment
+        android:id="@+id/student"
+        android:name="com.example.studentmanagement.presentation.student.StudentScreen"
+        android:label="Student Screen" />
+
+</navigation>

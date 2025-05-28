@@ -1,4 +1,4 @@
-package com.example.studentmanagement.data
+package com.example.studentmanagement.data.dto.request
 
 /**
  * @Author: John Youlong.
@@ -7,7 +7,7 @@ package com.example.studentmanagement.data
  */
 
 
-data class EnrollmentData(
+data class EnrollmentDataRequest(
     val id: String = "",
     val studentId: String = "",
     val courseId: String = "",

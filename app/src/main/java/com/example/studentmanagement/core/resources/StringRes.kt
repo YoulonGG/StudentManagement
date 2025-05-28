@@ -1,4 +1,4 @@
-package com.example.studentmanagement.core
+package com.example.studentmanagement.core.resources
 
 /**
  * @Author: John Youlong.

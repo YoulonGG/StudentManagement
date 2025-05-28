@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.create_student.CreateStudentScreen">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/editTextFullName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Full Name" />
+
+        <EditText
+            android:id="@+id/editTextEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:id="@+id/editTextAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Address" />
+
+        <EditText
+            android:id="@+id/editTextPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone Number"
+            android:inputType="phone" />
+
+        <EditText
+            android:id="@+id/editTextAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Age"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/editTextStudentId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Student ID" />
+
+        <EditText
+            android:id="@+id/editTextGuardian"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Guardian Name" />
+
+        <EditText
+            android:id="@+id/editTextGuardianContact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Guardian Contact"
+            android:inputType="phone" />
+
+        <EditText
+            android:id="@+id/editTextMajoring"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Majoring" />
+
+        <Button
+            android:id="@+id/buttonSubmitStudent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create Student" />
+    </LinearLayout>
+
+</ScrollView>

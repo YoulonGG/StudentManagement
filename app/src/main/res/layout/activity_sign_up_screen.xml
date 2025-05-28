@@ -6,76 +6,56 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".auth.SignUpScreen">
+    tools:context=".presentation.sign_up.SignUpScreen">
 
 
     <TextView
         android:id="@+id/signupTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
+        android:text=""
         android:textColor="@color/black"
         android:textSize="20sp"
-        android:textStyle="bold"
-        android:text="Sign Up for Student"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:textStyle="bold" />
 
 
     <EditText
         android:id="@+id/signupEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Email"
+        android:autofillHints="emailAddress"
+        android:hint="@string/email"
         android:inputType="textEmailAddress" />
 
     <EditText
         android:id="@+id/signupPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
+        android:autofillHints="emailAddress"
+        android:hint="@string/password"
         android:inputType="textPassword" />
-
-    <RadioGroup
-        android:id="@+id/accountTypeGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
-
-        <RadioButton
-            android:id="@+id/radioStudent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Student"
-            android:checked="true" />
-
-        <RadioButton
-            android:id="@+id/radioTeacher"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Teacher" />
-    </RadioGroup>
 
     <Button
         android:id="@+id/btnSignup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign Up" />
+        android:text="@string/sign_up" />
 
     <TextView
         android:id="@+id/errorText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="8dp"
         android:text=""
         android:textColor="@android:color/holo_red_light"
-        android:visibility="gone"
-        android:paddingTop="8dp" />
+        android:visibility="gone" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:visibility="gone" />
 </LinearLayout>
 
