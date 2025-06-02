@@ -4,8 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/white"
     android:padding="16dp">
 
+    <include layout="@layout/toolbar_with_back" />
 
     <TextView
         android:id="@+id/signupTitle"
@@ -25,6 +27,22 @@
         android:autofillHints="emailAddress"
         android:hint="@string/email"
         android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/signupName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Full Name"
+        android:inputType="textPersonName"
+        android:visibility="gone"/>
+
+    <EditText
+        android:id="@+id/signupPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phone Number"
+        android:inputType="phone"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/signupPassword"

@@ -20,18 +20,21 @@
             android:textSize="20.dp" />
 
         <Button
+            android:id="@+id/btnSeeStudentList"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="See Student List" />
 
         <Button
+            android:id="@+id/btnCreateStudent"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Create Student" />
 
         <Button
+            android:id="@+id/btnLogout"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

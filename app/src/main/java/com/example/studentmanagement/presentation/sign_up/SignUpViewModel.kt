@@ -1,11 +1,13 @@
 package com.example.studentmanagement.presentation.sign_up
 
-import android.util.Log
+import android.util.Patterns
+import androidx.lifecycle.viewModelScope
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 /**
  * @Author: John Youlong.
@@ -13,87 +15,182 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @Email: johnyoulong@gmail.com.
  */
 
-class SignUpViewModel : BaseViewModel<SignUpAction, SignUpState>() {
+class SignUpViewModel(
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
+) : BaseViewModel<SignUpAction, SignUpUiState>() {
 
-    private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
+    override fun setInitialState(): SignUpUiState = SignUpUiState()
 
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun signUpWithEmail(email: String, password: String): Result<Unit> {
-        return suspendCancellableCoroutine { cont ->
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val user = auth.currentUser
-                        val userData = hashMapOf(
-                            "email" to email,
-                            "accountType" to "teacher"
-                        )
-                        user?.uid?.let { uid ->
-                            db.collection("users").document(uid)
-                                .set(userData)
-                                .addOnSuccessListener {
-                                    cont.resume(Result.success(Unit)) {}
-                                }
-                                .addOnFailureListener { e ->
-                                    cont.resume(Result.failure(e)) {}
-                                }
-                        } ?: run {
-                            cont.resume(Result.failure(Exception("User UID is null"))) {}
-                        }
-                    } else {
-                        cont.resume(Result.failure(task.exception ?: Exception("Signup failed"))) {}
-                    }
-                }
+    override fun onAction(event: SignUpAction) {
+        when (event) {
+            is SignUpAction.SubmitTeacher -> handleTeacherSignUp(event.email, event.password)
+            is SignUpAction.SubmitStudent -> handleStudentSignUp(
+                event.email,
+                event.password,
+                event.name,
+                event.phone
+            )
         }
     }
 
+    private fun handleTeacherSignUp(email: String, password: String) {
+        viewModelScope.launch {
+            if (!validateInputs(email, password)) return@launch
 
-    override suspend fun handleIntent(intent: SignUpAction) {
-        Log.e("SignUpViewModel", "handleIntent called with $intent")
-        when (intent) {
-            is SignUpAction.Submit -> {
-                updateState(SignUpState.Loading)
-                val email = intent.email.trim()
-                val password = intent.password.trim()
+            setState { copy(isLoading = true, error = null) }
 
-                if (email.isEmpty()) {
-                    updateState(SignUpState.Error("Email cannot be empty"))
-                    return
-                }
-                if (!isValidEmail(email)) {
-                    updateState(SignUpState.Error("Invalid email format"))
-                    return
-                }
-                if (password.isEmpty()) {
-                    updateState(SignUpState.Error("Password cannot be empty"))
-                    return
-                }
-
-                try {
-                    val result = signUpWithEmail(email, password)
-                    if (result.isSuccess) {
-                        updateState(SignUpState.Success)
-                    } else {
-                        updateState(
-                            SignUpState.Error(
-                                result.exceptionOrNull()?.message ?: "Unknown error"
-                            )
+            signUpTeacher(email, password).fold(
+                onSuccess = { setState { copy(isLoading = false, success = true) } },
+                onFailure = { e ->
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = e.message ?: "Teacher registration failed"
                         )
                     }
-                } catch (e: Exception) {
-                    updateState(SignUpState.Error("Signup failed: ${e.message}"))
                 }
+            )
+        }
+    }
+
+    private fun handleStudentSignUp(
+        email: String,
+        password: String,
+        name: String,
+        phone: String
+    ) {
+        viewModelScope.launch {
+            if (!validateStudentInputs(email, password, name, phone)) return@launch
+
+            setState { copy(isLoading = true, error = null) }
+
+            signUpStudent(email, password, name, phone).fold(
+                onSuccess = { setState { copy(isLoading = false, success = true) } },
+                onFailure = { e ->
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = e.message ?: "Student registration failed"
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    private suspend fun signUpTeacher(email: String, password: String): Result<Unit> {
+        return try {
+            val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+            val user = authResult.user ?: throw Exception("User creation failed")
+
+            firestore.collection("users").document(user.uid)
+                .set(mapOf(
+                    "email" to email,
+                    "accountType" to "teacher", // Must match rules
+                    "createdAt" to FieldValue.serverTimestamp()
+                )).await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            auth.currentUser?.delete()?.await()
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun signUpStudent(
+        email: String,
+        password: String,
+        name: String,
+        phone: String
+    ): Result<Unit> {
+        return try {
+            val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+            val user = authResult.user ?: throw Exception("User creation failed")
+
+            firestore.collection("students").document(user.uid)
+                .set(
+                    mapOf(
+                        "email" to email,
+                        "name" to name,
+                        "phone" to phone,
+                        "authUid" to user.uid,
+                        "accountType" to "student",
+                        "isApproved" to false,
+                        "createdAt" to FieldValue.serverTimestamp()
+                    )
+                ).await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            // Clean up auth if Firestore fails
+            auth.currentUser?.delete()?.await()
+            Result.failure(e)
+        }
+    }
+
+    private fun validateInputs(email: String, password: String): Boolean {
+        return when {
+            email.isEmpty() -> {
+                setState { copy(error = "Email cannot be empty") }
+                false
             }
+
+            !isValidEmail(email) -> {
+                setState { copy(error = "Invalid email format") }
+                false
+            }
+
+            password.isEmpty() -> {
+                setState { copy(error = "Password cannot be empty") }
+                false
+            }
+
+            else -> true
         }
     }
 
+    private fun validateStudentInputs(
+        email: String,
+        password: String,
+        name: String,
+        phone: String
+    ): Boolean {
+        return when {
+            !validateInputs(email, password) -> false
+            name.isEmpty() -> {
+                setState { copy(error = "Name cannot be empty") }
+                false
+            }
+
+            phone.isEmpty() -> {
+                setState { copy(error = "Phone cannot be empty") }
+                false
+            }
+
+            else -> true
+        }
+    }
 
     private fun isValidEmail(email: String): Boolean {
-        val emailRegex =
-            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
-        return email.matches(emailRegex.toRegex())
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 }
+
+sealed class SignUpAction {
+    data class SubmitTeacher(val email: String, val password: String) : SignUpAction()
+    data class SubmitStudent(
+        val email: String,
+        val password: String,
+        val name: String,
+        val phone: String
+    ) : SignUpAction()
+}
+
+data class SignUpUiState(
+    val isLoading: Boolean = false,
+    val success: Boolean = false,
+    val error: String? = null
+)
+
 

@@ -4,6 +4,7 @@ import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+
 /**
  * @Author: John Youlong.
  * @Date: 5/28/25.
@@ -11,49 +12,136 @@ import com.google.firebase.firestore.FirebaseFirestore
  */
 
 class LoginViewModel(
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
 ) : BaseViewModel<LoginAction, LoginUiState>() {
 
+    override fun setInitialState(): LoginUiState = LoginUiState()
 
-    fun start() {
-        updateState(LoginUiState.Idle)
-        startIntentCollector()
-    }
-
-    override suspend fun handleIntent(intent: LoginAction) {
-        when (intent) {
-            is LoginAction.Login -> login(intent.email, intent.password, intent.accountType)
+    override fun onAction(event: LoginAction) {
+        when (event) {
+            is LoginAction.Login -> login(event.email, event.password, event.accountType)
         }
     }
 
     private fun login(email: String, password: String, accountType: String) {
-        updateState(LoginUiState.Loading)
+        setState { copy(isLoading = true, error = null) }
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    if (user != null) {
-                        firestore.collection("users").document(user.uid).get()
-                            .addOnSuccessListener { doc ->
-                                val dbType = doc.getString("accountType")
-                                if (dbType == accountType) {
-                                    updateState(LoginUiState.Success(accountType))
-                                } else {
-                                    auth.signOut()
-                                    updateState(LoginUiState.Error("Account type mismatch. Please login as $accountType."))
-                                }
-                            }
-                            .addOnFailureListener {
-                                updateState(LoginUiState.Error("Failed to retrieve user data."))
-                            }
-                    } else {
-                        updateState(LoginUiState.Error("User not found."))
-                    }
+                    verifyAccountTypeAndApproval(accountType)
                 } else {
-                    updateState(LoginUiState.Error("Login failed. Check credentials and try again."))
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Login failed. Check credentials and try again."
+                        )
+                    }
                 }
             }
     }
+
+    private fun verifyAccountTypeAndApproval(requestedType: String) {
+        val user = auth.currentUser ?: run {
+            setState { copy(isLoading = false, error = "User not found.") }
+            return
+        }
+
+        when (requestedType) {
+            "student" -> verifyStudentApproval(user.uid)
+            else -> verifyRegularAccountType(user.uid, requestedType)
+        }
+    }
+
+    private fun verifyStudentApproval(uid: String) {
+        firestore.collection("students").document(uid).get()
+            .addOnSuccessListener { doc ->
+                val isApproved = doc.getBoolean("isApproved") ?: false
+                if (isApproved) {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            success = true,
+                            accountType = "student"
+                        )
+                    }
+                } else {
+                    auth.signOut()
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Your account is pending approval from a teacher."
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener {
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to verify student status."
+                    )
+                }
+            }
+    }
+
+    private fun verifyRegularAccountType(uid: String, requestedType: String) {
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { doc ->
+                if (!doc.exists()) {
+                    auth.signOut()
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Teacher account not properly registered"
+                        )
+                    }
+                    return@addOnSuccessListener
+                }
+
+                val dbType = doc.getString("accountType")
+                if (dbType == requestedType) {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            success = true,
+                            accountType = dbType
+                        )
+                    }
+                } else {
+                    auth.signOut()
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Account type mismatch. Please login as $requestedType."
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener {
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to retrieve user data."
+                    )
+                }
+            }
+    }
+
+    fun errorShown() {
+        setState { copy(error = null) }
+    }
 }
+
+sealed class LoginAction {
+    data class Login(val email: String, val password: String, val accountType: String) :
+        LoginAction()
+}
+
+data class LoginUiState(
+    val isLoading: Boolean = false,
+    val success: Boolean = false,
+    val error: String? = null,
+    val accountType: String? = null
+)

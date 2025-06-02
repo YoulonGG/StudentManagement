@@ -32,6 +32,7 @@
             app:destination="@id/login" />
     </fragment>
 
+
     <fragment
         android:id="@+id/login"
         android:name="com.example.studentmanagement.presentation.login.LoginFragment"
@@ -51,6 +52,7 @@
 
     </fragment>
 
+
     <fragment
         android:id="@+id/signUp"
         android:name="com.example.studentmanagement.presentation.sign_up.SignUpFragment"
@@ -64,11 +66,26 @@
     <fragment
         android:id="@+id/teacher"
         android:name="com.example.studentmanagement.presentation.teacher.TeacherScreen"
-        android:label="Teacher Screen" />
+        android:label="Teacher Screen">
+
+        <action
+            android:id="@+id/navigate_teacher_to_approve_student"
+            app:destination="@id/approvalStudent" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/student"
         android:name="com.example.studentmanagement.presentation.student.StudentScreen"
         android:label="Student Screen" />
+
+
+    <fragment
+        android:id="@+id/approvalStudent"
+        android:name="com.example.studentmanagement.presentation.approve_student.ApprovalStudentScreen"
+        android:label="Approval Student Fragment">
+
+
+    </fragment>
 
 </navigation>

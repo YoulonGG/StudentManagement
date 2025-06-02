@@ -12,12 +12,6 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
         super.onViewCreated(view, savedInstanceState)
 
 
-        // Use this for logging out
-//        val sharedPref = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-//        with(sharedPref.edit()) {
-//            clear() // or remove(PreferencesKeys.IS_LOGGED_IN), remove(PreferencesKeys.ACCOUNT_TYPE)
-//            apply()
-//        }
 
     }
 }

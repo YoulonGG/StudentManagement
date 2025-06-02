@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:gravity="center"
-    android:orientation="horizontal"
-    tools:context=".auth.LoginTypeScreen">
+    android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/btnStudentLogin"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginEnd="20dp"
-        app:tint="@color/primary"
-        android:src="@drawable/student_option" />
+        android:src="@drawable/student_option"
+        app:tint="@color/primary" />
 
     <ImageView
         android:id="@+id/btnTeacherLogin"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginStart="20dp"
-        app:tint="@color/primary"
-        android:src="@drawable/teacher_option" />
+        android:src="@drawable/teacher_option"
+        app:tint="@color/primary" />
 
 
 </LinearLayout>

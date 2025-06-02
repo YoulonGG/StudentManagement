@@ -2,8 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
-    id("kotlin-kapt")
+    id("kotlin-kapt") // Needed only for Glide compiler
 }
+
 
 android {
     namespace = "com.example.studentmanagement"
@@ -43,7 +44,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -51,18 +51,20 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(platform(libs.firebase.bom))
-    implementation (libs.firebase.auth)
-    implementation (libs.firebase.firestore)
-    implementation (libs.firebase.storage)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
 
-    implementation (libs.glide)
-    kapt (libs.compiler)
+    implementation(libs.glide)
+    kapt(libs.compiler)
 
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-
+    implementation (libs.play.services.auth)
+    implementation(libs.koin.android)
 }

@@ -9,29 +9,29 @@
     android:orientation="vertical">
 
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:ignore="UselessParent">
+<!--    <RelativeLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        tools:ignore="UselessParent">-->
 
-        <View
-            android:id="@+id/topPill"
-            android:layout_width="130dp"
-            android:layout_height="130dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:background="@drawable/splash_top_shape"
-            android:rotation="-90" />
+<!--        <View-->
+<!--            android:id="@+id/topPill"-->
+<!--            android:layout_width="130dp"-->
+<!--            android:layout_height="130dp"-->
+<!--            android:layout_alignParentStart="true"-->
+<!--            android:layout_alignParentTop="true"-->
+<!--            android:background="@drawable/splash_top_shape"-->
+<!--            android:rotation="-90" />-->
 
-        <View
-            android:id="@+id/bottomPill"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/splash_bottom_shape" />
+<!--        <View-->
+<!--            android:id="@+id/bottomPill"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="120dp"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:background="@drawable/splash_bottom_shape" />-->
 
-    </RelativeLayout>
+<!--    </RelativeLayout>-->
 
     <ImageView
         android:layout_width="match_parent"
