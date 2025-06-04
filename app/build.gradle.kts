@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
-    id("kotlin-kapt") // Needed only for Glide compiler
+    id("kotlin-kapt")
+    id ("kotlin-parcelize")
 }
 
 

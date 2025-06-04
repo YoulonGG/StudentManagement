@@ -50,6 +50,10 @@
             android:id="@+id/navigate_login_to_signUp"
             app:destination="@id/signUp" />
 
+        <action
+            android:id="@+id/navigate_login_to_choose_login_type"
+            app:destination="@id/loginType" />
+
     </fragment>
 
 
@@ -72,6 +76,29 @@
             android:id="@+id/navigate_teacher_to_approve_student"
             app:destination="@id/approvalStudent" />
 
+        <action
+            android:id="@+id/navigate_teacher_to_student_list"
+            app:destination="@id/student_list" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/student_list"
+        android:name="com.example.studentmanagement.presentation.student_list.StudentListFragment"
+        android:label="Student List Screen">
+
+
+        <action
+            android:id="@+id/navigate_student_list_to_student_details"
+            app:destination="@id/student_details" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/student_details"
+        android:name="com.example.studentmanagement.presentation.student_detail.StudentDetailScreen"
+        android:label="Student Detail Screen">
+
     </fragment>
 
     <fragment
@@ -85,7 +112,7 @@
         android:name="com.example.studentmanagement.presentation.approve_student.ApprovalStudentScreen"
         android:label="Approval Student Fragment">
 
-
     </fragment>
+
 
 </navigation>

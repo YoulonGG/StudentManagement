@@ -1,0 +1,141 @@
+package com.example.studentmanagement.presentation.student_list
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.studentmanagement.R
+import com.example.studentmanagement.core.base.BaseViewModel
+import com.example.studentmanagement.data.dto.response.StudentResponse
+import com.google.firebase.firestore.FirebaseFirestore
+
+/**
+ * @Author: John Youlong.
+ * @Date: 6/2/25.
+ * @Email: johnyoulong@gmail.com.
+ */
+
+class StudentListViewModel(
+    private val firestore: FirebaseFirestore
+) : BaseViewModel<StudentListAction, StudentListUiState>() {
+
+    val adapter = StudentAdapter()
+
+    override fun setInitialState(): StudentListUiState = StudentListUiState()
+
+    override fun onAction(event: StudentListAction) {
+        when (event) {
+            StudentListAction.StudentList -> {
+                getStudentsList()
+            }
+        }
+    }
+
+    private fun getStudentsList() {
+        setState { copy(isLoading = true) }
+
+        firestore.collection("students")
+            .whereEqualTo("isApproved", true)
+            .get()
+            .addOnSuccessListener { result ->
+                val studentList =
+                    result.documents.mapNotNull { it.toObject(StudentResponse::class.java) }
+                adapter.submitList(studentList)
+                setState {
+                    copy(
+                        isLoading = false,
+                        student = studentList
+                    )
+                }
+            }
+            .addOnFailureListener { e ->
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = e.message
+                    )
+                }
+            }
+    }
+
+    inner class StudentAdapter :
+        RecyclerView.Adapter<StudentAdapter.StudentViewHolder>() {
+
+        private var students: List<StudentResponse> = emptyList()
+
+        inner class StudentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val name: TextView = itemView.findViewById(R.id.tvStudentName)
+            val id: TextView = itemView.findViewById(R.id.tvStudentId)
+            val img: ImageView = itemView.findViewById(R.id.img_student)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudentViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_student, parent, false)
+            return StudentViewHolder(view)
+        }
+
+        @SuppressLint("SetTextI18n")
+        override fun onBindViewHolder(holder: StudentViewHolder, position: Int) {
+            val student = students[position]
+            holder.name.text = student.name ?: "N/A"
+            holder.id.text = "ID: ${student.studentID ?: "N/A"}"
+            holder.itemView.setOnClickListener {
+                val bundle = Bundle().apply {
+                    putParcelable("student", student)
+                }
+                val navController = holder.itemView.findNavController()
+                navController.navigate(R.id.navigate_student_list_to_student_details, bundle)
+            }
+
+            val imageUrl = student.imageUrl
+            if (!imageUrl.isNullOrEmpty()) {
+                Glide.with(holder.img.context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.student_option)
+                    .error(R.drawable.student_option)
+                    .into(holder.img)
+            } else {
+                holder.img.setImageResource(R.drawable.student_option)
+            }
+        }
+
+
+        override fun getItemCount(): Int = students.size
+
+        fun submitList(newList: List<StudentResponse>) {
+            val diffCallback = object : DiffUtil.Callback() {
+                override fun getOldListSize() = students.size
+                override fun getNewListSize() = newList.size
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                    students[oldItemPosition].studentID == newList[newItemPosition].studentID
+
+                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                    students[oldItemPosition] == newList[newItemPosition]
+            }
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            students = newList
+            diffResult.dispatchUpdatesTo(this)
+        }
+
+    }
+}
+
+
+data class StudentListUiState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val student: List<StudentResponse?> = emptyList()
+)
+
+
+sealed class StudentListAction {
+    data object StudentList : StudentListAction()
+}

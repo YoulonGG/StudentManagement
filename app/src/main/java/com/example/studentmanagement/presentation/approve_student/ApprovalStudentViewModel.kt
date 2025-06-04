@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.example.studentmanagement.databinding.ItemStudentApprovalBinding
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 /**
@@ -18,7 +17,6 @@ import com.google.firebase.firestore.FirebaseFirestore
  */
 
 class ApprovalStudentViewModel(
-    private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) : BaseViewModel<ApprovalStudentAction, ApprovalUiState>() {
 
@@ -96,19 +94,15 @@ class ApprovalStudentViewModel(
         firestore.collection("students").document(studentId)
             .delete()
             .addOnSuccessListener {
-                auth.currentUser?.let { user ->
-                    user.delete().addOnCompleteListener {
-                        val currentStudents = uiState.value.students
-                        val updatedList = currentStudents?.filter { it["id"] != studentId }
-                        studentAdapter.submitList(updatedList)
-                        setState { copy(isLoading = false, students = updatedList) }
-                    }
-                }
+                val updatedList = uiState.value.students?.filter { it["id"] != studentId }
+                studentAdapter.submitList(updatedList)
+                setState { copy(isLoading = false, students = updatedList) }
             }
             .addOnFailureListener { e ->
                 setState { copy(isLoading = false, error = "Rejection failed: ${e.message}") }
             }
     }
+
 
     inner class StudentApprovalAdapter(
         private val onApprove: (Map<String, Any>) -> Unit,

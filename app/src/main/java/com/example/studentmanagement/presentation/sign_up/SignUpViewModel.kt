@@ -29,7 +29,7 @@ class SignUpViewModel(
                 event.email,
                 event.password,
                 event.name,
-                event.phone
+                event.studentID
             )
         }
     }
@@ -58,14 +58,14 @@ class SignUpViewModel(
         email: String,
         password: String,
         name: String,
-        phone: String
+        studentID: String
     ) {
         viewModelScope.launch {
-            if (!validateStudentInputs(email, password, name, phone)) return@launch
+            if (!validateStudentInputs(email, password, name, studentID)) return@launch
 
             setState { copy(isLoading = true, error = null) }
 
-            signUpStudent(email, password, name, phone).fold(
+            signUpStudent(email, password, name, studentID).fold(
                 onSuccess = { setState { copy(isLoading = false, success = true) } },
                 onFailure = { e ->
                     setState {
@@ -85,11 +85,13 @@ class SignUpViewModel(
             val user = authResult.user ?: throw Exception("User creation failed")
 
             firestore.collection("users").document(user.uid)
-                .set(mapOf(
-                    "email" to email,
-                    "accountType" to "teacher", // Must match rules
-                    "createdAt" to FieldValue.serverTimestamp()
-                )).await()
+                .set(
+                    mapOf(
+                        "email" to email,
+                        "accountType" to "teacher",
+                        "createdAt" to FieldValue.serverTimestamp()
+                    )
+                ).await()
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -102,7 +104,7 @@ class SignUpViewModel(
         email: String,
         password: String,
         name: String,
-        phone: String
+        studentID: String
     ): Result<Unit> {
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
@@ -113,17 +115,24 @@ class SignUpViewModel(
                     mapOf(
                         "email" to email,
                         "name" to name,
-                        "phone" to phone,
+                        "studentID" to studentID,
                         "authUid" to user.uid,
                         "accountType" to "student",
                         "isApproved" to false,
-                        "createdAt" to FieldValue.serverTimestamp()
+                        "createdAt" to FieldValue.serverTimestamp(),
+                        "imageUrl" to "",
+                        "address" to "",
+                        "phone" to "",
+                        "age" to null,
+                        "guardian" to "",
+                        "guardianContact" to "",
+                        "majoring" to ""
                     )
-                ).await()
+                )
+                .await()
 
             Result.success(Unit)
         } catch (e: Exception) {
-            // Clean up auth if Firestore fails
             auth.currentUser?.delete()?.await()
             Result.failure(e)
         }
@@ -154,7 +163,7 @@ class SignUpViewModel(
         email: String,
         password: String,
         name: String,
-        phone: String
+        studentID: String
     ): Boolean {
         return when {
             !validateInputs(email, password) -> false
@@ -163,8 +172,8 @@ class SignUpViewModel(
                 false
             }
 
-            phone.isEmpty() -> {
-                setState { copy(error = "Phone cannot be empty") }
+            studentID.isEmpty() -> {
+                setState { copy(error = "ID cannot be empty") }
                 false
             }
 
@@ -183,7 +192,7 @@ sealed class SignUpAction {
         val email: String,
         val password: String,
         val name: String,
-        val phone: String
+        val studentID: String
     ) : SignUpAction()
 }
 

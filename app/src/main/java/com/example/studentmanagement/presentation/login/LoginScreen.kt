@@ -1,5 +1,6 @@
 package com.example.studentmanagement.presentation.login
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -23,6 +24,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class LoginFragment : Fragment(R.layout.activity_login_screen) {
     private val loginViewModel: LoginViewModel by viewModel()
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -32,7 +34,6 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         val title = view.findViewById<TextView>(R.id.loginTitle)
         val signupText = view.findViewById<TextView>(R.id.tvGoSignup)
         val backButton = view.findViewById<ImageView>(R.id.goBack)
-
         val accountType = arguments?.getString("accountType") ?: "student"
 
         title.text = "Login as ${accountType.replaceFirstChar { it.uppercase() }}"
@@ -47,16 +48,9 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         }
 
         backButton.setOnClickListener {
-            findNavController().navigateUp()
+            findNavController().navigate(R.id.navigate_login_to_choose_login_type)
         }
 
-//        backButton.setOnClickListener {
-//            if (findNavController().previousBackStackEntry != null) {
-//                findNavController().navigateUp()
-//            } else {
-//                findNavController().navigateUp()
-//            }
-//        }
 
         loginBtn.setOnClickListener {
             val email = emailEt.text.toString().trim()
@@ -69,7 +63,6 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
             }
         }
 
-        // Observe state
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loginViewModel.uiState.collect { state ->

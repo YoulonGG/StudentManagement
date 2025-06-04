@@ -1,5 +1,6 @@
 package com.example.studentmanagement.presentation.sign_up
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -31,14 +32,14 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
     private lateinit var titleText: TextView
     private lateinit var backButton: ImageView
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize views
         emailInput = view.findViewById(R.id.signupEmail)
         passwordInput = view.findViewById(R.id.signupPassword)
         nameInput = view.findViewById(R.id.signupName)
-        phoneInput = view.findViewById(R.id.signupPhone)
+        phoneInput = view.findViewById(R.id.signupID)
         signupBtn = view.findViewById(R.id.btnSignup)
         errorText = view.findViewById(R.id.errorText)
         progressBar = view.findViewById(R.id.progressBar)
@@ -47,7 +48,6 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
 
         val accountType = arguments?.getString("accountType") ?: "teacher"
 
-        // Setup UI based on account type
         if (accountType == "student") {
             titleText.text = "Student Sign Up"
             nameInput.visibility = View.VISIBLE
@@ -60,12 +60,10 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
             signupBtn.text = "Register as Teacher"
         }
 
-        // Back button navigation
         backButton.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Sign up button click
         signupBtn.setOnClickListener {
             errorText.visibility = View.GONE
             val email = emailInput.text.toString()
@@ -73,9 +71,9 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
 
             if (accountType == "student") {
                 val name = nameInput.text.toString()
-                val phone = phoneInput.text.toString()
-                if (validateStudentInputs(email, password, name, phone)) {
-                    viewModel.onAction(SignUpAction.SubmitStudent(email, password, name, phone))
+                val studentID = phoneInput.text.toString()
+                if (validateStudentInputs(email, password, name, studentID)) {
+                    viewModel.onAction(SignUpAction.SubmitStudent(email, password, name, studentID))
                 }
             } else {
                 if (validateTeacherInputs(email, password)) {
@@ -84,7 +82,6 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
             }
         }
 
-        // Observe state
         observeState(accountType)
     }
 
@@ -92,13 +89,13 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         email: String,
         password: String,
         name: String,
-        phone: String
+        studentID: String
     ): Boolean {
         return when {
             email.isEmpty() -> showError("Email cannot be empty")
             password.isEmpty() -> showError("Password cannot be empty")
             name.isEmpty() -> showError("Name cannot be empty")
-            phone.isEmpty() -> showError("Phone cannot be empty")
+            studentID.isEmpty() -> showError("studentID cannot be empty")
             else -> true
         }
     }

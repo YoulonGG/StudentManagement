@@ -10,16 +10,16 @@
 
     <ImageView
         android:id="@+id/btnStudentLogin"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginEnd="20dp"
         android:src="@drawable/student_option"
         app:tint="@color/primary" />
 
     <ImageView
         android:id="@+id/btnTeacherLogin"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginStart="20dp"
         android:src="@drawable/teacher_option"
         app:tint="@color/primary" />

@@ -37,10 +37,10 @@
         android:visibility="gone"/>
 
     <EditText
-        android:id="@+id/signupPhone"
+        android:id="@+id/signupID"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Phone Number"
+        android:hint="student ID"
         android:inputType="phone"
         android:visibility="gone"/>
 

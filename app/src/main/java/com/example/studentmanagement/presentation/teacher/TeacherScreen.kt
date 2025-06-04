@@ -32,7 +32,7 @@ class TeacherScreen : Fragment() {
         val logoutBtn = view.findViewById<Button>(R.id.btnLogout)
 
         seeStudentListBtn.setOnClickListener {
-
+            findNavController().navigate(R.id.navigate_teacher_to_student_list)
         }
 
         createStudentBtn.setOnClickListener {
