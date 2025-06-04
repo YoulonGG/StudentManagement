@@ -2,7 +2,6 @@ package com.example.studentmanagement.data.dto.response
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.Serializable
 
 /**
  * @Author: John Youlong.
@@ -22,5 +21,6 @@ data class StudentResponse(
     val studentID: String? = null,
     val guardian: String? = null,
     val guardianContact: String? = null,
-    val majoring: String? = null
+    val majoring: String? = null,
+    val authUid: String? = null,
 ) : Parcelable

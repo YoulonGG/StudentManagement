@@ -110,7 +110,9 @@ class SignUpViewModel(
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val user = authResult.user ?: throw Exception("User creation failed")
 
-            firestore.collection("students").document(user.uid)
+            firestore
+                .collection("students")
+                .document(user.uid)
                 .set(
                     mapOf(
                         "email" to email,
@@ -120,13 +122,13 @@ class SignUpViewModel(
                         "accountType" to "student",
                         "isApproved" to false,
                         "createdAt" to FieldValue.serverTimestamp(),
-                        "imageUrl" to "",
-                        "address" to "",
-                        "phone" to "",
+                        "imageUrl" to null,
+                        "address" to null,
+                        "phone" to null,
                         "age" to null,
-                        "guardian" to "",
-                        "guardianContact" to "",
-                        "majoring" to ""
+                        "guardian" to null,
+                        "guardianContact" to null,
+                        "majoring" to null
                     )
                 )
                 .await()

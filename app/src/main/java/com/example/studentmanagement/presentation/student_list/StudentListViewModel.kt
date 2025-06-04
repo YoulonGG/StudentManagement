@@ -41,7 +41,8 @@ class StudentListViewModel(
     private fun getStudentsList() {
         setState { copy(isLoading = true) }
 
-        firestore.collection("students")
+        firestore
+            .collection("students")
             .whereEqualTo("isApproved", true)
             .get()
             .addOnSuccessListener { result ->
@@ -106,6 +107,8 @@ class StudentListViewModel(
                 holder.img.setImageResource(R.drawable.student_option)
             }
         }
+
+
 
 
         override fun getItemCount(): Int = students.size
