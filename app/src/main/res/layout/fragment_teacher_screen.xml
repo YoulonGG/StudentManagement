@@ -20,6 +20,20 @@
             android:textSize="20.dp" />
 
         <Button
+            android:id="@+id/btnAttendance"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Check Attendance" />
+
+        <Button
+            android:id="@+id/btnAttendanceHistory"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Check Attendance History" />
+
+        <Button
             android:id="@+id/btnSeeStudentList"
             android:layout_width="200dp"
             android:layout_height="wrap_content"

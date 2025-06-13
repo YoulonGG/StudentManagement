@@ -30,6 +30,16 @@ class TeacherScreen : Fragment() {
         val seeStudentListBtn = view.findViewById<Button>(R.id.btnSeeStudentList)
         val createStudentBtn = view.findViewById<Button>(R.id.btnCreateStudent)
         val logoutBtn = view.findViewById<Button>(R.id.btnLogout)
+        val btnAttendance = view.findViewById<Button>(R.id.btnAttendance)
+        val btnAttendanceHistory = view.findViewById<Button>(R.id.btnAttendanceHistory)
+
+        btnAttendanceHistory.setOnClickListener {
+            findNavController().navigate(R.id.navigate_teacher_to_attendance_history)
+        }
+
+        btnAttendance.setOnClickListener {
+            findNavController().navigate(R.id.navigate_teacher_to_attendance)
+        }
 
         seeStudentListBtn.setOnClickListener {
             findNavController().navigate(R.id.navigate_teacher_to_student_list)
