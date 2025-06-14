@@ -68,4 +68,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation (libs.play.services.auth)
     implementation(libs.koin.android)
+
+    implementation (libs.androidx.swiperefreshlayout)
+
 }

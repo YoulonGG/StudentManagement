@@ -8,6 +8,7 @@ package com.example.studentmanagement.domain.di
 
 import com.example.studentmanagement.presentation.approve_student.ApprovalStudentViewModel
 import com.example.studentmanagement.presentation.attendace_history.StudentAttendanceViewModel
+import com.example.studentmanagement.presentation.home.HomeworkViewModel
 import com.example.studentmanagement.presentation.login.LoginViewModel
 import com.example.studentmanagement.presentation.sign_up.SignUpViewModel
 import com.example.studentmanagement.presentation.student.StudentViewModel
@@ -34,5 +35,6 @@ val appModule = module {
     viewModel { StudentDetailViewModel(get(), get()) }
     viewModel { TeacherAttendanceViewModel(get(), get()) }
     viewModel { StudentAttendanceViewModel(get()) }
+    viewModel { HomeworkViewModel(get(), get(), get()) }
 
 }
