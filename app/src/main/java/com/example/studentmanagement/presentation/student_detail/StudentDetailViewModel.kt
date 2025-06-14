@@ -22,9 +22,16 @@ class StudentDetailViewModel(
 
     override fun onAction(event: StudentDetailAction) {
         when (event) {
-            is StudentDetailAction.LoadStudent -> setState { copy(student = event.student) }
+            is StudentDetailAction.LoadStudent -> {
+                setState { copy(student = event.student) }
+                checkUserRole()
+            }
             is StudentDetailAction.SaveStudent -> saveStudentToFirestore(event.updatedStudent)
-            is StudentDetailAction.UploadImage -> uploadImageToStorage(event.imageUri)
+            is StudentDetailAction.UploadImage -> {
+                if (!uiState.value.isTeacher) {
+                    uploadImageToStorage(event.imageUri)
+                }
+            }
         }
     }
 
@@ -130,6 +137,16 @@ class StudentDetailViewModel(
                 }
             }
     }
+
+    private fun checkUserRole() {
+        val authUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        firestore.collection("users").document(authUid).get()
+            .addOnSuccessListener { document ->
+                val isTeacher = document.getString("accountType") == "teacher"
+                setState { copy(isTeacher = isTeacher) }
+            }
+    }
 }
 
 
@@ -143,5 +160,6 @@ sealed class StudentDetailAction {
 data class StudentDetailUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val student: StudentResponse? = null
+    val student: StudentResponse? = null,
+    val isTeacher: Boolean = false
 )

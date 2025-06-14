@@ -1,109 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".presentation.attendace_history.StudentAttendanceHistoryScreen">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardViewHeader"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
-        app:layout_constraintTop_toTopOf="parent">
+        android:background="@color/white"
+        app:elevation="0dp">
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/textViewSelectedMonth"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:drawableEnd="@drawable/baseline_calendar_month_24"
-                android:drawablePadding="8dp"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="8dp"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                tools:text="June 2025" />
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="#F8F9FA"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="#F5F5F5"
-                android:orientation="horizontal"
-                android:padding="12dp">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/textViewSelectedMonth"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2.5"
-                    android:text="Student Name"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="16sp"
+                    app:icon="@drawable/baseline_calendar_month_24"
+                    app:iconGravity="end"
+                    app:iconTint="?attr/colorPrimary"
+                    tools:text="June 2025" />
 
-                <TextView
-                    android:layout_width="0dp"
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="Total"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="8dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E0E0E0"
+                    app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="Present"
-                    android:textColor="#4CAF50"
-                    android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="12dp">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="Absent"
-                    android:textColor="#F44336"
-                    android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2.5"
+                            android:text="Student Name"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="Late"
-                    android:textColor="#FF9800"
-                    android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="Total"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textStyle="bold" />
 
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="Present"
+                            android:textColor="#43A047"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="Absent"
+                            android:textColor="#E53935"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="Late"
+                            android:textColor="#FB8C00"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
-        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.appbar.AppBarLayout>
 
-    </com.google.android.material.card.MaterialCardView>
-
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollViewMonthlyStats"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginHorizontal="16dp"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
         android:fillViewport="true"
+        android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardViewHeader">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:id="@+id/containerMonthlyStats"
@@ -111,22 +125,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <FrameLayout
         android:id="@+id/loadingContainer"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#80FFFFFF"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardViewHeader">
+        android:layout_height="match_parent"
+        android:background="#CCFFFFFF"
+        android:visibility="gone">
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:indeterminate="true" />
 
     </FrameLayout>
 
@@ -134,13 +147,13 @@
         android:id="@+id/textViewEmptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawableTop="@drawable/baseline_calendar_month_24"
+        android:drawablePadding="16dp"
+        android:gravity="center"
         android:text="No attendance records found"
         android:textColor="#757575"
         android:textSize="16sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:visibility="gone" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

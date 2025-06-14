@@ -50,6 +50,7 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
                             edtGuardianContact.setText(student.guardianContact)
                             edtMajoring.setText(student.majoring)
 
+
                             if (!student.imageUrl.isNullOrEmpty()) {
                                 Glide.with(this@StudentDetailScreen)
                                     .load(student.imageUrl)
@@ -81,7 +82,9 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
     private fun setupListeners() {
         binding.imgStudent.setOnClickListener {
-            imagePicker.launch("image/*")
+            if (!viewModel.uiState.value.isTeacher) {
+                imagePicker.launch("image/*")
+            }
         }
 
         binding.btnSave.setOnClickListener {

@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -31,7 +32,7 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
     private lateinit var progressBar: ProgressBar
     private lateinit var titleText: TextView
     private lateinit var backButton: ImageView
-
+    private lateinit var genderRadioGroup: RadioGroup  // Change from View to RadioGroup
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -45,6 +46,8 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         progressBar = view.findViewById(R.id.progressBar)
         titleText = view.findViewById(R.id.signupTitle)
         backButton = view.findViewById(R.id.goBack)
+        genderRadioGroup = view.findViewById(R.id.genderRadioGroup)
+
 
         val accountType = arguments?.getString("accountType") ?: "teacher"
 
@@ -52,17 +55,20 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
             titleText.text = "Student Sign Up"
             nameInput.visibility = View.VISIBLE
             phoneInput.visibility = View.VISIBLE
+            genderRadioGroup.visibility = View.VISIBLE
             signupBtn.text = "Register as Student"
         } else {
             titleText.text = "Teacher Sign Up"
             nameInput.visibility = View.GONE
             phoneInput.visibility = View.GONE
+            genderRadioGroup.visibility = View.VISIBLE
             signupBtn.text = "Register as Teacher"
         }
 
         backButton.setOnClickListener {
             findNavController().navigateUp()
         }
+
 
         signupBtn.setOnClickListener {
             errorText.visibility = View.GONE
@@ -72,8 +78,13 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
             if (accountType == "student") {
                 val name = nameInput.text.toString()
                 val studentID = phoneInput.text.toString()
-                if (validateStudentInputs(email, password, name, studentID)) {
-                    viewModel.onAction(SignUpAction.SubmitStudent(email, password, name, studentID))
+                val gender = when (genderRadioGroup.checkedRadioButtonId) {
+                    R.id.maleRadioButton -> "male"
+                    R.id.femaleRadioButton -> "female"
+                    else -> ""
+                }
+                if (validateStudentInputs(email, password, name, studentID, gender)) {
+                    viewModel.onAction(SignUpAction.SubmitStudent(email, password, name, studentID, gender))
                 }
             } else {
                 if (validateTeacherInputs(email, password)) {
@@ -89,13 +100,15 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         email: String,
         password: String,
         name: String,
-        studentID: String
+        studentID: String,
+        gender: String
     ): Boolean {
         return when {
             email.isEmpty() -> showError("Email cannot be empty")
             password.isEmpty() -> showError("Password cannot be empty")
             name.isEmpty() -> showError("Name cannot be empty")
             studentID.isEmpty() -> showError("studentID cannot be empty")
+            gender.isEmpty() -> showError("Please select gender")
             else -> true
         }
     }

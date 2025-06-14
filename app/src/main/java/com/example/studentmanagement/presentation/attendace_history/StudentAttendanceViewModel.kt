@@ -41,8 +41,6 @@ class StudentAttendanceViewModel(
 
         viewModelScope.launch {
             try {
-                // Debug log
-                println("Loading stats for: $monthYear")
 
                 val calendar = Calendar.getInstance()
                 val sdf = SimpleDateFormat("yyyy-MM", Locale.getDefault())
@@ -54,10 +52,7 @@ class StudentAttendanceViewModel(
                 calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
                 val endDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
 
-                // Debug log
-                println("Date range: $startDate to $endDate")
 
-                // Get all students first
                 val studentsSnapshot = db.collection("students")
                     .get()
                     .await()
@@ -66,15 +61,11 @@ class StudentAttendanceViewModel(
                     it.id to (it.getString("name") ?: "Unknown")
                 }
 
-                // Query attendance using document IDs
                 val attendanceSnapshot = db.collection("attendance")
                     .whereGreaterThanOrEqualTo(FieldPath.documentId(), startDate)
                     .whereLessThanOrEqualTo(FieldPath.documentId(), endDate)
                     .get()
                     .await()
-
-                // Debug log
-                println("Found ${attendanceSnapshot.size()} attendance records")
 
                 val studentStats = mutableMapOf<String, MutableMap<String, Int>>()
 
@@ -88,8 +79,6 @@ class StudentAttendanceViewModel(
                 }
 
                 attendanceSnapshot.documents.forEach { doc ->
-                    println("Processing attendance for date: ${doc.id}")
-
                     val records = doc.reference.collection("attendance_records")
                         .get()
                         .await()
@@ -107,18 +96,21 @@ class StudentAttendanceViewModel(
 
                 val stats = studentsMap.map { (studentId, name) ->
                     val counts = studentStats[studentId] ?: mutableMapOf()
+                    val currentMonth = Calendar.getInstance()
+                    val months = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+                    calendar.time = months.parse(monthYear) ?: Date()
+
+                    val totalDaysInMonth = currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
+
                     MonthlyAttendanceStats(
                         studentId = studentId,
                         studentName = name,
-                        totalDays = attendanceSnapshot.size(),
+                        totalDays = totalDaysInMonth,  // Use total days in month instead of attendance size
                         presentCount = counts["present"] ?: 0,
                         absentCount = counts["absent"] ?: 0,
                         lateCount = counts["late"] ?: 0
                     )
                 }
-
-                println("Final stats: $stats")
-
                 setState {
                     copy(
                         isLoading = false,
