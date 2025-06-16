@@ -32,7 +32,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:gravity="center"
-                    android:text="Take Attendance"
+                    android:text="Request Permission"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -62,13 +62,13 @@
                             android:textSize="16sp" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/textViewSelectedDate"
+                            android:id="@+id/buttonSelectDate"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="end|center_vertical"
-                            android:text="2024-01-01"
+                            android:text="Select Date"
                             android:textColor="?attr/colorPrimary"
                             android:textSize="16sp"
                             app:icon="@drawable/baseline_calendar_month_24"
@@ -77,35 +77,23 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <LinearLayout
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textFieldReason"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:hint="Reason"
+                    app:boxBackgroundColor="@color/white">
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/textViewStudentCount"
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextReason"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Students: 0"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="14sp" />
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:lines="4"
+                        android:maxLines="6" />
 
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/buttonRefresh"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minHeight="36dp"
-                        android:text="Refresh"
-                        android:textSize="14sp"
-                        app:icon="@drawable/baseline_calendar_month_24" />
-                </LinearLayout>
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.appbar.AppBarLayout>
@@ -117,87 +105,24 @@
         android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <FrameLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewPermissions"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="16dp" />
 
-            <TableLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:background="@color/white"
-                android:stretchColumns="0">
-
-                <!-- Table Header -->
-                <TableRow
-                    android:background="@color/white"
-                    android:minHeight="48dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@color/white"
-                        android:gravity="center_vertical"
-                        android:padding="12dp"
-                        android:text="Student Name"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:background="@color/white"
-                        android:gravity="center"
-                        android:minWidth="200dp"
-                        android:padding="12dp"
-                        android:text="Attendance Status"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </TableRow>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewAttendance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </TableLayout>
-
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:indeterminate="true"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/textViewEmptyState"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:drawableTop="@drawable/baseline_calendar_month_24"
-                android:drawablePadding="16dp"
-                android:gravity="center"
-                android:padding="32dp"
-                android:text="No students found.\nTap refresh to load students."
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="16sp"
-                android:visibility="gone" />
-        </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonSubmitAttendance"
+        android:id="@+id/buttonSubmitRequest"
         style="@style/Widget.Material3.Button.ElevatedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
         android:padding="16dp"
-        android:text="Submit Attendance"
+        android:text="Submit Request"
         android:textSize="16sp"
         app:cornerRadius="16dp"
         app:elevation="4dp" />

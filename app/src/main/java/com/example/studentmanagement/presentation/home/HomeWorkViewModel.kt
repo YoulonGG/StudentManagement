@@ -1,8 +1,14 @@
 package com.example.studentmanagement.presentation.home
 
+import android.app.DownloadManager
+import android.content.Context
 import android.net.Uri
+import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,9 +16,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.example.studentmanagement.databinding.ItemHomeworkBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
 import java.text.DateFormat
 import java.util.Date
 
@@ -30,7 +38,7 @@ class HomeworkViewModel(
 ) : BaseViewModel<HomeworkAction, HomeworkUiState>() {
 
     private val _adapter = HomeworkListAdapter(
-        isTeacher = auth.currentUser?.uid != null,
+        isTeacher = false,
         onUploadSubmission = { homework, uri ->
             onAction(HomeworkAction.UploadSubmission(homework.id, uri))
         },
@@ -40,6 +48,27 @@ class HomeworkViewModel(
     )
     val adapter: HomeworkListAdapter = _adapter
 
+
+    init {
+
+        checkTeacherStatus()
+    }
+
+    private fun checkTeacherStatus() {
+        auth.currentUser?.uid?.let { uid ->
+            firestore.collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    val isTeacher = document.getString("accountType") == "teacher"
+                    _adapter.updateTeacherStatus(isTeacher)
+                }
+                .addOnFailureListener { e ->
+                    setState { copy(error = "Failed to verify user role: ${e.message}") }
+                }
+        }
+    }
+
     override fun setInitialState(): HomeworkUiState = HomeworkUiState()
 
     override fun onAction(event: HomeworkAction) {
@@ -47,11 +76,20 @@ class HomeworkViewModel(
             is HomeworkAction.LoadHomework -> loadHomework()
             is HomeworkAction.UploadHomework -> uploadHomework(event.title, event.fileUri)
             is HomeworkAction.UploadSubmission -> uploadSubmission(event.homeworkId, event.fileUri)
-            is HomeworkAction.DownloadFile -> downloadFile(event.fileUrl, event.fileName)
+            is HomeworkAction.DownloadFile -> {
+                setState {
+                    copy(
+                        downloadInfo = DownloadInfo(
+                            fileUrl = event.fileUrl,
+                            fileName = event.fileName
+                        )
+                    )
+                }
+            }
         }
     }
 
-    fun loadHomework() {
+    private fun loadHomework() {
         setState { copy(isLoading = true, error = null) }
 
         firestore.collection("homework")
@@ -84,40 +122,66 @@ class HomeworkViewModel(
 
     private fun uploadHomework(title: String, fileUri: Uri) {
         setState { copy(isLoading = true, error = null) }
+        val userId = auth.currentUser?.uid ?: run {
+            setState { copy(isLoading = false, error = "User not logged in") }
+            return
+        }
 
+        // Simplify the path structure
         val fileName = "${System.currentTimeMillis()}_${fileUri.lastPathSegment}"
-        val storageRef = storage.reference.child("homework/$fileName")
+        val storageRef = storage.reference
+            .child("homework")  // Root folder
+            .child(fileName)    // File name only
 
-        storageRef.putFile(fileUri)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                    val homework = Homework(
-                        title = title,
-                        fileUrl = downloadUrl.toString(),
-                        fileName = fileName,
-                        uploadedAt = System.currentTimeMillis()
+        Log.d("HomeworkViewModel", "Starting upload to: ${storageRef.path}")
+
+        // Create metadata to ensure proper content type
+        val metadata = StorageMetadata.Builder()
+            .setContentType("application/pdf") // Adjust based on your file type
+            .build()
+
+        storageRef.putFile(fileUri, metadata)
+            .addOnProgressListener { taskSnapshot ->
+                val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
+                Log.d("HomeworkViewModel", "Upload progress: $progress%")
+            }
+            .addOnSuccessListener { taskSnapshot ->
+                Log.d("HomeworkViewModel", "Upload successful")
+                taskSnapshot.storage.downloadUrl
+                    .addOnSuccessListener { downloadUrl ->
+                        createHomeworkDocument(title, fileName, downloadUrl.toString())
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("HomeworkViewModel", "Upload failed", e)
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to upload: ${e.localizedMessage}"
                     )
-
-                    firestore.collection("homework")
-                        .add(homework)
-                        .addOnSuccessListener {
-                            setState { copy(isLoading = false) }
-                        }
-                        .addOnFailureListener { e ->
-                            setState {
-                                copy(
-                                    isLoading = false,
-                                    error = "Failed to save homework: ${e.message}"
-                                )
-                            }
-                        }
                 }
+            }
+    }
+    private fun createHomeworkDocument(title: String, fileName: String, fileUrl: String) {
+        val homework = hashMapOf(
+            "title" to title,
+            "fileName" to fileName,
+            "fileUrl" to fileUrl,
+            "teacherId" to auth.currentUser?.uid,
+            "uploadedAt" to FieldValue.serverTimestamp()
+        )
+
+        firestore.collection("homework")
+            .add(homework)
+            .addOnSuccessListener {
+                setState { copy(isLoading = false) }
+                loadHomework()
             }
             .addOnFailureListener { e ->
                 setState {
                     copy(
                         isLoading = false,
-                        error = "Failed to upload file: ${e.message}"
+                        error = "Failed to create document: ${e.message}"
                     )
                 }
             }
@@ -169,19 +233,43 @@ class HomeworkViewModel(
             }
     }
 
-    private fun downloadFile(fileUrl: String, fileName: String) {
-        // Implement download using Android DownloadManager
-        // This should be handled in the Fragment/Activity
+    private fun downloadFile(context: Context, fileUrl: String, fileName: String) {
+        try {
+            val request = DownloadManager.Request(fileUrl.toUri())
+                .setTitle(fileName)
+                .setDescription("Downloading file...")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+
+            val downloadManager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            downloadManager.enqueue(request)
+
+            Toast.makeText(context, "Download started", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Download failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 }
 
 class HomeworkListAdapter(
-    private val isTeacher: Boolean,
+    private var isTeacher: Boolean,
     private val onUploadSubmission: (Homework, Uri) -> Unit,
     private val onDownloadFile: (Homework) -> Unit
 ) : ListAdapter<Homework, HomeworkListAdapter.HomeworkViewHolder>(HomeworkDiffCallback()) {
 
     private var pendingHomework: Homework? = null
+    private var submitClickListener: (() -> Unit)? = null
+
+    fun updateTeacherStatus(isTeacher: Boolean) {
+        this.isTeacher = isTeacher
+        notifyDataSetChanged()
+    }
+
+
+    fun setOnSubmitClickListener(listener: () -> Unit) {
+        submitClickListener = listener
+    }
 
     fun submitFile(uri: Uri) {
         pendingHomework?.let { homework ->
@@ -221,6 +309,7 @@ class HomeworkListAdapter(
                 if (!isTeacher) {
                     buttonSubmit.setOnClickListener {
                         pendingHomework = homework
+                        submitClickListener?.invoke()
                     }
 
                     textSubmissionStatus.apply {
@@ -248,7 +337,8 @@ class HomeworkListAdapter(
 data class HomeworkUiState(
     val isLoading: Boolean = false,
     val homeworkList: List<Homework>? = null,
-    val error: String? = null
+    val error: String? = null,
+    val downloadInfo: DownloadInfo? = null
 )
 
 sealed class HomeworkAction {
@@ -256,6 +346,7 @@ sealed class HomeworkAction {
     data class UploadSubmission(val homeworkId: String, val fileUri: Uri) : HomeworkAction()
     data object LoadHomework : HomeworkAction()
     data class DownloadFile(val fileUrl: String, val fileName: String) : HomeworkAction()
+
 }
 
 data class Homework(
@@ -266,6 +357,11 @@ data class Homework(
     val submissionUrl: String? = null,
     val submissionFileName: String? = null,
     val uploadedAt: Long = System.currentTimeMillis()
+)
+
+data class DownloadInfo(
+    val fileUrl: String,
+    val fileName: String
 )
 
 

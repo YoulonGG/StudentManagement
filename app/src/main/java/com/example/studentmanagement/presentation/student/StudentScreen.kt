@@ -1,5 +1,7 @@
 package com.example.studentmanagement.presentation.student
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -8,7 +10,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.example.studentmanagement.MainActivity
 import com.example.studentmanagement.R
+import com.example.studentmanagement.data.local.PreferencesKeys
+import com.example.studentmanagement.data.local.PreferencesKeys.ACCOUNT_TYPE
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -33,6 +39,27 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
         val tvMajoring = view.findViewById<TextView>(R.id.tv_majoring)
         val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
         val infoContainer = view.findViewById<LinearLayout>(R.id.student_info_container)
+        val btnAskPermission = view.findViewById<View>(R.id.btnAskPermission)
+        val btnLogout = view.findViewById<View>(R.id.btnStudentLogout)
+
+        btnLogout.setOnClickListener {
+            val sharedPref = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                remove(PreferencesKeys.IS_LOGGED_IN)
+                remove(ACCOUNT_TYPE)
+                apply()
+            }
+
+            val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            requireActivity().finish()
+        }
+
+        btnAskPermission.setOnClickListener {
+            findNavController().navigate(R.id.navigate_student_to_ask_permission)
+        }
 
 
 

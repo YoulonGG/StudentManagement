@@ -34,7 +34,7 @@
                 android:layout_marginTop="16dp"
                 android:text="Upload Homework"
                 android:visibility="gone"
-                app:icon="@drawable/baseline_upload_24"
+                app:icon="@drawable/baseline_calendar_month_24"
                 tools:visibility="visible" />
 
         </LinearLayout>
@@ -69,7 +69,7 @@
         android:text="No homework available"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:visibility="gone"
-        app:drawableTopCompat="@drawable/baseline_assignment_24" />
+        app:drawableTopCompat="@drawable/baseline_calendar_month_24" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progressBar"

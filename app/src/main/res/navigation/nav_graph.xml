@@ -88,6 +88,10 @@
             android:id="@+id/navigate_teacher_to_attendance_history"
             app:destination="@id/student_attendance_history" />
 
+        <action
+            android:id="@+id/navigate_teacher_to_homework"
+            app:destination="@id/homework" />
+
     </fragment>
 
     <fragment
@@ -119,7 +123,20 @@
     <fragment
         android:id="@+id/student"
         android:name="com.example.studentmanagement.presentation.student.StudentScreen"
-        android:label="Student Screen" />
+        android:label="Student Screen" >
+
+        <action
+            android:id="@+id/navigate_student_to_ask_permission"
+            app:destination="@id/student_ask_permission" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/student_ask_permission"
+        android:name="com.example.studentmanagement.presentation.ask_permission.StudentPermissionFragment"
+        android:label="Student Ask Permission Screen">
+
+    </fragment>
 
     <fragment
         android:id="@+id/student_attendance_history"
@@ -132,6 +149,19 @@
         android:id="@+id/approvalStudent"
         android:name="com.example.studentmanagement.presentation.approve_student.ApprovalStudentScreen"
         android:label="Approval Student Fragment">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/homework"
+        android:name="com.example.studentmanagement.presentation.home.HomeworkScreen"
+        android:label="Homework Fragment">
+
+        <argument
+            android:name="accountType"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue=""/>
 
     </fragment>
 

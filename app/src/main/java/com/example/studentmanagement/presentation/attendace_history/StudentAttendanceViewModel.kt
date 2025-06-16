@@ -69,12 +69,11 @@ class StudentAttendanceViewModel(
 
                 val studentStats = mutableMapOf<String, MutableMap<String, Int>>()
 
-                // Initialize stats for all students
                 studentsMap.keys.forEach { studentId ->
                     studentStats[studentId] = mutableMapOf(
                         "present" to 0,
                         "absent" to 0,
-                        "late" to 0
+                        "permission" to 0
                     )
                 }
 
@@ -85,30 +84,27 @@ class StudentAttendanceViewModel(
 
                     records.documents.forEach { record ->
                         val studentId = record.id
-                        val status = record.getString("status")?.lowercase() ?: "present"
-                        println("Student $studentId status: $status")
+                        val status = record.getString("status")?.uppercase() ?: "PRESENT"
 
                         studentStats[studentId]?.let { stats ->
-                            stats[status] = (stats[status] ?: 0) + 1
+                            when (status) {
+                                "PRESENT" -> stats["present"] = (stats["present"] ?: 0) + 1
+                                "ABSENT" -> stats["absent"] = (stats["absent"] ?: 0) + 1
+                                "PERMISSION" -> stats["permission"] = (stats["permission"] ?: 0) + 1
+                            }
                         }
                     }
                 }
 
                 val stats = studentsMap.map { (studentId, name) ->
                     val counts = studentStats[studentId] ?: mutableMapOf()
-                    val currentMonth = Calendar.getInstance()
-                    val months = SimpleDateFormat("yyyy-MM", Locale.getDefault())
-                    calendar.time = months.parse(monthYear) ?: Date()
-
-                    val totalDaysInMonth = currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
-
                     MonthlyAttendanceStats(
                         studentId = studentId,
                         studentName = name,
-                        totalDays = totalDaysInMonth,  // Use total days in month instead of attendance size
+                        totalDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH),
                         presentCount = counts["present"] ?: 0,
                         absentCount = counts["absent"] ?: 0,
-                        lateCount = counts["late"] ?: 0
+                        permissionCount = counts["permission"] ?: 0
                     )
                 }
                 setState {
@@ -150,5 +146,5 @@ data class MonthlyAttendanceStats(
     val totalDays: Int,
     val presentCount: Int,
     val absentCount: Int,
-    val lateCount: Int
+    val permissionCount: Int
 )

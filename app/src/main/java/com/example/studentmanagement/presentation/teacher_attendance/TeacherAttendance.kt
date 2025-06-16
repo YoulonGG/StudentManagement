@@ -130,7 +130,6 @@ class TeacherAttendanceFragment : Fragment(R.layout.fragment_teacher_attendance)
                 else -> "Submit Attendance"
             }
 
-            // Optional: Change the alpha to visually indicate disabled state
             alpha = if (isEnabled) 1.0f else 0.6f
         }
     }
