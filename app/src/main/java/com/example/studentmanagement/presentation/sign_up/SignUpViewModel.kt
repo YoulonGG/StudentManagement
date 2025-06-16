@@ -29,7 +29,8 @@ class SignUpViewModel(
                 event.email,
                 event.password,
                 event.name,
-                event.studentID
+                event.studentID,
+                event.gender
             )
         }
     }
@@ -58,14 +59,15 @@ class SignUpViewModel(
         email: String,
         password: String,
         name: String,
-        studentID: String
+        studentID: String,
+        gender: String
     ) {
         viewModelScope.launch {
             if (!validateStudentInputs(email, password, name, studentID)) return@launch
 
             setState { copy(isLoading = true, error = null) }
 
-            signUpStudent(email, password, name, studentID).fold(
+            signUpStudent(email, password, name, studentID, gender).fold(
                 onSuccess = { setState { copy(isLoading = false, success = true) } },
                 onFailure = { e ->
                     setState {
@@ -104,7 +106,8 @@ class SignUpViewModel(
         email: String,
         password: String,
         name: String,
-        studentID: String
+        studentID: String,
+        gender: String
     ): Result<Unit> {
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
@@ -128,7 +131,8 @@ class SignUpViewModel(
                         "age" to null,
                         "guardian" to null,
                         "guardianContact" to null,
-                        "majoring" to null
+                        "majoring" to null,
+                        "gender" to gender,
                     )
                 )
                 .await()
@@ -194,7 +198,8 @@ sealed class SignUpAction {
         val email: String,
         val password: String,
         val name: String,
-        val studentID: String
+        val studentID: String,
+        val gender: String,
     ) : SignUpAction()
 }
 

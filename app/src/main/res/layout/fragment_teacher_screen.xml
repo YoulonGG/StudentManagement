@@ -34,6 +34,13 @@
             android:text="Check Attendance History" />
 
         <Button
+            android:id="@+id/btnHomework"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Check HomeWork" />
+
+        <Button
             android:id="@+id/btnSeeStudentList"
             android:layout_width="200dp"
             android:layout_height="wrap_content"

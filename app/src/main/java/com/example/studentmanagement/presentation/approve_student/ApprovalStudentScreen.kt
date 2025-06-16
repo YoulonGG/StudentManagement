@@ -30,7 +30,6 @@ class ApprovalStudentScreen : Fragment(R.layout.fragment_approval_student_screen
     }
 
 
-
     private fun setupRecyclerView() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())

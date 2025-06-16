@@ -41,8 +41,6 @@ class StudentAttendanceViewModel(
 
         viewModelScope.launch {
             try {
-                // Debug log
-                println("Loading stats for: $monthYear")
 
                 val calendar = Calendar.getInstance()
                 val sdf = SimpleDateFormat("yyyy-MM", Locale.getDefault())
@@ -54,10 +52,7 @@ class StudentAttendanceViewModel(
                 calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
                 val endDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
 
-                // Debug log
-                println("Date range: $startDate to $endDate")
 
-                // Get all students first
                 val studentsSnapshot = db.collection("students")
                     .get()
                     .await()
@@ -66,41 +61,37 @@ class StudentAttendanceViewModel(
                     it.id to (it.getString("name") ?: "Unknown")
                 }
 
-                // Query attendance using document IDs
                 val attendanceSnapshot = db.collection("attendance")
                     .whereGreaterThanOrEqualTo(FieldPath.documentId(), startDate)
                     .whereLessThanOrEqualTo(FieldPath.documentId(), endDate)
                     .get()
                     .await()
 
-                // Debug log
-                println("Found ${attendanceSnapshot.size()} attendance records")
-
                 val studentStats = mutableMapOf<String, MutableMap<String, Int>>()
 
-                // Initialize stats for all students
                 studentsMap.keys.forEach { studentId ->
                     studentStats[studentId] = mutableMapOf(
                         "present" to 0,
                         "absent" to 0,
-                        "late" to 0
+                        "permission" to 0
                     )
                 }
 
                 attendanceSnapshot.documents.forEach { doc ->
-                    println("Processing attendance for date: ${doc.id}")
-
                     val records = doc.reference.collection("attendance_records")
                         .get()
                         .await()
 
                     records.documents.forEach { record ->
                         val studentId = record.id
-                        val status = record.getString("status")?.lowercase() ?: "present"
-                        println("Student $studentId status: $status")
+                        val status = record.getString("status")?.uppercase() ?: "PRESENT"
 
                         studentStats[studentId]?.let { stats ->
-                            stats[status] = (stats[status] ?: 0) + 1
+                            when (status) {
+                                "PRESENT" -> stats["present"] = (stats["present"] ?: 0) + 1
+                                "ABSENT" -> stats["absent"] = (stats["absent"] ?: 0) + 1
+                                "PERMISSION" -> stats["permission"] = (stats["permission"] ?: 0) + 1
+                            }
                         }
                     }
                 }
@@ -110,15 +101,12 @@ class StudentAttendanceViewModel(
                     MonthlyAttendanceStats(
                         studentId = studentId,
                         studentName = name,
-                        totalDays = attendanceSnapshot.size(),
+                        totalDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH),
                         presentCount = counts["present"] ?: 0,
                         absentCount = counts["absent"] ?: 0,
-                        lateCount = counts["late"] ?: 0
+                        permissionCount = counts["permission"] ?: 0
                     )
                 }
-
-                println("Final stats: $stats")
-
                 setState {
                     copy(
                         isLoading = false,
@@ -158,5 +146,5 @@ data class MonthlyAttendanceStats(
     val totalDays: Int,
     val presentCount: Int,
     val absentCount: Int,
-    val lateCount: Int
+    val permissionCount: Int
 )

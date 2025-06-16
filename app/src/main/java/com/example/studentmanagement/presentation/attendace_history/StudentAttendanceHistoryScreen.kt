@@ -1,12 +1,16 @@
 package com.example.studentmanagement.presentation.attendace_history
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.NumberPicker
+import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -95,34 +99,52 @@ class StudentAttendanceHistoryScreen :
     private fun updateUI(state: AttendanceHistoryState) {
         binding.apply {
             loadingContainer.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-            scrollViewMonthlyStats.visibility =
-                if (state.isLoading) View.INVISIBLE else View.VISIBLE
-            textViewSelectedMonth.text = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-                .format(
-                    SimpleDateFormat("yyyy-MM", Locale.getDefault())
-                        .parse(state.selectedMonth) ?: Date()
-                )
+            tableLayout.visibility = if (state.isLoading) View.INVISIBLE else View.VISIBLE
 
-            val container = scrollViewMonthlyStats.getChildAt(0) as LinearLayout
-            container.removeAllViews()
+            textViewSelectedMonth.text = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+                .format(SimpleDateFormat("yyyy-MM", Locale.getDefault())
+                    .parse(state.selectedMonth) ?: Date())
+
+            tableLayout.removeAllViews()
+
+            val headerRow = TableRow(requireContext()).apply {
+                layoutParams = TableRow.LayoutParams(
+                    TableRow.LayoutParams.MATCH_PARENT,
+                    TableRow.LayoutParams.WRAP_CONTENT
+                )
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary))
+            }
+
+            addTableCell(headerRow, "Student Name", weight = 2f, textColor = Color.WHITE)
+//            addTableCell(headerRow, "Total", weight = 0.5f, textColor = Color.WHITE)
+            addTableCell(headerRow, "Present", weight = 1f, textColor = Color.WHITE)
+            addTableCell(headerRow, "Absent", weight = 1f, textColor = Color.WHITE)
+            addTableCell(headerRow, "Permission", weight = 1f, textColor = Color.WHITE)
+
+            tableLayout.addView(headerRow)
 
             state.monthlyStats.forEach { stats ->
-                val itemView = layoutInflater.inflate(
-                    R.layout.item_monthly_attendance,
-                    container,
-                    false
-                )
-
-                itemView.apply {
-                    findViewById<TextView>(R.id.textViewName).text = stats.studentName
-                    findViewById<TextView>(R.id.textViewTotal).text = stats.totalDays.toString()
-                    findViewById<TextView>(R.id.textViewPresent).text =
-                        stats.presentCount.toString()
-                    findViewById<TextView>(R.id.textViewAbsent).text = stats.absentCount.toString()
-                    findViewById<TextView>(R.id.textViewLate).text = stats.lateCount.toString()
+                val row = TableRow(requireContext()).apply {
+                    layoutParams = TableRow.LayoutParams(
+                        TableRow.LayoutParams.MATCH_PARENT,
+                        TableRow.LayoutParams.WRAP_CONTENT
+                    )
+                    setBackgroundColor(Color.WHITE)
                 }
 
-                container.addView(itemView)
+                addTableCell(row, stats.studentName, weight = 2f)
+//                addTableCell(row, stats.totalDays.toString(), weight = 0.5f)
+                addTableCell(row, stats.presentCount.toString(), weight = 1f, textColor = "#43A047".toColorInt())
+                addTableCell(row, stats.absentCount.toString(), weight = 1f, textColor = "#E53935".toColorInt())
+                addTableCell(row, stats.permissionCount.toString(), weight = 1f, textColor = "#FB8C00".toColorInt())
+
+                tableLayout.addView(row)
+
+                val divider = View(requireContext()).apply {
+                    layoutParams = TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1)
+                    setBackgroundColor("#E0E0E0".toColorInt())
+                }
+                tableLayout.addView(divider)
             }
 
             textViewEmptyState.visibility =
@@ -132,6 +154,28 @@ class StudentAttendanceHistoryScreen :
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 viewModel.onAction(AttendanceHistoryEvent.ClearError)
             }
+        }
+    }
+
+    private fun addTableCell(
+        row: TableRow,
+        text: String,
+        weight: Float,
+        gravity: Int = Gravity.CENTER,
+        textColor: Int? = null
+    ) {
+        TextView(requireContext()).apply {
+            layoutParams = TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT).apply {
+                this.weight = weight
+            }
+            this.text = text
+            this.gravity = gravity
+            setPadding(0, 10, 0, 10)
+            textSize = 14f
+            if (textColor != null) {
+                setTextColor(textColor)
+            }
+            row.addView(this)
         }
     }
 }

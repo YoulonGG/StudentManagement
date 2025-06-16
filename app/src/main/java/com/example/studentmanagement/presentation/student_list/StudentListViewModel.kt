@@ -11,6 +11,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.example.studentmanagement.data.dto.response.StudentResponse
@@ -88,6 +89,8 @@ class StudentListViewModel(
             val student = students[position]
             holder.name.text = student.name ?: "N/A"
             holder.id.text = "ID: ${student.studentID ?: "N/A"}"
+
+
             holder.itemView.setOnClickListener {
                 val bundle = Bundle().apply {
                     putParcelable("student", student)
@@ -102,14 +105,20 @@ class StudentListViewModel(
                     .load(imageUrl)
                     .placeholder(R.drawable.student_option)
                     .error(R.drawable.student_option)
+                    .transform(CircleCrop())
                     .into(holder.img)
             } else {
                 holder.img.setImageResource(R.drawable.student_option)
             }
+
+            holder.itemView.setOnClickListener {
+                val bundle = Bundle().apply {
+                    putParcelable("student", student)
+                }
+                holder.itemView.findNavController()
+                    .navigate(R.id.navigate_student_list_to_student_details, bundle)
+            }
         }
-
-
-
 
         override fun getItemCount(): Int = students.size
 
