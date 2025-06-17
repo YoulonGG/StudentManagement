@@ -1,5 +1,6 @@
 package com.example.studentmanagement.presentation.teacher_attendance
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -372,10 +373,10 @@ class AttendanceAdapter(
             }
         }
 
+        @SuppressLint("SetTextI18n")
         private fun setupNormalAttendance(item: StudentAttendance) {
             chipGroupStatus.setOnCheckedChangeListener(null)
 
-            // Reset chip states
             chipPresent.apply {
                 text = "Present"
                 visibility = View.VISIBLE
@@ -387,7 +388,6 @@ class AttendanceAdapter(
 
             when {
                 item.isSubmitted -> {
-                    // After submission, show only one chip based on status
                     when (item.status) {
                         AttendanceStatus.PRESENT -> {
                             chipAbsent.visibility = View.GONE
@@ -416,7 +416,6 @@ class AttendanceAdapter(
                 }
 
                 else -> {
-                    // Before submission, show normal behavior
                     when (item.status) {
                         AttendanceStatus.PRESENT -> {
                             chipPresent.isChecked = true
@@ -461,7 +460,6 @@ class AttendanceAdapter(
             chipPresent.isEnabled = enabled
             chipAbsent.isEnabled = enabled
 
-            // Set alpha for visual feedback
             chipPresent.alpha = if (enabled) 1.0f else 0.6f
             chipAbsent.alpha = if (enabled) 1.0f else 0.6f
         }

@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
-import com.example.studentmanagement.data.dto.response.StudentResponse
+import com.example.studentmanagement.data.dto.StudentResponse
 import com.example.studentmanagement.databinding.FragmentStudentDetailScreenBinding
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel

@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.core.base.BaseViewModel
+import com.example.studentmanagement.data.dto.Homework
 import com.example.studentmanagement.databinding.ItemHomeworkBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -127,7 +128,6 @@ class HomeworkViewModel(
             return
         }
 
-        // Simplify the path structure
         val fileName = "${System.currentTimeMillis()}_${fileUri.lastPathSegment}"
         val storageRef = storage.reference
             .child("homework")  // Root folder
@@ -135,7 +135,6 @@ class HomeworkViewModel(
 
         Log.d("HomeworkViewModel", "Starting upload to: ${storageRef.path}")
 
-        // Create metadata to ensure proper content type
         val metadata = StorageMetadata.Builder()
             .setContentType("application/pdf") // Adjust based on your file type
             .build()
@@ -162,6 +161,7 @@ class HomeworkViewModel(
                 }
             }
     }
+
     private fun createHomeworkDocument(title: String, fileName: String, fileUrl: String) {
         val homework = hashMapOf(
             "title" to title,
@@ -348,16 +348,6 @@ sealed class HomeworkAction {
     data class DownloadFile(val fileUrl: String, val fileName: String) : HomeworkAction()
 
 }
-
-data class Homework(
-    val id: String = "",
-    val title: String = "",
-    val fileUrl: String = "",
-    val fileName: String = "",
-    val submissionUrl: String? = null,
-    val submissionFileName: String? = null,
-    val uploadedAt: Long = System.currentTimeMillis()
-)
 
 data class DownloadInfo(
     val fileUrl: String,

@@ -112,7 +112,6 @@ class StudentPermissionViewModel(
     }
 }
 
-// State and Events
 data class StudentPermissionState(
     val selectedDate: String = "",
     val reason: String = "",

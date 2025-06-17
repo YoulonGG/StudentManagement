@@ -14,7 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.base.BaseViewModel
-import com.example.studentmanagement.data.dto.response.StudentResponse
+import com.example.studentmanagement.data.dto.StudentResponse
 import com.google.firebase.firestore.FirebaseFirestore
 
 /**

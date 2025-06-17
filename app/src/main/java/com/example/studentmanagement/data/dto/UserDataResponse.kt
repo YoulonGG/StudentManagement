@@ -1,4 +1,4 @@
-package com.example.studentmanagement.data.dto.response
+package com.example.studentmanagement.data.dto
 
 /**
  * @Author: John Youlong.

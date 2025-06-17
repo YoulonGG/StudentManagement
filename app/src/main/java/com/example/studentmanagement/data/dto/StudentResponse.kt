@@ -1,4 +1,4 @@
-package com.example.studentmanagement.data.dto.response
+package com.example.studentmanagement.data.dto
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

@@ -1,7 +1,7 @@
 package com.example.studentmanagement.presentation.student
 
 import com.example.studentmanagement.core.base.BaseViewModel
-import com.example.studentmanagement.data.dto.response.StudentResponse
+import com.example.studentmanagement.data.dto.StudentResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
