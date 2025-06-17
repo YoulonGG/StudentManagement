@@ -11,7 +11,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.studentmanagement.MainActivity
+import com.example.studentmanagement.presentation.activity.MainActivity
 import com.example.studentmanagement.R
 import com.example.studentmanagement.data.local.PreferencesKeys
 import com.example.studentmanagement.data.local.PreferencesKeys.ACCOUNT_TYPE

@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.studentmanagement.MainActivity
+import com.example.studentmanagement.presentation.activity.MainActivity
 import com.example.studentmanagement.R
 import com.example.studentmanagement.data.local.PreferencesKeys
 import com.example.studentmanagement.data.local.PreferencesKeys.ACCOUNT_TYPE

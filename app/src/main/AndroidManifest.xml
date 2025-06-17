@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <application
-        android:name=".MyApplication"
+        android:name=".StudentManagementApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -33,7 +33,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

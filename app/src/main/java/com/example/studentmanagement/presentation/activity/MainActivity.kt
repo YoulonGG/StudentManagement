@@ -1,14 +1,11 @@
-package com.example.studentmanagement
+package com.example.studentmanagement.presentation.activity
 
-import android.app.Application
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.studentmanagement.domain.di.appModule
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
+import com.example.studentmanagement.R
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,13 +21,3 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-
-class MyApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        startKoin {
-            androidContext(this@MyApplication)
-            modules(appModule)
-        }
-    }
-}

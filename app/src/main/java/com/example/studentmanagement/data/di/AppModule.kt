@@ -1,4 +1,4 @@
-package com.example.studentmanagement.domain.di
+package com.example.studentmanagement.data.di
 
 /**
  * @Author: John Youlong.
