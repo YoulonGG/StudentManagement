@@ -33,6 +33,11 @@ class TeacherScreen : Fragment() {
         val btnAttendance = view.findViewById<Button>(R.id.btnAttendance)
         val btnAttendanceHistory = view.findViewById<Button>(R.id.btnAttendanceHistory)
         val btnHomeWork = view.findViewById<Button>(R.id.btnHomework)
+        val btnSubjectList = view.findViewById<Button>(R.id.btnSubject)
+
+        btnSubjectList.setOnClickListener {
+            findNavController().navigate(R.id.navigate_teacher_to_subject_list)
+        }
 
         btnHomeWork.setOnClickListener {
             val sharedPref = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)

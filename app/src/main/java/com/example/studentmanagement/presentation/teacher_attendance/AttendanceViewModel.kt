@@ -64,7 +64,6 @@ class TeacherAttendanceViewModel(
     private fun loadStudents() {
         setState { copy(isLoading = true) }
 
-        // Load all permission requests for the date, not just pending ones
         db.collection("permission_requests")
             .whereEqualTo("date", uiState.value.selectedDate)
             .get()
@@ -78,22 +77,24 @@ class TeacherAttendanceViewModel(
                     )
                 }
 
-                // Then load students with their permission status
                 db.collection("students").get()
                     .addOnSuccessListener { snapshot ->
                         val students = snapshot.documents.map { doc ->
                             val permissionInfo = permissionRequests[doc.id]
+                            val savedStatus = savedStatuses[doc.id]
                             StudentAttendance(
                                 studentId = doc.id,
                                 fullName = doc.getString("name") ?: "Unknown",
-                                status = when (permissionInfo?.status) {
-                                    PermissionStatus.APPROVED -> AttendanceStatus.PERMISSION
-                                    PermissionStatus.REJECTED -> AttendanceStatus.ABSENT
+                                status = when {
+                                    savedStatus != null -> savedStatus
+                                    permissionInfo?.status == PermissionStatus.APPROVED -> AttendanceStatus.PERMISSION
+                                    permissionInfo?.status == PermissionStatus.REJECTED -> AttendanceStatus.ABSENT
                                     else -> AttendanceStatus.PRESENT
                                 },
                                 hasPermissionRequest = permissionInfo?.status == PermissionStatus.PENDING,
                                 permissionReason = permissionInfo?.reason,
-                                date = uiState.value.selectedDate
+                                date = uiState.value.selectedDate,
+                                statusModified = savedStatus != null
                             )
                         }
                         setState {
@@ -136,7 +137,7 @@ class TeacherAttendanceViewModel(
                                     hasPermissionRequest = false,
                                     status = if (approved) AttendanceStatus.PERMISSION
                                     else AttendanceStatus.ABSENT,
-                                    isSubmitted = true  // Lock the status after decision
+                                    statusModified = true
                                 )
                             } else it
                         }
@@ -147,6 +148,9 @@ class TeacherAttendanceViewModel(
                             )
                         }
                         attendanceAdapter.submitList(updatedStudents)
+
+                        savedStatuses[studentId] = if (approved)
+                            AttendanceStatus.PERMISSION else AttendanceStatus.ABSENT
                     }
                 }
             }
@@ -172,13 +176,20 @@ class TeacherAttendanceViewModel(
             return
         }
 
+        // Store the status in the map
+        savedStatuses[studentId] = status
+
         val updatedStudents = uiState.value.students.map {
-            if (it.studentId == studentId) it.copy(status = status) else it
+            if (it.studentId == studentId) {
+                it.copy(
+                    status = status,
+                    statusModified = true
+                )
+            } else it
         }
         setState { copy(students = updatedStudents) }
         attendanceAdapter.submitList(updatedStudents)
     }
-
 
     private fun submitAttendance() {
         if (uiState.value.attendanceSubmitted) {
@@ -327,6 +338,10 @@ class TeacherAttendanceViewModel(
                 }
             }
     }
+
+    companion object {
+        private val savedStatuses = mutableMapOf<String, AttendanceStatus>()
+    }
 }
 
 class AttendanceAdapter(
@@ -376,6 +391,22 @@ class AttendanceAdapter(
         @SuppressLint("SetTextI18n")
         private fun setupNormalAttendance(item: StudentAttendance) {
             chipGroupStatus.setOnCheckedChangeListener(null)
+
+            if (item.statusModified || item.isSubmitted) {
+                when (item.status) {
+                    AttendanceStatus.PRESENT -> chipPresent.isChecked = true
+                    AttendanceStatus.ABSENT -> chipAbsent.isChecked = true
+                    AttendanceStatus.PERMISSION -> {
+                        chipPresent.apply {
+                            isChecked = true
+                            text = "Permission"
+                        }
+                    }
+                }
+            } else {
+                chipPresent.isChecked = false
+                chipAbsent.isChecked = false
+            }
 
             chipPresent.apply {
                 text = "Present"
@@ -513,7 +544,9 @@ data class StudentAttendance(
     val isSubmitted: Boolean = false,
     val hasPermissionRequest: Boolean = false,
     val permissionReason: String? = null,
-    val date: String? = null
+    val date: String? = null,
+    val statusModified: Boolean = false
+
 )
 
 sealed class TeacherAttendanceEvent {

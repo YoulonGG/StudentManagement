@@ -24,34 +24,45 @@ class SignUpViewModel(
 
     override fun onAction(event: SignUpAction) {
         when (event) {
-            is SignUpAction.SubmitTeacher -> handleTeacherSignUp(event.email, event.password)
-            is SignUpAction.SubmitStudent -> handleStudentSignUp(
-                event.email,
-                event.password,
-                event.name,
-                event.studentID,
-                event.gender
+            is SignUpAction.SubmitTeacher -> handleTeacherSignUp(
+                email = event.email,
+                password = event.password,
+                gender = event.gender
             )
+            is SignUpAction.SubmitStudent -> handleStudentSignUp(
+                email = event.email,
+                password = event.password,
+                name = event.name,
+                studentID = event.studentID,
+                gender = event.gender
+            )
+            SignUpAction.ClearError -> setState { copy(error = null) }
+            SignUpAction.ResetState -> setState { SignUpUiState() }
         }
     }
 
-    private fun handleTeacherSignUp(email: String, password: String) {
+    private fun handleTeacherSignUp(email: String, password: String, gender: String) {
         viewModelScope.launch {
-            if (!validateInputs(email, password)) return@launch
+            try {
+                if (!validateTeacherInputs(email, password, gender)) return@launch
+                setState { copy(isLoading = true, error = null) }
 
-            setState { copy(isLoading = true, error = null) }
-
-            signUpTeacher(email, password).fold(
-                onSuccess = { setState { copy(isLoading = false, success = true) } },
-                onFailure = { e ->
-                    setState {
-                        copy(
-                            isLoading = false,
-                            error = e.message ?: "Teacher registration failed"
-                        )
-                    }
+                val result = signUpTeacher(email, password, gender)
+                setState {
+                    copy(
+                        isLoading = false,
+                        success = result.isSuccess,
+                        error = result.exceptionOrNull()?.message
+                    )
                 }
-            )
+            } catch (e: Exception) {
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Registration failed: ${e.message}"
+                    )
+                }
+            }
         }
     }
 
@@ -63,43 +74,56 @@ class SignUpViewModel(
         gender: String
     ) {
         viewModelScope.launch {
-            if (!validateStudentInputs(email, password, name, studentID)) return@launch
+            try {
+                if (!validateStudentInputs(email, password, name, studentID, gender)) return@launch
+                setState { copy(isLoading = true, error = null) }
 
-            setState { copy(isLoading = true, error = null) }
-
-            signUpStudent(email, password, name, studentID, gender).fold(
-                onSuccess = { setState { copy(isLoading = false, success = true) } },
-                onFailure = { e ->
-                    setState {
-                        copy(
-                            isLoading = false,
-                            error = e.message ?: "Student registration failed"
-                        )
-                    }
+                val result = signUpStudent(email, password, name, studentID, gender)
+                setState {
+                    copy(
+                        isLoading = false,
+                        success = result.isSuccess,
+                        error = result.exceptionOrNull()?.message
+                    )
                 }
-            )
+            } catch (e: Exception) {
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Registration failed: ${e.message}"
+                    )
+                }
+            }
         }
     }
 
-    private suspend fun signUpTeacher(email: String, password: String): Result<Unit> {
-        return try {
-            val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-            val user = authResult.user ?: throw Exception("User creation failed")
+    private suspend fun signUpTeacher(
+        email: String,
+        password: String,
+        gender: String
+    ): Result<Unit> = try {
+        val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+        val user = authResult.user ?: throw Exception("User creation failed")
 
-            firestore.collection("users").document(user.uid)
-                .set(
-                    mapOf(
-                        "email" to email,
-                        "accountType" to "teacher",
-                        "createdAt" to FieldValue.serverTimestamp()
-                    )
-                ).await()
+        val teacherData = hashMapOf(
+            "email" to email,
+            "accountType" to "teacher",
+            "createdAt" to FieldValue.serverTimestamp(),
+            "gender" to gender,
+            "authUid" to user.uid,
+            "imageUrl" to null,
+            "status" to "active",
+            "lastLogin" to FieldValue.serverTimestamp()
+        )
 
-            Result.success(Unit)
-        } catch (e: Exception) {
-            auth.currentUser?.delete()?.await()
-            Result.failure(e)
-        }
+        firestore.collection("users").document(user.uid)
+            .set(teacherData)
+            .await()
+
+        Result.success(Unit)
+    } catch (e: Exception) {
+        auth.currentUser?.delete()?.await()
+        Result.failure(Exception("Teacher registration failed: ${e.message}"))
     }
 
     private suspend fun signUpStudent(
@@ -108,99 +132,131 @@ class SignUpViewModel(
         name: String,
         studentID: String,
         gender: String
-    ): Result<Unit> {
-        return try {
-            val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-            val user = authResult.user ?: throw Exception("User creation failed")
+    ): Result<Unit> = try {
+        val existingStudent = firestore.collection("students")
+            .whereEqualTo("studentID", studentID)
+            .get()
+            .await()
 
-            firestore
-                .collection("students")
-                .document(user.uid)
-                .set(
-                    mapOf(
-                        "email" to email,
-                        "name" to name,
-                        "studentID" to studentID,
-                        "authUid" to user.uid,
-                        "accountType" to "student",
-                        "isApproved" to false,
-                        "createdAt" to FieldValue.serverTimestamp(),
-                        "imageUrl" to null,
-                        "address" to null,
-                        "phone" to null,
-                        "age" to null,
-                        "guardian" to null,
-                        "guardianContact" to null,
-                        "majoring" to null,
-                        "gender" to gender,
-                    )
-                )
-                .await()
-
-            Result.success(Unit)
-        } catch (e: Exception) {
-            auth.currentUser?.delete()?.await()
-            Result.failure(e)
+        if (!existingStudent.isEmpty) {
+            throw Exception("Student ID already exists")
         }
+
+        val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+        val user = authResult.user ?: throw Exception("User creation failed")
+
+        val studentData = hashMapOf(
+            "email" to email,
+            "name" to name,
+            "studentID" to studentID,
+            "authUid" to user.uid,
+            "accountType" to "student",
+            "isApproved" to false,
+            "createdAt" to FieldValue.serverTimestamp(),
+            "imageUrl" to null,
+            "address" to null,
+            "phone" to null,
+            "age" to null,
+            "guardian" to null,
+            "guardianContact" to null,
+            "majoring" to null,
+            "gender" to gender,
+            "status" to "pending",
+            "lastLogin" to FieldValue.serverTimestamp()
+        )
+
+        firestore.collection("students")
+            .document(user.uid)
+            .set(studentData)
+            .await()
+
+        Result.success(Unit)
+    } catch (e: Exception) {
+        auth.currentUser?.delete()?.await()
+        Result.failure(Exception("Student registration failed: ${e.message}"))
     }
 
-    private fun validateInputs(email: String, password: String): Boolean {
-        return when {
-            email.isEmpty() -> {
-                setState { copy(error = "Email cannot be empty") }
-                false
-            }
-
-            !isValidEmail(email) -> {
-                setState { copy(error = "Invalid email format") }
-                false
-            }
-
-            password.isEmpty() -> {
-                setState { copy(error = "Password cannot be empty") }
-                false
-            }
-
-            else -> true
+    private fun validateTeacherInputs(
+        email: String,
+        password: String,
+        gender: String
+    ): Boolean = when {
+        !validateBasicInputs(email, password) -> false
+        gender.isEmpty() -> {
+            setState { copy(error = "Please select gender") }
+            false
         }
+        else -> true
     }
 
     private fun validateStudentInputs(
         email: String,
         password: String,
         name: String,
-        studentID: String
-    ): Boolean {
-        return when {
-            !validateInputs(email, password) -> false
-            name.isEmpty() -> {
-                setState { copy(error = "Name cannot be empty") }
-                false
-            }
-
-            studentID.isEmpty() -> {
-                setState { copy(error = "ID cannot be empty") }
-                false
-            }
-
-            else -> true
+        studentID: String,
+        gender: String
+    ): Boolean = when {
+        !validateBasicInputs(email, password) -> false
+        name.trim().isEmpty() -> {
+            setState { copy(error = "Name cannot be empty") }
+            false
         }
+        studentID.trim().isEmpty() -> {
+            setState { copy(error = "Student ID cannot be empty") }
+            false
+        }
+        !studentID.matches(Regex("^[A-Za-z0-9]+$")) -> {
+            setState { copy(error = "Invalid Student ID format") }
+            false
+        }
+        gender.isEmpty() -> {
+            setState { copy(error = "Please select gender") }
+            false
+        }
+        else -> true
     }
 
-    private fun isValidEmail(email: String): Boolean {
-        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    private fun validateBasicInputs(email: String, password: String): Boolean = when {
+        email.trim().isEmpty() -> {
+            setState { copy(error = "Email cannot be empty") }
+            false
+        }
+        !isValidEmail(email) -> {
+            setState { copy(error = "Invalid email format") }
+            false
+        }
+        password.trim().isEmpty() -> {
+            setState { copy(error = "Password cannot be empty") }
+            false
+        }
+        password.length < 6 -> {
+            setState { copy(error = "Password must be at least 6 characters") }
+            false
+        }
+        else -> true
     }
+
+    private fun isValidEmail(email: String): Boolean =
+        Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }
 
 sealed class SignUpAction {
-    data class SubmitTeacher(val email: String, val password: String) : SignUpAction()
+    data class SubmitTeacher(
+        val email: String,
+        val password: String,
+        val gender: String
+    ) : SignUpAction()
+
     data class SubmitStudent(
         val email: String,
         val password: String,
         val name: String,
         val studentID: String,
-        val gender: String,
+        val gender: String
     ) : SignUpAction()
+
+    data object ClearError : SignUpAction()
+    data object ResetState : SignUpAction()
 }
 
 data class SignUpUiState(

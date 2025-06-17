@@ -91,6 +91,10 @@
         <action
             android:id="@+id/navigate_teacher_to_homework"
             app:destination="@id/homework" />
+        <action
+            android:id="@+id/navigate_teacher_to_subject_list"
+            app:destination="@id/subject_list" />
+
 
     </fragment>
 
@@ -165,5 +169,22 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/subject_list"
+        android:name="com.example.studentmanagement.presentation.subjects_list.SubjectListFragment"
+        android:label="Subject List Screen">
+
+        <action android:id="@+id/navigate_subject_list_to_submit_score"
+            app:destination="@id/submit_score" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/submit_score"
+        android:name="com.example.studentmanagement.presentation.teacher_submit_score.SubmitScoreScreen"
+        android:label="Submit Score Screen">
+
+
+    </fragment>
 
 </navigation>

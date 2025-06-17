@@ -32,7 +32,8 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
     private lateinit var progressBar: ProgressBar
     private lateinit var titleText: TextView
     private lateinit var backButton: ImageView
-    private lateinit var genderRadioGroup: RadioGroup  // Change from View to RadioGroup
+    private lateinit var genderRadioGroup: RadioGroup
+
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -84,11 +85,24 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
                     else -> ""
                 }
                 if (validateStudentInputs(email, password, name, studentID, gender)) {
-                    viewModel.onAction(SignUpAction.SubmitStudent(email, password, name, studentID, gender))
+                    viewModel.onAction(
+                        SignUpAction.SubmitStudent(
+                            email,
+                            password,
+                            name,
+                            studentID,
+                            gender
+                        )
+                    )
                 }
             } else {
-                if (validateTeacherInputs(email, password)) {
-                    viewModel.onAction(SignUpAction.SubmitTeacher(email, password))
+                val gender = when (genderRadioGroup.checkedRadioButtonId) {
+                    R.id.maleRadioButton -> "Male"
+                    R.id.femaleRadioButton -> "Female"
+                    else -> ""
+                }
+                if (validateTeacherInputs(email, password, gender)) {
+                    viewModel.onAction(SignUpAction.SubmitTeacher(email, password, gender))
                 }
             }
         }
@@ -113,10 +127,11 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         }
     }
 
-    private fun validateTeacherInputs(email: String, password: String): Boolean {
+    private fun validateTeacherInputs(email: String, password: String, gender: String): Boolean {
         return when {
             email.isEmpty() -> showError("Email cannot be empty")
             password.isEmpty() -> showError("Password cannot be empty")
+            gender.isEmpty() -> showError("Please select gender")
             else -> true
         }
     }

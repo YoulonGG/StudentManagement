@@ -55,6 +55,13 @@
             android:text="Approve Student" />
 
         <Button
+            android:id="@+id/btnSubject"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Subjects" />
+
+        <Button
             android:id="@+id/btnLogout"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
