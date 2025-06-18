@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
 import com.example.studentmanagement.databinding.FragmentSubjectListScreenBinding
-import com.example.studentmanagement.presentation.subjects_list.components.CreateSubjectBottomSheet
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -58,10 +57,6 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
             )
         }
 
-        binding.fabAddSubject.setOnClickListener {
-            showCreateSubjectDialog()
-        }
-
         binding.apply {
             recyclerViewSubjects.apply {
                 layoutManager = LinearLayoutManager(requireContext())
@@ -79,22 +74,6 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
             }
         }
     }
-
-    private fun showCreateSubjectDialog() {
-        CreateSubjectBottomSheet().apply {
-            setOnSubjectCreatedListener { name, description, imageUri ->
-                viewModel.onAction(
-                    SubjectListEvent.CreateSubject(
-                        name = name,
-                        description = description,
-                        imageUri = imageUri,
-                        context = requireContext()
-                    )
-                )
-            }
-        }.show(childFragmentManager, "CreateSubjectBottomSheet")
-    }
-
 
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {

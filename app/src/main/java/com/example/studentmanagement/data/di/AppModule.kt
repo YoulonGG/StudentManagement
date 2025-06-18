@@ -39,6 +39,6 @@ val appModule = module {
     viewModel { StudentAttendanceViewModel(get()) }
     viewModel { HomeworkViewModel(get(), get(), get()) }
     viewModel { StudentPermissionViewModel(get(), get()) }
-    viewModel { SubjectListViewModel(get(), get(), get()) }
+    viewModel { SubjectListViewModel(get(), get()) }
 
 }
