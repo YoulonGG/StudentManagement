@@ -34,6 +34,7 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         val title = view.findViewById<TextView>(R.id.loginTitle)
         val signupText = view.findViewById<TextView>(R.id.tvGoSignup)
         val backButton = view.findViewById<ImageView>(R.id.goBack)
+        val resetPassword = view.findViewById<TextView>(R.id.txtResetPassword)
         val accountType = arguments?.getString("accountType") ?: "student"
 
         title.text = "Login as ${accountType.replaceFirstChar { it.uppercase() }}"
@@ -43,6 +44,13 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         signupText.setOnClickListener {
             findNavController().navigate(
                 R.id.navigate_login_to_signUp,
+                bundleOf("accountType" to accountType)
+            )
+        }
+
+        resetPassword.setOnClickListener {
+            findNavController().navigate(
+                R.id.navigate_login_to_reset_password,
                 bundleOf("accountType" to accountType)
             )
         }

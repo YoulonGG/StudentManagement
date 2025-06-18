@@ -34,12 +34,17 @@
         android:hint="Password"
         android:inputType="textPassword" />
 
-<!--    <EditText-->
-<!--        android:id="@+id/loginPhone"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:hint="Phone Number"-->
-<!--        android:inputType="number" />-->
+
+
+    <TextView
+        android:id="@+id/txtResetPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:text="Forgot Password? Reset it here"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btnLogin"
