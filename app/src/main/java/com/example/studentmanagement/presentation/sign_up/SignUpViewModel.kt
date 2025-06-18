@@ -111,7 +111,7 @@ class SignUpViewModel(
             "createdAt" to FieldValue.serverTimestamp(),
             "gender" to gender,
             "authUid" to user.uid,
-            "imageUrl" to null,
+            "imageUrl" to "",
             "status" to "active",
             "lastLogin" to FieldValue.serverTimestamp()
         )
@@ -133,15 +133,6 @@ class SignUpViewModel(
         studentID: String,
         gender: String
     ): Result<Unit> = try {
-        val existingStudent = firestore.collection("students")
-            .whereEqualTo("studentID", studentID)
-            .get()
-            .await()
-
-        if (!existingStudent.isEmpty) {
-            throw Exception("Student ID already exists")
-        }
-
         val authResult = auth.createUserWithEmailAndPassword(email, password).await()
         val user = authResult.user ?: throw Exception("User creation failed")
 
@@ -153,22 +144,27 @@ class SignUpViewModel(
             "accountType" to "student",
             "isApproved" to false,
             "createdAt" to FieldValue.serverTimestamp(),
-            "imageUrl" to null,
-            "address" to null,
-            "phone" to null,
-            "age" to null,
-            "guardian" to null,
-            "guardianContact" to null,
-            "majoring" to null,
+            "imageUrl" to "",
+            "address" to "",
+            "phone" to "",
+            "age" to "",
+            "guardian" to "",
+            "guardianContact" to "",
+            "majoring" to "Computer Science and Engineering",
             "gender" to gender,
             "status" to "pending",
             "lastLogin" to FieldValue.serverTimestamp()
         )
 
-        firestore.collection("students")
-            .document(user.uid)
-            .set(studentData)
-            .await()
+        try {
+            firestore.collection("students")
+                .document(user.uid)
+                .set(studentData)
+                .await()
+        } catch (e: Exception) {
+            auth.currentUser?.delete()?.await()
+            throw Exception("Student ID might already exist or other error: ${e.message}")
+        }
 
         Result.success(Unit)
     } catch (e: Exception) {

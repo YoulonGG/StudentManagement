@@ -80,8 +80,8 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
                 val name = nameInput.text.toString()
                 val studentID = phoneInput.text.toString()
                 val gender = when (genderRadioGroup.checkedRadioButtonId) {
-                    R.id.maleRadioButton -> "male"
-                    R.id.femaleRadioButton -> "female"
+                    R.id.maleRadioButton -> "Male"
+                    R.id.femaleRadioButton -> "Female"
                     else -> ""
                 }
                 if (validateStudentInputs(email, password, name, studentID, gender)) {
