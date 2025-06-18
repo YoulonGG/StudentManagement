@@ -20,18 +20,49 @@
             android:textSize="20.dp" />
 
         <Button
+            android:id="@+id/btnAttendance"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Check Attendance" />
+
+        <Button
+            android:id="@+id/btnAttendanceHistory"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Check Attendance History" />
+
+        <Button
+            android:id="@+id/btnHomework"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Check HomeWork" />
+
+        <Button
+            android:id="@+id/btnSeeStudentList"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="See Student List" />
 
         <Button
+            android:id="@+id/btnCreateStudent"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Create Student" />
+            android:text="Approve Student" />
 
         <Button
+            android:id="@+id/btnSubject"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Subjects" />
+
+        <Button
+            android:id="@+id/btnLogout"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

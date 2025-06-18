@@ -32,6 +32,7 @@
             app:destination="@id/login" />
     </fragment>
 
+
     <fragment
         android:id="@+id/login"
         android:name="com.example.studentmanagement.presentation.login.LoginFragment"
@@ -49,7 +50,12 @@
             android:id="@+id/navigate_login_to_signUp"
             app:destination="@id/signUp" />
 
+        <action
+            android:id="@+id/navigate_login_to_choose_login_type"
+            app:destination="@id/loginType" />
+
     </fragment>
+
 
     <fragment
         android:id="@+id/signUp"
@@ -64,11 +70,121 @@
     <fragment
         android:id="@+id/teacher"
         android:name="com.example.studentmanagement.presentation.teacher.TeacherScreen"
-        android:label="Teacher Screen" />
+        android:label="Teacher Screen">
+
+        <action
+            android:id="@+id/navigate_teacher_to_approve_student"
+            app:destination="@id/approvalStudent" />
+
+        <action
+            android:id="@+id/navigate_teacher_to_student_list"
+            app:destination="@id/student_list" />
+
+        <action
+            android:id="@+id/navigate_teacher_to_attendance"
+            app:destination="@id/attendance" />
+
+        <action
+            android:id="@+id/navigate_teacher_to_attendance_history"
+            app:destination="@id/student_attendance_history" />
+
+        <action
+            android:id="@+id/navigate_teacher_to_homework"
+            app:destination="@id/homework" />
+        <action
+            android:id="@+id/navigate_teacher_to_subject_list"
+            app:destination="@id/subject_list" />
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/attendance"
+        android:label="Attendance Screen"
+        android:name="com.example.studentmanagement.presentation.teacher_attendance.TeacherAttendanceFragment">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/student_list"
+        android:name="com.example.studentmanagement.presentation.student_list.StudentListFragment"
+        android:label="Student List Screen">
+
+
+        <action
+            android:id="@+id/navigate_student_list_to_student_details"
+            app:destination="@id/student_details" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/student_details"
+        android:name="com.example.studentmanagement.presentation.student_detail.StudentDetailScreen"
+        android:label="Student Detail Screen">
+
+    </fragment>
 
     <fragment
         android:id="@+id/student"
         android:name="com.example.studentmanagement.presentation.student.StudentScreen"
-        android:label="Student Screen" />
+        android:label="Student Screen" >
+
+        <action
+            android:id="@+id/navigate_student_to_ask_permission"
+            app:destination="@id/student_ask_permission" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/student_ask_permission"
+        android:name="com.example.studentmanagement.presentation.ask_permission.StudentPermissionFragment"
+        android:label="Student Ask Permission Screen">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/student_attendance_history"
+        android:name="com.example.studentmanagement.presentation.attendace_history.StudentAttendanceHistoryScreen"
+        android:label="Student Attendance History Screen">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/approvalStudent"
+        android:name="com.example.studentmanagement.presentation.approve_student.ApprovalStudentScreen"
+        android:label="Approval Student Fragment">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/homework"
+        android:name="com.example.studentmanagement.presentation.home.HomeworkScreen"
+        android:label="Homework Fragment">
+
+        <argument
+            android:name="accountType"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue=""/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/subject_list"
+        android:name="com.example.studentmanagement.presentation.subjects_list.SubjectListFragment"
+        android:label="Subject List Screen">
+
+        <action android:id="@+id/navigate_subject_list_to_submit_score"
+            app:destination="@id/submit_score" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/submit_score"
+        android:name="com.example.studentmanagement.presentation.teacher_submit_score.SubmitScoreScreen"
+        android:label="Submit Score Screen">
+
+
+    </fragment>
 
 </navigation>

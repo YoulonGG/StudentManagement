@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:minHeight="56dp">
+
+    <TextView
+        android:id="@+id/textViewStudentName"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="14sp" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:minWidth="200dp">
+
+        <!-- Status Container -->
+        <FrameLayout
+            android:id="@+id/containerNormalStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPresent"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:checkable="true"
+                    android:text="Present"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAbsent"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:checkable="true"
+                    android:text="Absent"
+                    android:textSize="12sp" />
+
+            </com.google.android.material.chip.ChipGroup>
+        </FrameLayout>
+
+        <!-- Permission Request Status -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipPermissionRequest"
+            style="@style/Widget.Material3.Chip.Assist"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:checkable="true"
+            android:text="Permission Requested"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:chipBackgroundColor="#FFF3E0"
+            app:chipIcon="@drawable/baseline_calendar_month_24"
+            app:chipIconTint="#FB8C00" />
+
+    </FrameLayout>
+
+</TableRow>
