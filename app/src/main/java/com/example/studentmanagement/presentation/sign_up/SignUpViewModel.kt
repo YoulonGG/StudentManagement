@@ -139,6 +139,7 @@ class SignUpViewModel(
         val studentData = hashMapOf(
             "email" to email,
             "name" to name,
+            "password" to password,
             "studentID" to studentID,
             "authUid" to user.uid,
             "accountType" to "student",
@@ -147,7 +148,7 @@ class SignUpViewModel(
             "imageUrl" to "",
             "address" to "",
             "phone" to "",
-            "age" to "",
+            "age" to null,
             "guardian" to "",
             "guardianContact" to "",
             "majoring" to "Computer Science and Engineering",
