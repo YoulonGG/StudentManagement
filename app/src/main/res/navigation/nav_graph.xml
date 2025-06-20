@@ -54,6 +54,10 @@
             android:id="@+id/navigate_login_to_choose_login_type"
             app:destination="@id/loginType" />
 
+        <action
+            android:id="@+id/navigate_login_to_reset_password"
+            app:destination="@id/passwordResetFragment" />
+
     </fragment>
 
 
@@ -184,7 +188,12 @@
         android:name="com.example.studentmanagement.presentation.teacher_submit_score.SubmitScoreScreen"
         android:label="Submit Score Screen">
 
+    </fragment>
 
+    <fragment
+        android:id="@+id/passwordResetFragment"
+        android:name="com.example.studentmanagement.presentation.reset_password.ResetPasswordScreen"
+        android:label="Reset Password">
     </fragment>
 
 </navigation>

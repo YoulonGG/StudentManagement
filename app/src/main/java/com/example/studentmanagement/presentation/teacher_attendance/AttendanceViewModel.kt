@@ -1,6 +1,5 @@
 package com.example.studentmanagement.presentation.teacher_attendance
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -89,12 +88,17 @@ class TeacherAttendanceViewModel(
                                     savedStatus != null -> savedStatus
                                     permissionInfo?.status == PermissionStatus.APPROVED -> AttendanceStatus.PERMISSION
                                     permissionInfo?.status == PermissionStatus.REJECTED -> AttendanceStatus.ABSENT
-                                    else -> AttendanceStatus.PRESENT
+                                    else -> AttendanceStatus.PRESENT // Default status, but not selected
                                 },
                                 hasPermissionRequest = permissionInfo?.status == PermissionStatus.PENDING,
                                 permissionReason = permissionInfo?.reason,
                                 date = uiState.value.selectedDate,
-                                statusModified = savedStatus != null
+                                statusModified = savedStatus != null ||
+                                        permissionInfo?.status == PermissionStatus.APPROVED ||
+                                        permissionInfo?.status == PermissionStatus.REJECTED,
+                                isStatusSelected = savedStatus != null ||
+                                        permissionInfo?.status == PermissionStatus.APPROVED ||
+                                        permissionInfo?.status == PermissionStatus.REJECTED
                             )
                         }
                         setState {
@@ -137,7 +141,8 @@ class TeacherAttendanceViewModel(
                                     hasPermissionRequest = false,
                                     status = if (approved) AttendanceStatus.PERMISSION
                                     else AttendanceStatus.ABSENT,
-                                    statusModified = true
+                                    statusModified = true,
+                                    isStatusSelected = true
                                 )
                             } else it
                         }
@@ -176,14 +181,14 @@ class TeacherAttendanceViewModel(
             return
         }
 
-        // Store the status in the map
         savedStatuses[studentId] = status
 
         val updatedStudents = uiState.value.students.map {
             if (it.studentId == studentId) {
                 it.copy(
                     status = status,
-                    statusModified = true
+                    statusModified = true,
+                    isStatusSelected = true
                 )
             } else it
         }
@@ -194,6 +199,11 @@ class TeacherAttendanceViewModel(
     private fun submitAttendance() {
         if (uiState.value.attendanceSubmitted) {
             setState { copy(error = "Attendance has already been submitted for this date") }
+            return
+        }
+
+        if (!uiState.value.students.all { it.isStatusSelected }) {
+            setState { copy(error = "Please select status for all students") }
             return
         }
 
@@ -388,105 +398,77 @@ class AttendanceAdapter(
             }
         }
 
-        @SuppressLint("SetTextI18n")
         private fun setupNormalAttendance(item: StudentAttendance) {
             chipGroupStatus.setOnCheckedChangeListener(null)
 
-            if (item.statusModified || item.isSubmitted) {
-                when (item.status) {
-                    AttendanceStatus.PRESENT -> chipPresent.isChecked = true
-                    AttendanceStatus.ABSENT -> chipAbsent.isChecked = true
-                    AttendanceStatus.PERMISSION -> {
+            when {
+                // Case 1: Permission approved or rejected - lock the status
+                item.status == AttendanceStatus.PERMISSION ||
+                        (item.statusModified && item.hasPermissionRequest && item.status == AttendanceStatus.ABSENT) -> {
+                    if (item.status == AttendanceStatus.PERMISSION) {
+                        chipAbsent.visibility = View.GONE
                         chipPresent.apply {
+                            visibility = View.VISIBLE
                             isChecked = true
                             text = "Permission"
+                            isEnabled = false
+                        }
+                    } else {
+                        chipPresent.visibility = View.GONE
+                        chipAbsent.apply {
+                            visibility = View.VISIBLE
+                            isChecked = true
+                            isEnabled = false
                         }
                     }
                 }
-            } else {
-                chipPresent.isChecked = false
-                chipAbsent.isChecked = false
-            }
-
-            chipPresent.apply {
-                text = "Present"
-                visibility = View.VISIBLE
-            }
-            chipAbsent.apply {
-                text = "Absent"
-                visibility = View.VISIBLE
-            }
-
-            when {
+                // Case 2: Submitted attendance - show final status
                 item.isSubmitted -> {
                     when (item.status) {
                         AttendanceStatus.PRESENT -> {
-                            chipAbsent.visibility = View.GONE
-                            chipPresent.apply {
-                                isChecked = true
-                                text = "Present"
-                            }
-                        }
-
-                        AttendanceStatus.ABSENT -> {
-                            chipPresent.visibility = View.GONE
-                            chipAbsent.apply {
-                                isChecked = true
-                                visibility = View.VISIBLE
-                            }
-                        }
-
-                        AttendanceStatus.PERMISSION -> {
-                            chipAbsent.visibility = View.GONE
-                            chipPresent.apply {
-                                isChecked = true
-                                text = "Permission"
-                            }
-                        }
-                    }
-                }
-
-                else -> {
-                    when (item.status) {
-                        AttendanceStatus.PRESENT -> {
                             chipPresent.isChecked = true
-                            chipAbsent.isChecked = false
-                            chipPresent.visibility = View.VISIBLE
-                            chipAbsent.visibility = View.VISIBLE
-                        }
-
-                        AttendanceStatus.ABSENT -> {
-                            chipPresent.isChecked = false
-                            chipAbsent.isChecked = true
-                            chipPresent.visibility = View.VISIBLE
-                            chipAbsent.visibility = View.VISIBLE
-                        }
-
-                        AttendanceStatus.PERMISSION -> {
                             chipAbsent.visibility = View.GONE
-                            chipPresent.apply {
-                                isChecked = true
-                                text = "Permission"
-                            }
                         }
+                        AttendanceStatus.ABSENT -> {
+                            chipAbsent.isChecked = true
+                            chipPresent.visibility = View.GONE
+                        }
+                        else -> {}
+                    }
+                    setChipsEnabled(false)
+                }
+                // Case 3: Normal attendance selection - allow changes
+                else -> {
+                    // Show both chips and enable them
+                    chipPresent.apply {
+                        text = "Present"
+                        visibility = View.VISIBLE
+                        isEnabled = true
+                        isChecked = item.statusModified && item.status == AttendanceStatus.PRESENT
+                    }
+                    chipAbsent.apply {
+                        visibility = View.VISIBLE
+                        isEnabled = true
+                        isChecked = item.statusModified && item.status == AttendanceStatus.ABSENT
+                    }
+
+                    // Add change listener for normal attendance
+                    chipGroupStatus.setOnCheckedChangeListener { _, checkedId ->
+                        val status = when (checkedId) {
+                            R.id.chipPresent -> AttendanceStatus.PRESENT
+                            R.id.chipAbsent -> AttendanceStatus.ABSENT
+                            else -> return@setOnCheckedChangeListener
+                        }
+                        onStatusChanged(item.studentId, status)
                     }
                 }
             }
 
-            setChipsEnabled(!item.isSubmitted)
-
-            if (!item.isSubmitted) {
-                chipGroupStatus.setOnCheckedChangeListener { _, checkedId ->
-                    val status = when (checkedId) {
-                        R.id.chipPresent -> AttendanceStatus.PRESENT
-                        R.id.chipAbsent -> AttendanceStatus.ABSENT
-                        else -> AttendanceStatus.PRESENT
-                    }
-                    onStatusChanged(item.studentId, status)
-                }
+            // No chips selected initially for new attendance
+            if (!item.statusModified && !item.isSubmitted) {
+                chipGroupStatus.clearCheck()
             }
         }
-
         private fun setChipsEnabled(enabled: Boolean) {
             chipPresent.isEnabled = enabled
             chipAbsent.isEnabled = enabled
@@ -540,13 +522,13 @@ data class TeacherAttendanceState(
 data class StudentAttendance(
     val studentId: String,
     val fullName: String,
-    val status: AttendanceStatus = AttendanceStatus.PRESENT,
-    val isSubmitted: Boolean = false,
+    val status: AttendanceStatus,
     val hasPermissionRequest: Boolean = false,
     val permissionReason: String? = null,
-    val date: String? = null,
-    val statusModified: Boolean = false
-
+    val date: String = "",
+    val statusModified: Boolean = false,
+    val isSubmitted: Boolean = false,
+    val isStatusSelected: Boolean = false
 )
 
 sealed class TeacherAttendanceEvent {

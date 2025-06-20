@@ -47,7 +47,7 @@ class ApprovalStudentViewModel(
                         "id" to doc.id,
                         "name" to (doc.getString("name") ?: ""),
                         "email" to (doc.getString("email") ?: ""),
-                        "phone" to (doc.getString("phone") ?: ""),
+                        "studentID" to (doc.getString("studentID") ?: ""),
                         "isApproved" to (doc.getBoolean("isApproved") ?: false)
                     )
                 }
@@ -126,7 +126,7 @@ class ApprovalStudentViewModel(
             holder.binding.apply {
                 nameText.text = student["name"].toString()
                 emailText.text = student["email"].toString()
-                phoneText.text = student["phone"].toString()
+                phoneText.text = student["studentID"].toString()
 
                 approveButton.setOnClickListener { onApprove(student) }
                 rejectButton.setOnClickListener { onReject(student) }

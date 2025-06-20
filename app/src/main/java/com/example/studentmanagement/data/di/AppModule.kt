@@ -11,6 +11,7 @@ import com.example.studentmanagement.presentation.ask_permission.StudentPermissi
 import com.example.studentmanagement.presentation.attendace_history.StudentAttendanceViewModel
 import com.example.studentmanagement.presentation.home.HomeworkViewModel
 import com.example.studentmanagement.presentation.login.LoginViewModel
+import com.example.studentmanagement.presentation.reset_password.ResetPasswordViewModel
 import com.example.studentmanagement.presentation.sign_up.SignUpViewModel
 import com.example.studentmanagement.presentation.student.StudentViewModel
 import com.example.studentmanagement.presentation.student_detail.StudentDetailViewModel
@@ -40,5 +41,6 @@ val appModule = module {
     viewModel { HomeworkViewModel(get(), get(), get()) }
     viewModel { StudentPermissionViewModel(get(), get()) }
     viewModel { SubjectListViewModel(get(), get()) }
+    viewModel { ResetPasswordViewModel(get()) }
 
 }
