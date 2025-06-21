@@ -108,6 +108,7 @@ class SignUpViewModel(
         val teacherData = hashMapOf(
             "email" to email,
             "accountType" to "teacher",
+            "password" to password,
             "createdAt" to FieldValue.serverTimestamp(),
             "gender" to gender,
             "authUid" to user.uid,
