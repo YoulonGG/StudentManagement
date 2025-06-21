@@ -24,6 +24,8 @@ class StudentViewModel(
         }
     }
 
+
+
     private fun getStudentDetails() {
         val currentUser = auth.currentUser ?: return
         setState { copy(isLoading = true) }
