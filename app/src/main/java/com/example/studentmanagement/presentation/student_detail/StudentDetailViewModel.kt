@@ -1,11 +1,22 @@
 package com.example.studentmanagement.presentation.student_detail
 
+import android.app.Application
 import android.net.Uri
 import com.example.studentmanagement.core.base.BaseViewModel
+import com.example.studentmanagement.core.utils.FileUtils
 import com.example.studentmanagement.data.dto.StudentResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.Response
+import okio.IOException
+import org.json.JSONObject
 
 /**
  * @Author: John Youlong.
@@ -15,7 +26,7 @@ import com.google.firebase.storage.FirebaseStorage
 
 class StudentDetailViewModel(
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val application: Application
 ) : BaseViewModel<StudentDetailAction, StudentDetailUiState>() {
 
     override fun setInitialState(): StudentDetailUiState = StudentDetailUiState()
@@ -26,6 +37,7 @@ class StudentDetailViewModel(
                 setState { copy(student = event.student) }
                 checkUserRole()
             }
+
             is StudentDetailAction.SaveStudent -> saveStudentToFirestore(event.updatedStudent)
             is StudentDetailAction.UploadImage -> {
                 if (!uiState.value.isTeacher) {
@@ -36,35 +48,70 @@ class StudentDetailViewModel(
     }
 
     private fun uploadImageToStorage(uri: Uri) {
-        val studentId = uiState.value.student?.studentID
-        if (studentId == null) {
-            setState { copy(error = "Student ID is missing") }
-            return
-        }
-
         setState { copy(isLoading = true) }
 
-        val storageRef = storage.reference.child("students/$studentId/profile.jpg")
-        storageRef.putFile(uri)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                    val updatedStudent =
-                        uiState.value.student?.copy(imageUrl = downloadUrl.toString())
-                    if (updatedStudent != null) {
-                        saveStudentToFirestore(updatedStudent)
-                    } else {
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = "Failed to update student data"
-                            )
-                        }
+        val context = application.applicationContext
+        val file = FileUtils.from(context, uri)
+
+        val cloudName = "dc1qetqkl"
+        val uploadPreset = "B9662WPxguuJq_agb3lwFJjIi-A"
+
+        val client = OkHttpClient()
+
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("file", file.name, file.asRequestBody("image/*".toMediaTypeOrNull()))
+            .addFormDataPart("upload_preset", uploadPreset)
+            .build()
+
+        val request = Request.Builder()
+            .url("https://api.cloudinary.com/v1_1/$cloudName/image/upload")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                setState { copy(isLoading = false, error = "Upload failed: ${e.message}") }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Upload failed with code: ${response.code}"
+                        )
                     }
+                    return
+                }
+
+                val body = response.body?.string()
+                if (body != null) {
+                    try {
+                        val json = JSONObject(body)
+                        val imageUrl = json.getString("secure_url")
+
+                        val updatedStudent =
+                            uiState.value.student?.copy(imageUrl = imageUrl)
+
+                        if (updatedStudent != null) {
+                            saveStudentToFirestore(updatedStudent)
+                        } else {
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error = "Failed to update student data"
+                                )
+                            }
+                        }
+                    } catch (e: Exception) {
+                        setState { copy(isLoading = false, error = "Parse error: ${e.message}") }
+                    }
+                } else {
+                    setState { copy(isLoading = false, error = "Empty response from Cloudinary") }
                 }
             }
-            .addOnFailureListener { e ->
-                setState { copy(isLoading = false, error = e.message) }
-            }
+        })
     }
 
     private fun saveStudentToFirestore(student: StudentResponse) {
@@ -163,3 +210,6 @@ data class StudentDetailUiState(
     val student: StudentResponse? = null,
     val isTeacher: Boolean = false
 )
+
+
+

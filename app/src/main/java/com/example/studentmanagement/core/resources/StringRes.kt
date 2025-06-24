@@ -10,4 +10,5 @@ object StringRes {
     const val PERSONAL_INFO = "Personal_Info"
     const val MY_COURSES = "My_Courses"
     const val GRADES = "Grades"
+    const val EMAIL_CAN_NOT_BE_EMPTY = "Email_can_not_be_empty"
 }

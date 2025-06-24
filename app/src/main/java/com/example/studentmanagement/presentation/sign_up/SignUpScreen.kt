@@ -17,6 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.resources.StringRes
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -129,7 +130,7 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
 
     private fun validateTeacherInputs(email: String, password: String, gender: String): Boolean {
         return when {
-            email.isEmpty() -> showError("Email cannot be empty")
+            email.isEmpty() -> showError(StringRes.EMAIL_CAN_NOT_BE_EMPTY)
             password.isEmpty() -> showError("Password cannot be empty")
             gender.isEmpty() -> showError("Please select gender")
             else -> true

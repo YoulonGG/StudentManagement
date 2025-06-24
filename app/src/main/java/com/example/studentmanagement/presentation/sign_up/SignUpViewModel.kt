@@ -160,7 +160,7 @@ class SignUpViewModel(
 
         try {
             firestore.collection("students")
-                .document(user.uid)
+                .document(studentID)
                 .set(studentData)
                 .await()
         } catch (e: Exception) {
