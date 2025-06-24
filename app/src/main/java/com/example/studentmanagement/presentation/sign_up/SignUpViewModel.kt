@@ -114,7 +114,6 @@ class SignUpViewModel(
             "authUid" to user.uid,
             "imageUrl" to "",
             "status" to "active",
-            "imageUrl" to "",
             "lastLogin" to FieldValue.serverTimestamp()
         )
 
