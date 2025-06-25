@@ -31,11 +31,13 @@ object Dialog {
      * @param description Dialog description
      * @param buttonText Button text (default: "Okay")
      */
+
     fun showDialog(
         context: Context,
         title: String,
         description: String,
-        buttonText: String = "Okay"
+        buttonText: String = "Okay",
+        onBtnClick: () -> Unit
     ) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -52,12 +54,17 @@ object Dialog {
         btnOkay.text = buttonText
 
         btnOkay.setOnClickListener {
+            onBtnClick.invoke()
             dialog.dismiss()
         }
 
         dialog.setContentView(view)
         dialog.setCancelable(true)
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.apply {
+            setBackgroundDrawableResource(android.R.color.transparent)
+            val width = (context.resources.displayMetrics.widthPixels * 0.9).toInt()
+            setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
         dialog.show()
     }
 

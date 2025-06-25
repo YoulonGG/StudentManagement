@@ -29,13 +29,6 @@ class SignUpViewModel(
                 password = event.password,
                 gender = event.gender
             )
-            is SignUpAction.SubmitStudent -> handleStudentSignUp(
-                email = event.email,
-                password = event.password,
-                name = event.name,
-                studentID = event.studentID,
-                gender = event.gender
-            )
             SignUpAction.ClearError -> setState { copy(error = null) }
             SignUpAction.ResetState -> setState { SignUpUiState() }
         }
@@ -48,37 +41,6 @@ class SignUpViewModel(
                 setState { copy(isLoading = true, error = null) }
 
                 val result = signUpTeacher(email, password, gender)
-                setState {
-                    copy(
-                        isLoading = false,
-                        success = result.isSuccess,
-                        error = result.exceptionOrNull()?.message
-                    )
-                }
-            } catch (e: Exception) {
-                setState {
-                    copy(
-                        isLoading = false,
-                        error = "Registration failed: ${e.message}"
-                    )
-                }
-            }
-        }
-    }
-
-    private fun handleStudentSignUp(
-        email: String,
-        password: String,
-        name: String,
-        studentID: String,
-        gender: String
-    ) {
-        viewModelScope.launch {
-            try {
-                if (!validateStudentInputs(email, password, name, studentID, gender)) return@launch
-                setState { copy(isLoading = true, error = null) }
-
-                val result = signUpStudent(email, password, name, studentID, gender)
                 setState {
                     copy(
                         isLoading = false,
@@ -127,86 +89,12 @@ class SignUpViewModel(
         Result.failure(Exception("Teacher registration failed: ${e.message}"))
     }
 
-    private suspend fun signUpStudent(
-        email: String,
-        password: String,
-        name: String,
-        studentID: String,
-        gender: String
-    ): Result<Unit> = try {
-        val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-        val user = authResult.user ?: throw Exception("User creation failed")
-
-        val studentData = hashMapOf(
-            "email" to email,
-            "name" to name,
-            "password" to password,
-            "studentID" to studentID,
-            "authUid" to user.uid,
-            "accountType" to "student",
-            "isApproved" to false,
-            "createdAt" to FieldValue.serverTimestamp(),
-            "imageUrl" to "",
-            "address" to "",
-            "phone" to "",
-            "age" to null,
-            "guardian" to "",
-            "guardianContact" to "",
-            "majoring" to "Computer Science and Engineering",
-            "gender" to gender,
-            "status" to "pending",
-            "lastLogin" to FieldValue.serverTimestamp()
-        )
-
-        try {
-            firestore.collection("students")
-                .document(studentID)
-                .set(studentData)
-                .await()
-        } catch (e: Exception) {
-            auth.currentUser?.delete()?.await()
-            throw Exception("Student ID might already exist or other error: ${e.message}")
-        }
-
-        Result.success(Unit)
-    } catch (e: Exception) {
-        auth.currentUser?.delete()?.await()
-        Result.failure(Exception("Student registration failed: ${e.message}"))
-    }
-
     private fun validateTeacherInputs(
         email: String,
         password: String,
         gender: String
     ): Boolean = when {
         !validateBasicInputs(email, password) -> false
-        gender.isEmpty() -> {
-            setState { copy(error = "Please select gender") }
-            false
-        }
-        else -> true
-    }
-
-    private fun validateStudentInputs(
-        email: String,
-        password: String,
-        name: String,
-        studentID: String,
-        gender: String
-    ): Boolean = when {
-        !validateBasicInputs(email, password) -> false
-        name.trim().isEmpty() -> {
-            setState { copy(error = "Name cannot be empty") }
-            false
-        }
-        studentID.trim().isEmpty() -> {
-            setState { copy(error = "Student ID cannot be empty") }
-            false
-        }
-        !studentID.matches(Regex("^[A-Za-z0-9]+$")) -> {
-            setState { copy(error = "Invalid Student ID format") }
-            false
-        }
         gender.isEmpty() -> {
             setState { copy(error = "Please select gender") }
             false
@@ -242,14 +130,6 @@ sealed class SignUpAction {
     data class SubmitTeacher(
         val email: String,
         val password: String,
-        val gender: String
-    ) : SignUpAction()
-
-    data class SubmitStudent(
-        val email: String,
-        val password: String,
-        val name: String,
-        val studentID: String,
         val gender: String
     ) : SignUpAction()
 

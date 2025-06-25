@@ -44,6 +44,10 @@ class StudentDetailViewModel(
                     uploadImageToStorage(event.imageUri)
                 }
             }
+
+            StudentDetailAction.LoadCurrentStudent -> {
+                loadCurrentStudentData()
+            }
         }
     }
 
@@ -54,7 +58,7 @@ class StudentDetailViewModel(
         val file = FileUtils.from(context, uri)
 
         val cloudName = "dc1qetqkl"
-        val uploadPreset = "B9662WPxguuJq_agb3lwFJjIi-A"
+        val uploadPreset = "student_management"
 
         val client = OkHttpClient()
 
@@ -194,13 +198,95 @@ class StudentDetailViewModel(
                 setState { copy(isTeacher = isTeacher) }
             }
     }
-}
+
+    private fun loadCurrentStudentData() {
+        val currentUser = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+            setState { copy(error = "User not authenticated") }
+            return
+        }
+
+        setState { copy(isLoading = true, error = null) }
+
+        firestore.collection("users")
+            .document(currentUser)
+            .get()
+            .addOnSuccessListener { userDoc ->
+                val accountType = userDoc.getString("accountType")
+                val isTeacher = accountType == "teacher"
+                setState { copy(isTeacher = isTeacher) }
+
+                if (accountType == "student") {
+                    firestore.collection("students")
+                        .document(currentUser)
+                        .get()
+                        .addOnSuccessListener { studentDoc ->
+                            if (studentDoc.exists()) {
+                                val student = studentDoc.toObject(StudentResponse::class.java)
+                                setState {
+                                    copy(
+                                        isLoading = false,
+                                        student = student,
+                                        error = null
+                                    )
+                                }
+                            } else {
+                                val initialStudent = StudentResponse(
+                                    authUid = currentUser,
+                                    name = userDoc.getString("name") ?: "",
+                                    email = userDoc.getString("email") ?: ""
+                                )
+
+                                firestore.collection("students")
+                                    .document(currentUser)
+                                    .set(initialStudent)
+                                    .addOnSuccessListener {
+                                        setState {
+                                            copy(
+                                                isLoading = false,
+                                                student = initialStudent,
+                                                error = null
+                                            )
+                                        }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        setState {
+                                            copy(
+                                                isLoading = false,
+                                                error = "Failed to create student profile: ${e.message}"
+                                            )
+                                        }
+                                    }
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error = "Failed to load student data: ${e.message}"
+                                )
+                            }
+                        }
+                } else {
+                    setState { copy(isLoading = false) }
+                }
+            }
+            .addOnFailureListener { e ->
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to check user role: ${e.message}"
+                    )
+                }
+            }
+    }}
 
 
 sealed class StudentDetailAction {
     data class LoadStudent(val student: StudentResponse) : StudentDetailAction()
     data class SaveStudent(val updatedStudent: StudentResponse) : StudentDetailAction()
     data class UploadImage(val imageUri: Uri) : StudentDetailAction()
+    data object LoadCurrentStudent : StudentDetailAction()
+
 }
 
 

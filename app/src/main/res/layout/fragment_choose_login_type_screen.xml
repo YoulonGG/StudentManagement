@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".presentation.choose_login_type.ChooseLoginTypeScreen">
@@ -13,8 +14,9 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Choose Your Option"
-        android:textColor="@color/blue_text_color"
-        android:textSize="20sp" />
+        android:textColor="@color/primary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,9 +34,8 @@
 
             <ImageView
                 android:id="@+id/btnStudentLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:background="@drawable/login_type_card_background"
                 android:padding="16dp"
                 android:src="@drawable/student_option"
@@ -60,8 +61,8 @@
 
             <ImageView
                 android:id="@+id/btnTeacherLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:background="@drawable/login_type_card_background"
                 android:padding="16dp"
                 android:src="@drawable/teacher_option"
