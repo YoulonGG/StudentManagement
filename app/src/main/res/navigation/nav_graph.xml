@@ -137,6 +137,11 @@
             android:id="@+id/navigate_student_to_ask_permission"
             app:destination="@id/student_ask_permission" />
 
+
+        <action
+            android:id="@+id/navigate_student_to_student_profile"
+            app:destination="@id/student_details" />
+
     </fragment>
 
     <fragment

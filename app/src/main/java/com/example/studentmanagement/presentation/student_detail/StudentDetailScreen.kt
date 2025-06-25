@@ -28,8 +28,10 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
         _binding = FragmentStudentDetailScreenBinding.bind(view)
 
         val student: StudentResponse? = arguments?.getParcelable("student")
-        student?.let {
-            viewModel.onAction(StudentDetailAction.LoadStudent(it))
+        if (student != null) {
+            viewModel.onAction(StudentDetailAction.LoadStudent(student))
+        } else {
+            viewModel.onAction(StudentDetailAction.LoadCurrentStudent)
         }
 
         setupListeners()
