@@ -2,18 +2,17 @@ package com.example.studentmanagement.presentation.reset_password
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -21,7 +20,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
     private val viewModel: ResetPasswordViewModel by viewModel()
     private lateinit var emailInput: EditText
-    private lateinit var resetButton: Button
+    private lateinit var resetButton: TextView
     private lateinit var errorText: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var backButton: ImageView
@@ -39,18 +38,6 @@ class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
         observeState()
     }
 
-    private fun setupListeners() {
-        backButton.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        resetButton.setOnClickListener {
-            val email = emailInput.text.toString()
-            if (validateEmail(email)) {
-                viewModel.onAction(PasswordResetAction.SendResetEmail(email))
-            }
-        }
-    }
 
     private fun validateEmail(email: String): Boolean {
         return when {
@@ -68,6 +55,19 @@ class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
         errorText.visibility = View.VISIBLE
     }
 
+    private fun setupListeners() {
+        backButton.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
+        resetButton.setOnClickListener {
+            val email = emailInput.text.toString()
+            if (validateEmail(email)) {
+                viewModel.onAction(PasswordResetAction.SendResetEmail(email))
+            }
+        }
+    }
+
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -81,14 +81,13 @@ class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
                     }
 
                     if (state.success) {
-                        errorText.text = "Reset link sent! Check your email"
-                        errorText.setTextColor(
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.permission_approved_color
-                            )
-                        )
-                        errorText.visibility = View.VISIBLE
+                        Dialog.showDialog(
+                            requireContext(),
+                            title = "Check your Email",
+                            description = "Reset link sent successfully!"
+                        ) {
+                            findNavController().navigateUp()
+                        }
                     }
                 }
             }

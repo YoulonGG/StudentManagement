@@ -29,18 +29,16 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val loginBtn = view.findViewById<Button>(R.id.btnLogin)
+        val loginBtn = view.findViewById<TextView>(R.id.btnLogin)
         val emailEt = view.findViewById<EditText>(R.id.loginEmail)
         val passEt = view.findViewById<EditText>(R.id.loginPassword)
-        val title = view.findViewById<TextView>(R.id.loginTitle)
+//        val title = view.findViewById<TextView>(R.id.loginTitle)
         val signupText = view.findViewById<TextView>(R.id.tvGoSignup)
         val backButton = view.findViewById<ImageView>(R.id.goBack)
         val resetPassword = view.findViewById<TextView>(R.id.txtResetPassword)
         val accountType = arguments?.getString("accountType") ?: "student"
 
-        title.text = "Login as ${accountType.replaceFirstChar { it.uppercase() }}"
-        signupText.text = if (accountType == "student") "Don't have an account? Sign Up as Student"
-        else "Don't have an account? Sign Up as Teacher"
+        signupText.visibility = if (accountType == "student") View.GONE else View.VISIBLE
 
         signupText.setOnClickListener {
             findNavController().navigate(
@@ -48,7 +46,6 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
                 bundleOf("accountType" to accountType)
             )
         }
-
         resetPassword.setOnClickListener {
             findNavController().navigate(
                 R.id.navigate_login_to_reset_password,
@@ -82,7 +79,7 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
     }
 
     private fun handleLoginState(state: LoginUiState, accountType: String) {
-        val loginBtn = requireView().findViewById<Button>(R.id.btnLogin)
+        val loginBtn = requireView().findViewById<TextView>(R.id.btnLogin)
 
         loginBtn.isEnabled = !state.isLoading
         loginBtn.text = if (state.isLoading) "Logging in..." else "Login"
@@ -91,7 +88,10 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
             Dialog.showDialog(
                 context = requireContext(),
                 title = "Error",
-                description = it
+                description = it,
+                onBtnClick = {
+
+                }
             )
             loginViewModel.errorShown()
         }

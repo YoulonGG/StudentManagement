@@ -26,8 +26,6 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
     private val viewModel: SignUpViewModel by viewModel()
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
-    private lateinit var nameInput: EditText
-    private lateinit var phoneInput: EditText
     private lateinit var signupBtn: Button
     private lateinit var errorText: TextView
     private lateinit var progressBar: ProgressBar
@@ -41,8 +39,6 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
 
         emailInput = view.findViewById(R.id.signupEmail)
         passwordInput = view.findViewById(R.id.signupPassword)
-        nameInput = view.findViewById(R.id.signupName)
-        phoneInput = view.findViewById(R.id.signupID)
         signupBtn = view.findViewById(R.id.btnSignup)
         errorText = view.findViewById(R.id.errorText)
         progressBar = view.findViewById(R.id.progressBar)
@@ -50,82 +46,29 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         backButton = view.findViewById(R.id.goBack)
         genderRadioGroup = view.findViewById(R.id.genderRadioGroup)
 
-
-        val accountType = arguments?.getString("accountType") ?: "teacher"
-
-        if (accountType == "student") {
-            titleText.text = "Student Sign Up"
-            nameInput.visibility = View.VISIBLE
-            phoneInput.visibility = View.VISIBLE
-            genderRadioGroup.visibility = View.VISIBLE
-            signupBtn.text = "Register as Student"
-        } else {
-            titleText.text = "Teacher Sign Up"
-            nameInput.visibility = View.GONE
-            phoneInput.visibility = View.GONE
-            genderRadioGroup.visibility = View.VISIBLE
-            signupBtn.text = "Register as Teacher"
-        }
+        titleText.text = "Teacher Sign Up"
+        genderRadioGroup.visibility = View.VISIBLE
+        signupBtn.text = "Register as Teacher"
 
         backButton.setOnClickListener {
             findNavController().navigateUp()
         }
 
-
         signupBtn.setOnClickListener {
             errorText.visibility = View.GONE
             val email = emailInput.text.toString()
             val password = passwordInput.text.toString()
-
-            if (accountType == "student") {
-                val name = nameInput.text.toString()
-                val studentID = phoneInput.text.toString()
-                val gender = when (genderRadioGroup.checkedRadioButtonId) {
-                    R.id.maleRadioButton -> "Male"
-                    R.id.femaleRadioButton -> "Female"
-                    else -> ""
-                }
-                if (validateStudentInputs(email, password, name, studentID, gender)) {
-                    viewModel.onAction(
-                        SignUpAction.SubmitStudent(
-                            email,
-                            password,
-                            name,
-                            studentID,
-                            gender
-                        )
-                    )
-                }
-            } else {
-                val gender = when (genderRadioGroup.checkedRadioButtonId) {
-                    R.id.maleRadioButton -> "Male"
-                    R.id.femaleRadioButton -> "Female"
-                    else -> ""
-                }
-                if (validateTeacherInputs(email, password, gender)) {
-                    viewModel.onAction(SignUpAction.SubmitTeacher(email, password, gender))
-                }
+            val gender = when (genderRadioGroup.checkedRadioButtonId) {
+                R.id.maleRadioButton -> "Male"
+                R.id.femaleRadioButton -> "Female"
+                else -> ""
+            }
+            if (validateTeacherInputs(email, password, gender)) {
+                viewModel.onAction(SignUpAction.SubmitTeacher(email, password, gender))
             }
         }
 
-        observeState(accountType)
-    }
-
-    private fun validateStudentInputs(
-        email: String,
-        password: String,
-        name: String,
-        studentID: String,
-        gender: String
-    ): Boolean {
-        return when {
-            email.isEmpty() -> showError("Email cannot be empty")
-            password.isEmpty() -> showError("Password cannot be empty")
-            name.isEmpty() -> showError("Name cannot be empty")
-            studentID.isEmpty() -> showError("studentID cannot be empty")
-            gender.isEmpty() -> showError("Please select gender")
-            else -> true
-        }
+        observeState()
     }
 
     private fun validateTeacherInputs(email: String, password: String, gender: String): Boolean {
@@ -143,7 +86,7 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         return false
     }
 
-    private fun observeState(accountType: String) {
+    private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
@@ -153,13 +96,12 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
                     state.error?.let {
                         errorText.text = it
                         errorText.visibility = View.VISIBLE
-//                        viewModel.errorShown()
                     }
 
                     if (state.success) {
                         findNavController().navigate(
                             R.id.action_signUp_to_login,
-                            bundleOf("accountType" to accountType),
+                            bundleOf("accountType" to "teacher"),
                             NavOptions.Builder()
                                 .setPopUpTo(R.id.action_signUp_to_login, false)
                                 .build()
@@ -170,5 +112,3 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         }
     }
 }
-
-

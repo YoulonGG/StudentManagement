@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="320dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
+    android:layout_marginHorizontal="20dp"
+    android:background="@drawable/common_button"
     android:layout_gravity="center">
 
     <TextView
@@ -11,32 +13,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Title"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="#333333"
-        android:gravity="center"
+        android:textColor="@color/white"
+        android:gravity="start"
         android:layout_marginBottom="16dp" />
 
-    <!-- Description -->
     <TextView
         android:id="@+id/dialog_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Description"
         android:textSize="14sp"
-        android:textColor="#666666"
-        android:gravity="center"
+        android:textColor="@color/white"
+        android:gravity="start"
         android:lineSpacingExtra="4dp"
         android:layout_marginBottom="20dp" />
 
-    <!-- Okay Button -->
     <Button
         android:id="@+id/dialog_btn_okay"
-        android:layout_width="match_parent"
+        android:layout_width="150dp"
         android:layout_height="48dp"
         android:text="Okay"
+        android:gravity="center"
+        android:layout_gravity="end"
         android:textSize="16sp"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:layout_marginTop="8dp" />
 
 </LinearLayout>
