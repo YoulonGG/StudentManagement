@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.data.local.PreferencesKeys
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -87,7 +88,11 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         loginBtn.text = if (state.isLoading) "Logging in..." else "Login"
 
         state.error?.let {
-            showToast(it)
+            Dialog.showDialog(
+                context = requireContext(),
+                title = "Error",
+                description = it
+            )
             loginViewModel.errorShown()
         }
 
