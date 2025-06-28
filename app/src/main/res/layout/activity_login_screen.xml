@@ -9,17 +9,42 @@
 
     <include layout="@layout/toolbar_with_back" />
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:layout_marginHorizontal="16dp"
+        android:gravity="center"
         android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/aiblogo" />
+
+        <TextView
+            android:id="@+id/txtLoginTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
+            android:text="Login as Teacher"
+            android:textColor="@color/primary"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Enter your email and password to login your account"
+            android:textColor="@color/primary"
+            android:textSize="14sp" />
 
         <EditText
             android:id="@+id/loginEmail"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_marginTop="20dp"
             android:background="@drawable/edit_text_bacground"
             android:hint="Email"
             android:paddingHorizontal="12dp"
@@ -51,12 +76,12 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="36dp"
-            android:textSize="14sp"
-            android:textStyle="bold"
             android:background="@drawable/common_button"
             android:gravity="center"
             android:text="Log in"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvGoSignup"

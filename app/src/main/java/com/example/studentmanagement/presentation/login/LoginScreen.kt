@@ -34,12 +34,14 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         val loginBtn = view.findViewById<TextView>(R.id.btnLogin)
         val emailEt = view.findViewById<EditText>(R.id.loginEmail)
         val passEt = view.findViewById<EditText>(R.id.loginPassword)
-//        val title = view.findViewById<TextView>(R.id.loginTitle)
+        val title = view.findViewById<TextView>(R.id.txtLoginTitle)
         val signupText = view.findViewById<TextView>(R.id.tvGoSignup)
         val backButton = view.findViewById<ImageView>(R.id.goBack)
         val resetPassword = view.findViewById<TextView>(R.id.txtResetPassword)
         val accountType = arguments?.getString("accountType") ?: "student"
         progressBar = view.findViewById(R.id.progressBar)
+
+        title.text = if (accountType == "teacher") "Login as Teacher" else "Login as Student"
 
         signupText.visibility = if (accountType == "student") View.GONE else View.VISIBLE
 
