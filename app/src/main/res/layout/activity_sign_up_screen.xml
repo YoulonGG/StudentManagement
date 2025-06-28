@@ -42,7 +42,7 @@
         <EditText
             android:id="@+id/signupUsername"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/edit_text_bacground"
             android:hint="Username"

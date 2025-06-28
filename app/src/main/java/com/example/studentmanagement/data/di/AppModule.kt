@@ -9,6 +9,7 @@ package com.example.studentmanagement.data.di
 import com.example.studentmanagement.presentation.approve_student.ApprovalStudentViewModel
 import com.example.studentmanagement.presentation.ask_permission.StudentPermissionViewModel
 import com.example.studentmanagement.presentation.attendace_history.StudentAttendanceViewModel
+import com.example.studentmanagement.presentation.create_student.CreateStudentViewModel
 import com.example.studentmanagement.presentation.home.HomeworkViewModel
 import com.example.studentmanagement.presentation.login.LoginViewModel
 import com.example.studentmanagement.presentation.reset_password.ResetPasswordViewModel
@@ -17,6 +18,7 @@ import com.example.studentmanagement.presentation.student.StudentViewModel
 import com.example.studentmanagement.presentation.student_detail.StudentDetailViewModel
 import com.example.studentmanagement.presentation.student_list.StudentListViewModel
 import com.example.studentmanagement.presentation.subjects_list.SubjectListViewModel
+import com.example.studentmanagement.presentation.teacher.TeacherViewModel
 import com.example.studentmanagement.presentation.teacher_attendance.TeacherAttendanceViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -42,5 +44,7 @@ val appModule = module {
     viewModel { StudentPermissionViewModel(get(), get()) }
     viewModel { SubjectListViewModel(get(), get()) }
     viewModel { ResetPasswordViewModel(get()) }
+    viewModel { TeacherViewModel(get(), get()) }
+    viewModel { CreateStudentViewModel(get(), get()) }
 
 }
