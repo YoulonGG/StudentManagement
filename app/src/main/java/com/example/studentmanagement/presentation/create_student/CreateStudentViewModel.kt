@@ -1,45 +1,60 @@
 package com.example.studentmanagement.presentation.create_student
 
 import android.util.Patterns
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class CreateStudentViewModel(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(CreateStudentUiState())
-    val uiState: StateFlow<CreateStudentUiState> = _uiState
+) : BaseViewModel<CreateStudentAction, CreateStudentUiState>() {
 
-    fun createStudent(
+    override fun setInitialState(): CreateStudentUiState = CreateStudentUiState()
+
+    override fun onAction(event: CreateStudentAction) {
+        when (event) {
+            is CreateStudentAction.SubmitStudent -> {
+                createStudent(
+                    email = event.email,
+                    name = event.name,
+                    studentID = event.studentID,
+                    gender = event.gender
+                )
+            }
+        }
+    }
+
+    private fun createStudent(
         email: String,
-        password: String,
         name: String,
         studentID: String,
-        gender: String
+        gender: String,
     ) {
+        val password = "aib123"
         viewModelScope.launch {
-            if (!validateInputs(email, password, name, studentID, gender)) return@launch
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            if (!validateInputs(email, name, studentID, gender)) return@launch
+            setState { copy(isLoading = true, error = null) }
             try {
                 val result = signUpStudent(email, password, name, studentID, gender)
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    success = result.isSuccess,
-                    error = result.exceptionOrNull()?.message
-                )
+                setState {
+                    copy(
+                        isLoading = false,
+                        success = result.isSuccess,
+                        error = result.exceptionOrNull()?.message
+                    )
+                }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = "Student creation failed: ${e.message}"
-                )
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to create student: ${e.message ?: "Unknown error"}"
+                    )
+                }
             }
         }
     }
@@ -61,7 +76,6 @@ class CreateStudentViewModel(
             "studentID" to studentID,
             "authUid" to user.uid,
             "accountType" to "student",
-            "isApproved" to false,
             "createdAt" to FieldValue.serverTimestamp(),
             "imageUrl" to "",
             "address" to "",
@@ -71,7 +85,7 @@ class CreateStudentViewModel(
             "guardianContact" to "",
             "majoring" to "Computer Science and Engineering",
             "gender" to gender,
-            "status" to "pending",
+            "status" to "active",
             "lastLogin" to FieldValue.serverTimestamp()
         )
 
@@ -88,52 +102,43 @@ class CreateStudentViewModel(
 
     private fun validateInputs(
         email: String,
-        password: String,
         name: String,
         studentID: String,
         gender: String
     ): Boolean = when {
         email.trim().isEmpty() -> {
-            _uiState.value = _uiState.value.copy(error = "Email cannot be empty")
+            setState { copy(error = "Email cannot be empty") }
             false
         }
         !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
-            _uiState.value = _uiState.value.copy(error = "Invalid email format")
-            false
-        }
-        password.trim().isEmpty() -> {
-            _uiState.value = _uiState.value.copy(error = "Password cannot be empty")
-            false
-        }
-        password.length < 6 -> {
-            _uiState.value = _uiState.value.copy(error = "Password must be at least 6 characters")
+            setState { copy(error = "Invalid email format") }
             false
         }
         name.trim().isEmpty() -> {
-            _uiState.value = _uiState.value.copy(error = "Name cannot be empty")
+            setState { copy(error = "Name cannot be empty") }
             false
         }
         studentID.trim().isEmpty() -> {
-            _uiState.value = _uiState.value.copy(error = "Student ID cannot be empty")
+            setState { copy(error = "Student ID cannot be empty") }
             false
         }
         !studentID.matches(Regex("^[A-Za-z0-9]+$")) -> {
-            _uiState.value = _uiState.value.copy(error = "Invalid Student ID format")
+            setState { copy(error = "Invalid Student ID format") }
             false
         }
         gender.isEmpty() -> {
-            _uiState.value = _uiState.value.copy(error = "Please select gender")
+            setState { copy(error = "Please select gender") }
             false
         }
         else -> true
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
+        setState { copy(error = null) }
     }
 
     fun resetState() {
-        _uiState.value = CreateStudentUiState()
+        setState { CreateStudentUiState() }
     }
 }
 
@@ -143,3 +148,11 @@ data class CreateStudentUiState(
     val error: String? = null
 )
 
+sealed interface CreateStudentAction {
+    data class SubmitStudent(
+        val email: String,
+        val name: String,
+        val studentID: String,
+        val gender: String
+    ) : CreateStudentAction
+}

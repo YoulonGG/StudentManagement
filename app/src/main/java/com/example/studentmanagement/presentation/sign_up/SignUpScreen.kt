@@ -99,7 +99,9 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-    }    private fun validateTeacherInputs(
+    }
+
+    private fun validateTeacherInputs(
         username: String,
         email: String,
         password: String,
