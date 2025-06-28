@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.edit
@@ -24,6 +24,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : Fragment(R.layout.activity_login_screen) {
     private val loginViewModel: LoginViewModel by viewModel()
+    private lateinit var progressBar: ProgressBar
+
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,6 +39,7 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         val backButton = view.findViewById<ImageView>(R.id.goBack)
         val resetPassword = view.findViewById<TextView>(R.id.txtResetPassword)
         val accountType = arguments?.getString("accountType") ?: "student"
+        progressBar = view.findViewById(R.id.progressBar)
 
         signupText.visibility = if (accountType == "student") View.GONE else View.VISIBLE
 
@@ -72,17 +75,15 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loginViewModel.uiState.collect { state ->
-                    handleLoginState(state, accountType)
+                    init(state, accountType)
                 }
             }
         }
     }
 
-    private fun handleLoginState(state: LoginUiState, accountType: String) {
-        val loginBtn = requireView().findViewById<TextView>(R.id.btnLogin)
-
-        loginBtn.isEnabled = !state.isLoading
-        loginBtn.text = if (state.isLoading) "Logging in..." else "Login"
+    private fun init(state: LoginUiState, accountType: String) {
+        progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+//        loginBtn.isEnabled = !state.isLoading
 
         state.error?.let {
             Dialog.showDialog(
@@ -90,10 +91,9 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
                 title = "Error",
                 description = it,
                 onBtnClick = {
-
+                    loginViewModel.errorShown()
                 }
             )
-            loginViewModel.errorShown()
         }
 
         if (state.success) {

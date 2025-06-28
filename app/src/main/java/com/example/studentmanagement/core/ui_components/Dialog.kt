@@ -62,7 +62,7 @@ object Dialog {
         dialog.setCancelable(true)
         dialog.window?.apply {
             setBackgroundDrawableResource(android.R.color.transparent)
-            val width = (context.resources.displayMetrics.widthPixels * 0.9).toInt()
+            val width = (context.resources.displayMetrics.widthPixels * 0.75).toInt()
             setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
         dialog.show()

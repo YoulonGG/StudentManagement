@@ -22,25 +22,18 @@ class SignUpViewModel(
 
     override fun setInitialState(): SignUpUiState = SignUpUiState()
 
-    override fun onAction(event: SignUpAction) {
-        when (event) {
-            is SignUpAction.SubmitTeacher -> handleTeacherSignUp(
-                email = event.email,
-                password = event.password,
-                gender = event.gender
-            )
-            SignUpAction.ClearError -> setState { copy(error = null) }
-            SignUpAction.ResetState -> setState { SignUpUiState() }
-        }
-    }
-
-    private fun handleTeacherSignUp(email: String, password: String, gender: String) {
+    private fun handleTeacherSignUp(
+        email: String,
+        password: String,
+        gender: String,
+        username: String
+    ) {
         viewModelScope.launch {
             try {
                 if (!validateTeacherInputs(email, password, gender)) return@launch
                 setState { copy(isLoading = true, error = null) }
 
-                val result = signUpTeacher(email, password, gender)
+                val result = signUpTeacher(email, password, gender, username)
                 setState {
                     copy(
                         isLoading = false,
@@ -59,10 +52,24 @@ class SignUpViewModel(
         }
     }
 
+    override fun onAction(event: SignUpAction) {
+        when (event) {
+            is SignUpAction.SubmitTeacher -> handleTeacherSignUp(
+                email = event.email,
+                password = event.password,
+                gender = event.gender,
+                username = event.username
+            )
+            SignUpAction.ClearError -> setState { copy(error = null) }
+            SignUpAction.ResetState -> setState { SignUpUiState() }
+        }
+    }
+
     private suspend fun signUpTeacher(
         email: String,
         password: String,
-        gender: String
+        gender: String,
+        username: String
     ): Result<Unit> = try {
         val authResult = auth.createUserWithEmailAndPassword(email, password).await()
         val user = authResult.user ?: throw Exception("User creation failed")
@@ -71,6 +78,7 @@ class SignUpViewModel(
             "email" to email,
             "accountType" to "teacher",
             "password" to password,
+            "username" to username,
             "createdAt" to FieldValue.serverTimestamp(),
             "gender" to gender,
             "authUid" to user.uid,
@@ -130,13 +138,13 @@ sealed class SignUpAction {
     data class SubmitTeacher(
         val email: String,
         val password: String,
-        val gender: String
+        val gender: String,
+        val username: String
     ) : SignUpAction()
 
     data object ClearError : SignUpAction()
     data object ResetState : SignUpAction()
 }
-
 data class SignUpUiState(
     val isLoading: Boolean = false,
     val success: Boolean = false,

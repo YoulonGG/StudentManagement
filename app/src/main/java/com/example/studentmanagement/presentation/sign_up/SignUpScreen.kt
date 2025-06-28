@@ -3,12 +3,14 @@ package com.example.studentmanagement.presentation.sign_up
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -24,31 +26,29 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
     private val viewModel: SignUpViewModel by viewModel()
+    private lateinit var usernameInput: EditText
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
-    private lateinit var signupBtn: Button
+    private lateinit var signupBtn: TextView
     private lateinit var errorText: TextView
     private lateinit var progressBar: ProgressBar
-    private lateinit var titleText: TextView
     private lateinit var backButton: ImageView
-    private lateinit var genderRadioGroup: RadioGroup
+    private lateinit var genderSpinner: Spinner
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        usernameInput = view.findViewById(R.id.signupUsername)
         emailInput = view.findViewById(R.id.signupEmail)
         passwordInput = view.findViewById(R.id.signupPassword)
         signupBtn = view.findViewById(R.id.btnSignup)
         errorText = view.findViewById(R.id.errorText)
         progressBar = view.findViewById(R.id.progressBar)
-        titleText = view.findViewById(R.id.signupTitle)
         backButton = view.findViewById(R.id.goBack)
-        genderRadioGroup = view.findViewById(R.id.genderRadioGroup)
+        genderSpinner = view.findViewById(R.id.genderSpinner)
 
-        titleText.text = "Teacher Sign Up"
-        genderRadioGroup.visibility = View.VISIBLE
-        signupBtn.text = "Register as Teacher"
+        setupGenderSpinner()
 
         backButton.setOnClickListener {
             findNavController().navigateUp()
@@ -56,26 +56,60 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
 
         signupBtn.setOnClickListener {
             errorText.visibility = View.GONE
+            val username = usernameInput.text.toString()
             val email = emailInput.text.toString()
             val password = passwordInput.text.toString()
-            val gender = when (genderRadioGroup.checkedRadioButtonId) {
-                R.id.maleRadioButton -> "Male"
-                R.id.femaleRadioButton -> "Female"
-                else -> ""
-            }
-            if (validateTeacherInputs(email, password, gender)) {
-                viewModel.onAction(SignUpAction.SubmitTeacher(email, password, gender))
+            val gender = genderSpinner.selectedItem.toString()
+
+            if (validateTeacherInputs(username, email, password, gender)) {
+                viewModel.onAction(SignUpAction.SubmitTeacher(email, password, gender, username))
             }
         }
 
         observeState()
     }
 
-    private fun validateTeacherInputs(email: String, password: String, gender: String): Boolean {
+    private fun setupGenderSpinner() {
+        val genders = arrayOf("Select Gender", "Male", "Female")
+        val adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.spinner_item,
+            genders
+        ).apply {
+            setDropDownViewResource(R.layout.spinner_item)
+        }
+
+        genderSpinner.adapter = adapter
+
+        genderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                (view as? TextView)?.let { textView ->
+                    if (position == 0) {
+                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.hint_color))
+                    } else {
+                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary))
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }    private fun validateTeacherInputs(
+        username: String,
+        email: String,
+        password: String,
+        gender: String
+    ): Boolean {
         return when {
+            username.isEmpty() -> showError("Username cannot be empty")
             email.isEmpty() -> showError(StringRes.EMAIL_CAN_NOT_BE_EMPTY)
             password.isEmpty() -> showError("Password cannot be empty")
-            gender.isEmpty() -> showError("Please select gender")
+            gender == "Select Gender" -> showError("Please select gender")
             else -> true
         }
     }
