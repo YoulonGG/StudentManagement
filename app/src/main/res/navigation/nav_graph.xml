@@ -99,9 +99,15 @@
             android:id="@+id/navigate_teacher_to_subject_list"
             app:destination="@id/subject_list" />
 
-
+        <action
+            android:id="@+id/navigate_teacher_to_create_student"
+            app:destination="@id/create_student" />
     </fragment>
 
+    <fragment
+        android:id="@+id/create_student"
+        android:label="Create Student Screen"
+        android:name="com.example.studentmanagement.presentation.create_student.CreateStudentFragment"/>
     <fragment
         android:id="@+id/attendance"
         android:label="Attendance Screen"
