@@ -52,10 +52,9 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 viewModel.teacherData.collect { state ->
                     view?.findViewById<TextView>(R.id.teacherNameTitle)?.text = state.teacherName
 
-                    // Update total students (if you have this TextView)
-//                    view?.findViewById<TextView>(R.id.totalStudentsText)?.let { textView ->
-//                        textView.text = "Total Students: ${state.totalStudents}"
-//                    }
+                    view?.findViewById<TextView>(R.id.studentCount)?.let { textView ->
+                        textView.text = "Total Students: ${state.totalStudents}"
+                    }
 
                     state.profileImageUrl?.let { imageUrl ->
                         Glide.with(requireContext())

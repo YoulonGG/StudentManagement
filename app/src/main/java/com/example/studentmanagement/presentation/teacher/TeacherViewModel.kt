@@ -73,8 +73,8 @@ class TeacherViewModel(
             try {
                 _teacherData.update { it.copy(isLoading = true) }
 
-                val studentsSnapshot = db.collection("users")
-                    .whereEqualTo("role", "student")
+                val studentsSnapshot = db.collection("students")
+//                    .whereEqualTo("role", "student")
                     .get()
                     .await()
 
