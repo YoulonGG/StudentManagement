@@ -2,6 +2,7 @@ package com.example.studentmanagement.presentation.login
 
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 
@@ -57,8 +58,20 @@ class LoginViewModel(
     private fun verifyStudentApproval(uid: String) {
         firestore.collection("students").document(uid).get()
             .addOnSuccessListener { doc ->
-                val isApproved = doc.getBoolean("isApproved") ?: false
-                if (isApproved) {
+                if (!doc.exists()) {
+                    auth.signOut()
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Student account not found."
+                        )
+                    }
+                    return@addOnSuccessListener
+                }
+
+                val status = doc.getString("status") ?: "inactive"
+                if (status == "active") {
+                    updateLastLogin(uid)
                     setState {
                         copy(
                             isLoading = false,
@@ -86,6 +99,14 @@ class LoginViewModel(
             }
     }
 
+    private fun updateLastLogin(uid: String) {
+        firestore.collection("students").document(uid)
+            .update("lastLogin", FieldValue.serverTimestamp())
+            .addOnFailureListener {
+
+            }
+    }
+
     private fun verifyRegularAccountType(uid: String, requestedType: String) {
         firestore.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
@@ -101,7 +122,11 @@ class LoginViewModel(
                 }
 
                 val dbType = doc.getString("accountType")
-                if (dbType == requestedType) {
+                val status = doc.getString("status") ?: "inactive"
+
+                if (dbType == requestedType && status == "active") {
+                    // Update lastLogin for teachers too
+                    updateTeacherLastLogin(uid)
                     setState {
                         copy(
                             isLoading = false,
@@ -109,12 +134,20 @@ class LoginViewModel(
                             accountType = dbType
                         )
                     }
-                } else {
+                } else if (dbType != requestedType) {
                     auth.signOut()
                     setState {
                         copy(
                             isLoading = false,
                             error = "Account type mismatch. Please login as $requestedType."
+                        )
+                    }
+                } else {
+                    auth.signOut()
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Your account is not active. Please contact administrator."
                         )
                     }
                 }
@@ -126,6 +159,14 @@ class LoginViewModel(
                         error = "Failed to retrieve user data."
                     )
                 }
+            }
+    }
+
+    private fun updateTeacherLastLogin(uid: String) {
+        firestore.collection("users").document(uid)
+            .update("lastLogin", FieldValue.serverTimestamp())
+            .addOnFailureListener {
+
             }
     }
 

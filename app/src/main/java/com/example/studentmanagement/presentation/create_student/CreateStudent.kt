@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
@@ -29,6 +30,7 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
     private lateinit var createBtn: TextView
     private lateinit var errorText: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var backButton: ImageView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,8 +43,14 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
         createBtn = view.findViewById(R.id.btnCreateStudent)
         errorText = view.findViewById(R.id.createStudentErrorText)
         progressBar = view.findViewById(R.id.createStudentProgressBar)
+        backButton = view.findViewById(R.id.goBack)
 
         setupGenderSpinner()
+
+        backButton.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
 
         createBtn.setOnClickListener {
             errorText.visibility = View.GONE
@@ -63,19 +71,34 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
                 createBtn.isEnabled = !state.isLoading
 
                 if (state.error != null) {
-                    errorText.text = state.error
-                    errorText.visibility = View.VISIBLE
-                }
+                    when (state.error) {
+                        "DUPLICATE_STUDENT_ID" -> {
+                            Dialog.showDialog(
+                                requireContext(),
+                                title = "Duplicate Student ID",
+                                description = "Student ID '${state.duplicateStudentId}' is already taken. Please use a different ID."
+                            ) {
+                                studentIdInput.text.clear()
+                                studentIdInput.requestFocus()
+                            }
+                            viewModel.clearError()
+                        }
 
+                        else -> {
+                            errorText.text = state.error
+                            errorText.visibility = View.VISIBLE
+                        }
+                    }
+                }
                 if (state.success) {
                     Dialog.showDialog(
                         requireContext(),
                         title = "Success",
-                        description = "Reset link sent successfully!"
+                        description = "Student created successfully!"
                     ) {
                         findNavController().navigateUp()
                     }
-                    errorText.visibility = View.VISIBLE
+//                    errorText.visibility = View.VISIBLE
                     viewModel.resetState()
                     viewModel.clearError()
                 }

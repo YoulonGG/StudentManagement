@@ -26,41 +26,61 @@ class StudentViewModel(
 
     private fun getStudentDetails() {
         val currentUser = auth.currentUser ?: return
-        setState { copy(isLoading = true) }
+        setState { copy(isLoading = true, error = null) }
 
         firestore.collection("students")
             .document(currentUser.uid)
             .get()
             .addOnSuccessListener { document ->
-                val student = document.toObject(StudentResponse::class.java)
-                setState {
-                    copy(
-                        isLoading = false,
-                        student = student
-                    )
+                if (document.exists()) {
+                    val student = document.toObject(StudentResponse::class.java)
+                    setState {
+                        copy(
+                            isLoading = false,
+                            student = student,
+                            studentName = student?.name ?: "N/A",
+                            studentImage = student?.imageUrl ?: "",
+                            error = null
+                        )
+                    }
+                } else {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Student data not found"
+                        )
+                    }
                 }
             }
             .addOnFailureListener { exception ->
                 setState {
                     copy(
                         isLoading = false,
-                        error = exception.message
+                        error = exception.message ?: "Failed to load student data"
                     )
                 }
             }
     }
-}
 
+    fun clearError() {
+        setState { copy(error = null) }
+    }
+
+    fun refreshStudentData() {
+        getStudentDetails()
+    }
+}
 
 sealed class StudentAction {
     data object LoadStudentData : StudentAction()
 }
 
-
 data class StudentUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val student: StudentResponse? = null
+    val student: StudentResponse? = null,
+    val studentName: String? = null,
+    val studentImage: String = ""
 )
 
 

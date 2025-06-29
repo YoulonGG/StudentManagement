@@ -38,6 +38,10 @@ class CreateStudentViewModel(
         val password = "aib123"
         viewModelScope.launch {
             if (!validateInputs(email, name, studentID, gender)) return@launch
+
+            // Check if student ID already exists
+            if (!checkStudentIdAvailability(studentID)) return@launch
+
             setState { copy(isLoading = true, error = null) }
             try {
                 val result = signUpStudent(email, password, name, studentID, gender)
@@ -57,6 +61,36 @@ class CreateStudentViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun checkStudentIdAvailability(studentID: String): Boolean = try {
+        setState { copy(isLoading = true, error = null) }
+
+        val querySnapshot = firestore.collection("students")
+            .whereEqualTo("studentID", studentID)
+            .get()
+            .await()
+
+        if (!querySnapshot.isEmpty) {
+            setState {
+                copy(
+                    isLoading = false,
+                    error = "DUPLICATE_STUDENT_ID",
+                    duplicateStudentId = studentID
+                )
+            }
+            false
+        } else {
+            true
+        }
+    } catch (e: Exception) {
+        setState {
+            copy(
+                isLoading = false,
+                error = "Failed to verify Student ID availability: ${e.message ?: "Unknown error"}"
+            )
+        }
+        false
     }
 
     private suspend fun signUpStudent(
@@ -145,7 +179,8 @@ class CreateStudentViewModel(
 data class CreateStudentUiState(
     val isLoading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val duplicateStudentId: String? = null
 )
 
 sealed interface CreateStudentAction {
