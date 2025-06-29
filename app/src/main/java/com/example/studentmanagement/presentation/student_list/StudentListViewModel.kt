@@ -44,7 +44,7 @@ class StudentListViewModel(
 
         firestore
             .collection("students")
-            .whereEqualTo("isApproved", true)
+//            .whereEqualTo("isApproved", true)
             .get()
             .addOnSuccessListener { result ->
                 val studentList =

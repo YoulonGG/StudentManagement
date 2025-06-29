@@ -28,16 +28,23 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
     private lateinit var recyclerView: RecyclerView
     private val viewModel: TeacherViewModel by viewModel()
     private lateinit var teacherImage: ImageView
+    private lateinit var button: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.recyclerView)
         teacherImage = view.findViewById(R.id.teacherImage)
+        button = view.findViewById(R.id.btnLogOut)
 
         setupRecyclerView()
         observeViewModel()
+
+        button.setOnClickListener {
+            handleLogout()
+        }
     }
+
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -45,10 +52,9 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 viewModel.teacherData.collect { state ->
                     view?.findViewById<TextView>(R.id.teacherNameTitle)?.text = state.teacherName
 
-                    // Update total students (if you have this TextView)
-//                    view?.findViewById<TextView>(R.id.totalStudentsText)?.let { textView ->
-//                        textView.text = "Total Students: ${state.totalStudents}"
-//                    }
+                    view?.findViewById<TextView>(R.id.studentCount)?.let { textView ->
+                        textView.text = "Total Students: ${state.totalStudents}"
+                    }
 
                     state.profileImageUrl?.let { imageUrl ->
                         Glide.with(requireContext())
@@ -91,13 +97,13 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
             },
             HomeCardItem(
                 3,
-                "Homework",
+                "Profile",
                 R.drawable.attendance_icon
             ) {
-                val bundle = Bundle().apply {
-                    putString("accountType", "teacher")
-                }
-                findNavController().navigate(R.id.navigate_teacher_to_homework, bundle)
+//                val bundle = Bundle().apply {
+//                    putString("accountType", "teacher")
+//                }
+//                findNavController().navigate(R.id.navigate_teacher_to_homework, bundle)
             },
             HomeCardItem(
                 4,
@@ -106,15 +112,8 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
             ) {
                 findNavController().navigate(R.id.navigate_teacher_to_student_list)
             },
-//            HomeCardItem(
-//                5,
-//                "Approve Student",
-//                R.drawable.attendance_icon
-//            ) {
-//                findNavController().navigate(R.id.navigate_teacher_to_approve_student)
-//            },
             HomeCardItem(
-                6,
+                5,
                 "Subjects",
                 R.drawable.attendance_icon
             ) { findNavController().navigate(R.id.navigate_teacher_to_subject_list) },
@@ -123,13 +122,6 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 "Create Student",
                 R.drawable.attendance_icon
             ) { findNavController().navigate(R.id.navigate_teacher_to_create_student) },
-//            HomeCardItem(
-//                7,
-//                "Log Out",
-//                R.drawable.attendance_icon
-//            ) {
-//                handleLogout()
-//            }
         )
 
         val adapter = TeacherHomeCardAdapter(items)

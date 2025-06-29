@@ -2,66 +2,139 @@ package com.example.studentmanagement.presentation.create_student
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
     private val viewModel: CreateStudentViewModel by viewModel()
+
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var nameInput: EditText
     private lateinit var studentIdInput: EditText
-    private lateinit var genderRadioGroup: RadioGroup
-    private lateinit var createBtn: Button
+    private lateinit var genderSpinner: Spinner
+    private lateinit var createBtn: TextView
     private lateinit var errorText: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var backButton: ImageView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        emailInput = view.findViewById(R.id.createStudentEmail)
-        passwordInput = view.findViewById(R.id.createStudentPassword)
+
         nameInput = view.findViewById(R.id.createStudentName)
-        studentIdInput = view.findViewById(R.id.createStudentID)
-        genderRadioGroup = view.findViewById(R.id.createStudentGenderRadioGroup)
+        studentIdInput = view.findViewById(R.id.createStudent)
+        emailInput = view.findViewById(R.id.createStudentEmail)
+//        passwordInput = view.findViewById(R.id.createStudentPassword)
+        genderSpinner = view.findViewById(R.id.genderSpinner)
         createBtn = view.findViewById(R.id.btnCreateStudent)
         errorText = view.findViewById(R.id.createStudentErrorText)
         progressBar = view.findViewById(R.id.createStudentProgressBar)
+        backButton = view.findViewById(R.id.goBack)
+
+        setupGenderSpinner()
+
+        backButton.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
 
         createBtn.setOnClickListener {
             errorText.visibility = View.GONE
-            val email = emailInput.text.toString()
-            val password = passwordInput.text.toString()
-            val name = nameInput.text.toString()
-            val studentID = studentIdInput.text.toString()
-            val gender = when (genderRadioGroup.checkedRadioButtonId) {
-                R.id.createStudentMaleRadioButton -> "Male"
-                R.id.createStudentFemaleRadioButton -> "Female"
-                else -> ""
-            }
-            viewModel.createStudent(email, password, name, studentID, gender)
+            val email = emailInput.text.toString().trim()
+//            val password = passwordInput.text.toString().trim()
+            val name = nameInput.text.toString().trim()
+            val studentID = studentIdInput.text.toString().trim()
+            val gender = if (genderSpinner.selectedItemPosition != 0)
+                genderSpinner.selectedItem.toString()
+            else ""
+
+            viewModel.onAction(CreateStudentAction.SubmitStudent(email, name, studentID, gender))
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest { state ->
                 progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
                 createBtn.isEnabled = !state.isLoading
+
                 if (state.error != null) {
-                    errorText.text = state.error
-                    errorText.visibility = View.VISIBLE
+                    when (state.error) {
+                        "DUPLICATE_STUDENT_ID" -> {
+                            Dialog.showDialog(
+                                requireContext(),
+                                title = "Duplicate Student ID",
+                                description = "Student ID '${state.duplicateStudentId}' is already taken. Please use a different ID."
+                            ) {
+                                studentIdInput.text.clear()
+                                studentIdInput.requestFocus()
+                            }
+                            viewModel.clearError()
+                        }
+
+                        else -> {
+                            errorText.text = state.error
+                            errorText.visibility = View.VISIBLE
+                        }
+                    }
                 }
                 if (state.success) {
-                    errorText.text = "Student created successfully!"
-                    errorText.visibility = View.VISIBLE
+                    Dialog.showDialog(
+                        requireContext(),
+                        title = "Success",
+                        description = "Student created successfully!"
+                    ) {
+                        findNavController().navigateUp()
+                    }
+//                    errorText.visibility = View.VISIBLE
+                    viewModel.resetState()
+                    viewModel.clearError()
                 }
             }
+        }
+    }
+
+    private fun setupGenderSpinner() {
+        val genders = arrayOf("Select Gender", "Male", "Female")
+        val adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.spinner_item,
+            genders
+        ).apply {
+            setDropDownViewResource(R.layout.spinner_item)
+        }
+
+        genderSpinner.adapter = adapter
+
+        genderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                (view as? TextView)?.let { textView ->
+                    val color = if (position == 0)
+                        ContextCompat.getColor(requireContext(), R.color.hint_color)
+                    else
+                        ContextCompat.getColor(requireContext(), R.color.primary)
+                    textView.setTextColor(color)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 }
