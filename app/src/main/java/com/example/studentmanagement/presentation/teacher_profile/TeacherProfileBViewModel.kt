@@ -4,7 +4,7 @@ import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class TeacherProfileBViewModel(
+class TeacherProfileViewModel(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) : BaseViewModel<TeacherProfileAction, TeacherProfileUiState>() {
