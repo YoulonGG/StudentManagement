@@ -23,4 +23,5 @@ data class StudentResponse(
     val guardianContact: String? = null,
     val majoring: String? = null,
     val authUid: String? = null,
+    val gender: String? = null
 ) : Parcelable
