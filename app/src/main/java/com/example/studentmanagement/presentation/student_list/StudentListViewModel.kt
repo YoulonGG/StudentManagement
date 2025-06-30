@@ -73,9 +73,11 @@ class StudentListViewModel(
         private var students: List<StudentResponse> = emptyList()
 
         inner class StudentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val name: TextView = itemView.findViewById(R.id.tvStudentName)
-            val id: TextView = itemView.findViewById(R.id.tvStudentId)
-            val img: ImageView = itemView.findViewById(R.id.img_student)
+            val name: TextView = itemView.findViewById(R.id.StudentListName)
+            val id: TextView = itemView.findViewById(R.id.StudentListId)
+            val img: ImageView = itemView.findViewById(R.id.student_list_image)
+            val majoring: TextView = itemView.findViewById(R.id.StudentMajoring)
+            val sex: TextView = itemView.findViewById(R.id.StudentListSex)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudentViewHolder {
@@ -89,6 +91,8 @@ class StudentListViewModel(
             val student = students[position]
             holder.name.text = student.name ?: "N/A"
             holder.id.text = "ID: ${student.studentID ?: "N/A"}"
+            holder.majoring.text = "Majoring: ${student.majoring ?: "N/A"}"
+            holder.sex.text = "Sex: ${student.gender ?: "N/A"}"
 
 
             holder.itemView.setOnClickListener {
@@ -103,12 +107,13 @@ class StudentListViewModel(
             if (!imageUrl.isNullOrEmpty()) {
                 Glide.with(holder.img.context)
                     .load(imageUrl)
-                    .placeholder(R.drawable.student_option)
-                    .error(R.drawable.student_option)
+                    .placeholder(R.drawable.ic_place_holder_profile)
+                    .error(R.drawable.ic_place_holder_profile)
+                    .circleCrop()
                     .transform(CircleCrop())
                     .into(holder.img)
             } else {
-                holder.img.setImageResource(R.drawable.student_option)
+                holder.img.setImageResource(R.drawable.ic_place_holder_profile)
             }
 
             holder.itemView.setOnClickListener {

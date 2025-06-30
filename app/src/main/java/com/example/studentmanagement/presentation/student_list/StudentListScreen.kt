@@ -2,10 +2,12 @@ package com.example.studentmanagement.presentation.student_list
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.R
@@ -22,11 +24,16 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_students)
         val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
+        val backBtn = view.findViewById<ImageView>(R.id.goBack)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = viewModel.adapter
 
         viewModel.onAction(StudentListAction.StudentList)
+
+        backBtn.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
