@@ -2,6 +2,7 @@ package com.example.studentmanagement.presentation.student_list
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -86,22 +87,12 @@ class StudentListViewModel(
             return StudentViewHolder(view)
         }
 
-        @SuppressLint("SetTextI18n")
         override fun onBindViewHolder(holder: StudentViewHolder, position: Int) {
             val student = students[position]
             holder.name.text = student.name ?: "N/A"
             holder.id.text = "ID: ${student.studentID ?: "N/A"}"
             holder.majoring.text = "Majoring: ${student.majoring ?: "N/A"}"
             holder.sex.text = "Sex: ${student.gender ?: "N/A"}"
-
-
-            holder.itemView.setOnClickListener {
-                val bundle = Bundle().apply {
-                    putParcelable("student", student)
-                }
-                val navController = holder.itemView.findNavController()
-                navController.navigate(R.id.navigate_student_list_to_student_details, bundle)
-            }
 
             val imageUrl = student.imageUrl
             if (!imageUrl.isNullOrEmpty()) {

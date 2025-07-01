@@ -100,10 +100,7 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 "Profile",
                 R.drawable.attendance_icon
             ) {
-//                val bundle = Bundle().apply {
-//                    putString("accountType", "teacher")
-//                }
-//                findNavController().navigate(R.id.navigate_teacher_to_homework, bundle)
+                findNavController().navigate(R.id.navigate_teacher_to_teacher_profile)
             },
             HomeCardItem(
                 4,

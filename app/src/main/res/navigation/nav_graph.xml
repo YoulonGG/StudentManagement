@@ -102,16 +102,27 @@
         <action
             android:id="@+id/navigate_teacher_to_create_student"
             app:destination="@id/create_student" />
+
+        <action
+            android:id="@+id/navigate_teacher_to_teacher_profile"
+            app:destination="@id/teacher_profile" />
+
     </fragment>
 
     <fragment
+        android:id="@+id/teacher_profile"
+        android:name="com.example.studentmanagement.presentation.teacher_profile.TeacherAttendanceFragment"
+        android:label="Teacher Profile Screen" />
+
+    <fragment
         android:id="@+id/create_student"
-        android:label="Create Student Screen"
-        android:name="com.example.studentmanagement.presentation.create_student.CreateStudentFragment"/>
+        android:name="com.example.studentmanagement.presentation.create_student.CreateStudentFragment"
+        android:label="Create Student Screen" />
+
     <fragment
         android:id="@+id/attendance"
-        android:label="Attendance Screen"
-        android:name="com.example.studentmanagement.presentation.teacher_attendance.TeacherAttendanceFragment">
+        android:name="com.example.studentmanagement.presentation.teacher_attendance.TeacherAttendanceFragment"
+        android:label="Attendance Screen">
 
     </fragment>
 
@@ -137,7 +148,7 @@
     <fragment
         android:id="@+id/student"
         android:name="com.example.studentmanagement.presentation.student.StudentScreen"
-        android:label="Student Screen" >
+        android:label="Student Screen">
 
         <action
             android:id="@+id/navigate_student_to_ask_permission"
@@ -178,9 +189,9 @@
 
         <argument
             android:name="accountType"
+            android:defaultValue=""
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue=""/>
+            app:nullable="true" />
 
     </fragment>
 
@@ -189,7 +200,8 @@
         android:name="com.example.studentmanagement.presentation.subjects_list.SubjectListFragment"
         android:label="Subject List Screen">
 
-        <action android:id="@+id/navigate_subject_list_to_submit_score"
+        <action
+            android:id="@+id/navigate_subject_list_to_submit_score"
             app:destination="@id/submit_score" />
 
     </fragment>
@@ -204,7 +216,6 @@
     <fragment
         android:id="@+id/passwordResetFragment"
         android:name="com.example.studentmanagement.presentation.reset_password.ResetPasswordScreen"
-        android:label="Reset Password">
-    </fragment>
+        android:label="Reset Password" />
 
 </navigation>
