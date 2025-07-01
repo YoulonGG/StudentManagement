@@ -2,6 +2,7 @@ package com.example.studentmanagement.presentation.student_detail
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
 import com.example.studentmanagement.data.dto.StudentResponse
@@ -25,7 +27,13 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
     private val binding get() = _binding!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         _binding = FragmentStudentDetailScreenBinding.bind(view)
+
+        val backBtn = view.findViewById<ImageView>(R.id.goBack)
+        backBtn.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         val student: StudentResponse? = arguments?.getParcelable("student")
         if (student != null) {
@@ -42,6 +50,8 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
                     state.student?.let { student ->
                         binding.apply {
+                            studentDetailName.text = student.name
+                            studentDetailID.text = student.studentID
                             edtName.setText(student.name)
                             edtEmail.setText(student.email)
                             edtAddress.setText(student.address)
@@ -51,7 +61,6 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
                             edtGuardian.setText(student.guardian)
                             edtGuardianContact.setText(student.guardianContact)
                             edtMajoring.setText(student.majoring)
-
 
                             if (!student.imageUrl.isNullOrEmpty()) {
                                 Glide.with(this@StudentDetailScreen)
@@ -81,7 +90,6 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
             }
         }
 
-
     private fun setupListeners() {
         binding.imgStudent.setOnClickListener {
             if (!viewModel.uiState.value.isTeacher) {
@@ -109,11 +117,9 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
         }
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
-
 

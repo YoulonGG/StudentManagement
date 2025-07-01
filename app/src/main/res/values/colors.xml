@@ -4,12 +4,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="gold">#FFCBA02D</color>
     <color name="primary">#FF1B3451</color>
+    <color name="aib_light_blue">#FF2B3C66</color>
     <color name="blue_text_color">#FF0C46C4</color>
     <color name="permission_stroke">#FB8C00</color>
     <color name="permission_approved_color">#4CAF50</color>
     <color name="hint_color">#757575</color>
-    <!--    <color name="permission_rejected_color">#F44336</color>-->
-<!--    <color name="present_color">#2196F3</color>-->
-<!--    <color name="absent_color">#FF5722</color>-->
-<!--    <color name="permission_color">#9C27B0</color>-->
 </resources>

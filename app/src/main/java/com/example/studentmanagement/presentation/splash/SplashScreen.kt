@@ -34,7 +34,7 @@ class SplashFragment : Fragment(R.layout.activity_splash_screen) {
             } else {
                 navController.navigate(R.id.navigate_splash_to_loginType)
             }
-        }, 2000)
+        }, 2500)
     }
 }
 
