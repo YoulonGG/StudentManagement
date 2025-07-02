@@ -111,7 +111,7 @@
 
     <fragment
         android:id="@+id/teacher_profile"
-        android:name="com.example.studentmanagement.presentation.teacher_profile.TeacherAttendanceFragment"
+        android:name="com.example.studentmanagement.presentation.teacher_profile.TeacherProfile"
         android:label="Teacher Profile Screen" />
 
     <fragment
