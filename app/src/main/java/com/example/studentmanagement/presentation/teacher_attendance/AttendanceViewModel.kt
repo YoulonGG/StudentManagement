@@ -215,7 +215,7 @@ class TeacherAttendanceViewModel(
         setState { copy(isSubmitting = true, error = null) }
 
         db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
-            if (document.exists() && document.getString("accountType") == "teacher") {
+            if (document.exists()) {
                 proceedWithSubmission(currentUser.uid)
             } else {
                 setState {

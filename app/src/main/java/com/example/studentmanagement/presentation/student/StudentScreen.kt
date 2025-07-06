@@ -29,6 +29,7 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
     private lateinit var studentImage: ImageView
     private lateinit var studentName: TextView
     private lateinit var recyclerView: RecyclerView
+    private lateinit var btnLogOut: TextView
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -36,10 +37,28 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
         recyclerView = view.findViewById(R.id.studentRecyclerView)
         studentImage = view.findViewById(R.id.studentImage)
         studentName = view.findViewById(R.id.studentNameTitle)
+        btnLogOut = view.findViewById(R.id.btnStudentLogOut)
+
+        btnLogOut.setOnClickListener {
+            val sharedPref =
+                requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                remove(PreferencesKeys.IS_LOGGED_IN)
+                remove(ACCOUNT_TYPE)
+                apply()
+            }
+
+            val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            requireActivity().finish()
+        }
 
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 if (state.isLoading) {
+                    studentName.text = "Loading..."
                 }
 
                 state.error?.let { error ->
@@ -48,8 +67,6 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
 
                 state.student?.name?.let { name ->
                     studentName.text = name
-                } ?: run {
-                    studentName.text = "No name available"
                 }
 
                 state.student?.imageUrl?.takeIf { it.isNotEmpty() }?.let { imageUrl ->
@@ -58,6 +75,8 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
                         .placeholder(R.drawable.ic_place_holder_profile)
                         .error(R.drawable.ic_place_holder_profile)
                         .into(studentImage)
+                } ?: run {
+                    studentImage.setImageResource(R.drawable.ic_place_holder_profile)
                 }
             }
         }
@@ -106,25 +125,25 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
             ) {
 //                findNavController().navigate(R.id.navigate_student_list_to_student_details)
             },
-            HomeCardItem(
-                2,
-                "Log Out",
-                R.drawable.attendance_icon
-            ) {
-                val sharedPref =
-                    requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-                with(sharedPref.edit()) {
-                    remove(PreferencesKeys.IS_LOGGED_IN)
-                    remove(ACCOUNT_TYPE)
-                    apply()
-                }
-
-                val intent = Intent(requireContext(), MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                }
-                startActivity(intent)
-                requireActivity().finish()
-            },
+//            HomeCardItem(
+//                2,
+//                "Log Out",
+//                R.drawable.attendance_icon
+//            ) {
+//                val sharedPref =
+//                    requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+//                with(sharedPref.edit()) {
+//                    remove(PreferencesKeys.IS_LOGGED_IN)
+//                    remove(ACCOUNT_TYPE)
+//                    apply()
+//                }
+//
+//                val intent = Intent(requireContext(), MainActivity::class.java).apply {
+//                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//                }
+//                startActivity(intent)
+//                requireActivity().finish()
+//            },
         )
 
         val adapter = TeacherHomeCardAdapter(items)

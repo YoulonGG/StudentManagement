@@ -39,7 +39,8 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
 
         setupRecyclerView()
         observeViewModel()
-
+        viewModel.onAction(TeacherAction.LoadTeacherData)
+        viewModel.onAction(TeacherAction.LoadTotalStudents)
         button.setOnClickListener {
             handleLogout()
         }

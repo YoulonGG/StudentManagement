@@ -83,8 +83,7 @@ class SignUpViewModel(
             "gender" to gender,
             "authUid" to user.uid,
             "imageUrl" to "",
-            "status" to "active",
-            "lastLogin" to FieldValue.serverTimestamp()
+            "lastLogin" to FieldValue.serverTimestamp(),
         )
 
         firestore.collection("users").document(user.uid)
