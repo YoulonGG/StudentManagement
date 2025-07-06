@@ -429,10 +429,12 @@ class AttendanceAdapter(
                             chipPresent.isChecked = true
                             chipAbsent.visibility = View.GONE
                         }
+
                         AttendanceStatus.ABSENT -> {
                             chipAbsent.isChecked = true
                             chipPresent.visibility = View.GONE
                         }
+
                         else -> {}
                     }
                     setChipsEnabled(false)
@@ -469,6 +471,7 @@ class AttendanceAdapter(
                 chipGroupStatus.clearCheck()
             }
         }
+
         private fun setChipsEnabled(enabled: Boolean) {
             chipPresent.isEnabled = enabled
             chipAbsent.isEnabled = enabled
