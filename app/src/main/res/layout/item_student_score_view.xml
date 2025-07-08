@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/yearSemesterText"
+        style="@style/TableCell"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/assignmentScoreText"
+        style="@style/TableCell"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/homeworkScoreText"
+        style="@style/TableCell"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/midtermScoreText"
+        style="@style/TableCell"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/finalScoreText"
+        style="@style/TableCell"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/participationScoreText"
+        style="@style/TableCell"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/totalScoreText"
+        style="@style/TableCell"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+</LinearLayout>

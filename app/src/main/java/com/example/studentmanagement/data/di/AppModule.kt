@@ -21,6 +21,7 @@ import com.example.studentmanagement.presentation.subjects_list.SubjectListViewM
 import com.example.studentmanagement.presentation.teacher.TeacherViewModel
 import com.example.studentmanagement.presentation.teacher_attendance.TeacherAttendanceViewModel
 import com.example.studentmanagement.presentation.teacher_profile.TeacherProfileViewModel
+import com.example.studentmanagement.presentation.teacher_submit_score.SubmitScoreViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -48,5 +49,6 @@ val appModule = module {
     viewModel { TeacherViewModel(get(), get()) }
     viewModel { CreateStudentViewModel(get(), get()) }
     viewModel { TeacherProfileViewModel(get(), get()) }
+    viewModel { SubmitScoreViewModel(get()) }
 
 }

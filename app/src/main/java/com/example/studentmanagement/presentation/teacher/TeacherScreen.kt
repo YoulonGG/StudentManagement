@@ -110,16 +110,23 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
             ) {
                 findNavController().navigate(R.id.navigate_teacher_to_student_list)
             },
-            HomeCardItem(
-                5,
-                "Subjects",
-                R.drawable.attendance_icon
-            ) { findNavController().navigate(R.id.navigate_teacher_to_subject_list) },
+//            HomeCardItem(
+//                5,
+//                "Subjects",
+//                R.drawable.attendance_icon
+//            ) { findNavController().navigate(R.id.navigate_teacher_to_subject_list) },
             HomeCardItem(
                 6,
                 "Create Student",
                 R.drawable.attendance_icon
             ) { findNavController().navigate(R.id.navigate_teacher_to_create_student) },
+            HomeCardItem(
+                6,
+                "Submit Score",
+                R.drawable.attendance_icon
+            ) {
+                findNavController().navigate(R.id.navigate_teacher_to_submit_score)
+            },
         )
 
         val adapter = TeacherHomeCardAdapter(items)

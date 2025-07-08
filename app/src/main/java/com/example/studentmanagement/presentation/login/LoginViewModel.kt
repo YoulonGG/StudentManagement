@@ -124,8 +124,7 @@ class LoginViewModel(
                 val dbType = doc.getString("accountType")
                 val status = doc.getString("status") ?: "inactive"
 
-                if (dbType == requestedType && status == "active") {
-                    // Update lastLogin for teachers too
+                if (dbType == requestedType) {
                     updateTeacherLastLogin(uid)
                     setState {
                         copy(

@@ -7,4 +7,29 @@
     </style>
 
     <style name="Theme.StudentManagement" parent="Base.Theme.StudentManagement" />
+
+    <style name="TableHeaderCell">
+        <item name="android:background">@drawable/table_header_background</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="TableCell">
+        <item name="android:background">@drawable/table_cell_background</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="TableEditText">
+        <item name="android:background">@drawable/table_edittext_background</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">numberDecimal</item>
+        <item name="android:maxLength">5</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
 </resources>

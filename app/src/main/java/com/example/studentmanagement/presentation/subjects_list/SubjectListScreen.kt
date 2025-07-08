@@ -51,10 +51,10 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
 
     private fun setupViews() {
         subjectAdapter = SubjectAdapter { subject ->
-            findNavController().navigate(
-                R.id.navigate_subject_list_to_submit_score,
-                bundleOf("subjectId" to subject.id)
-            )
+//            findNavController().navigate(
+//                R.id.navigate_subject_list_to_submit_score,
+//                bundleOf("subjectId" to subject.id)
+//            )
         }
 
         binding.apply {

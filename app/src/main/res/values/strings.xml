@@ -5,4 +5,20 @@
     <string name="password">Password</string>
     <string name="sign_up">Sign Up</string>
     <string name="backtool">backtool</string>
+
+    <string-array name="years_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="semesters_array">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string name="class_average">Class Average: %.2f</string>
+    <string name="score_format">%.2f</string>
+    <string name="overall_average">Overall Average: %.2f</string>
 </resources>
