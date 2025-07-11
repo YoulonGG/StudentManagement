@@ -1,15 +1,12 @@
 package com.example.studentmanagement.presentation.teacher_submit_score
 
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
 
 class SubmitScoreViewModel(
     private val firestore: FirebaseFirestore
@@ -22,13 +19,13 @@ class SubmitScoreViewModel(
 
     override fun onAction(event: SubmitScoreAction) {}
 
-    fun fetchStudents(year: Int = 1, semester: Int = 1) {
+    fun fetchStudentsBySubject(subject: String) {
         setState { copy(isLoading = true, error = null, submitSuccess = false) }
         firestore.collection("students")
             .get()
             .addOnSuccessListener { result ->
                 val studentIds = result.documents.map { it.id }
-                checkExistingScores(studentIds, year, semester, result)
+                checkExistingScores(studentIds, subject, result)
             }
             .addOnFailureListener {
                 setState {
@@ -43,8 +40,7 @@ class SubmitScoreViewModel(
 
     private fun checkExistingScores(
         studentIds: List<String>,
-        year: Int,
-        semester: Int,
+        subject: String,
         studentsResult: QuerySnapshot
     ) {
         if (studentIds.isEmpty()) {
@@ -60,8 +56,7 @@ class SubmitScoreViewModel(
 
         firestore.collection("scores")
             .whereIn("studentId", studentIds)
-            .whereEqualTo("year", year)
-            .whereEqualTo("semester", semester)
+            .whereEqualTo("subject", subject)
             .get()
             .addOnSuccessListener { scoresResult ->
                 val scoresByStudentId =
@@ -98,7 +93,7 @@ class SubmitScoreViewModel(
             }
     }
 
-    fun submitScores(scores: List<StudentScore>, year: Int, semester: Int) {
+    fun submitScores(scores: List<StudentScore>, subject: String) {
         if (!validateScores(scores)) {
             setState {
                 copy(
@@ -114,7 +109,7 @@ class SubmitScoreViewModel(
 
         scores.forEach { score ->
             val docRef = firestore.collection("scores")
-                .document("${score.studentId}_y${year}_s${semester}")
+                .document("${score.studentId}_$subject")
             batch.set(
                 docRef, mapOf(
                     "studentId" to score.studentId,
@@ -125,8 +120,7 @@ class SubmitScoreViewModel(
                     "homework" to score.homework,
                     "participation" to score.participation,
                     "total" to score.total,
-                    "year" to year,
-                    "semester" to semester,
+                    "subject" to subject,
                     "timestamp" to FieldValue.serverTimestamp()
                 )
             )
@@ -141,11 +135,7 @@ class SubmitScoreViewModel(
                         error = null
                     )
                 }
-                viewModelScope.launch {
-                    delay(100)
-                    setState { copy(submitSuccess = false) }
-                    fetchStudents(year, semester)
-                }
+                fetchStudentsBySubject(subject)
             }
             .addOnFailureListener {
                 setState {

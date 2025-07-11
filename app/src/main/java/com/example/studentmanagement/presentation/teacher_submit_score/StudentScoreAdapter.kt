@@ -52,6 +52,7 @@ class StudentScoreAdapter : ListAdapter<StudentScore, StudentScoreAdapter.ViewHo
                 finalScore.setText(item.final.toString())
                 participationScore.setText(item.participation.toString())
                 totalScore.text = root.context.getString(R.string.score_format).format(item.total)
+                averageScore.text = root.context.getString(R.string.score_format).format((item.total / 500) * 100)
             }
         }
 

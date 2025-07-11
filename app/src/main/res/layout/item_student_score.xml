@@ -45,4 +45,10 @@
         style="@style/TableCell"
         android:layout_width="120dp"
         android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/averageScore"
+        style="@style/TableCell"
+        android:layout_width="120dp"
+        android:layout_height="match_parent" />
 </LinearLayout>

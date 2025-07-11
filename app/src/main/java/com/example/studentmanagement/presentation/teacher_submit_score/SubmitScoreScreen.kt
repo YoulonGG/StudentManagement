@@ -3,6 +3,7 @@ package com.example.studentmanagement.presentation.teacher_submit_score
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -22,16 +23,23 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
     private val viewModel: SubmitScoreViewModel by viewModel()
     private val scoreAdapter = StudentScoreAdapter()
 
+    private val subjects = listOf(
+        "OOP Java Programming",
+        "Linux",
+        "Mobile App Development",
+        "API Web Service",
+        "Internet of Thing"
+    )
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSubmitScoreScreenBinding.bind(view)
 
         setupRecyclerView()
         setupScrollSynchronization()
-        setupSpinners()
+        setupSubjectSpinner()
         setupSubmitButton()
         observeViewModel()
-        fetchScores()
     }
 
     private fun setupRecyclerView() {
@@ -52,40 +60,32 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
         }
     }
 
-    private fun setupSpinners() {
-        binding.yearSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                fetchScores()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+    private fun setupSubjectSpinner() {
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, subjects).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
-
-        binding.semesterSpinner.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    fetchScores()
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+        binding.subjectSpinner.adapter = adapter
+        binding.subjectSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedSubject = subjects[position]
+                fetchScores(selectedSubject)
             }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // No action needed
+            }
+        }
     }
 
     private fun setupSubmitButton() {
         binding.submitScoresBtn.setOnClickListener {
-            val year = binding.yearSpinner.selectedItem.toString().toInt()
-            val semester = binding.semesterSpinner.selectedItem.toString().toInt()
+            val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
             val currentScores = scoreAdapter.currentList
+
+            if (selectedSubject.isEmpty()) {
+                Toast.makeText(requireContext(), "Please select a subject", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             if (currentScores.isEmpty()) {
                 Toast.makeText(requireContext(), "No scores to submit", Toast.LENGTH_SHORT).show()
@@ -106,18 +106,16 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
             Dialog.showDialog(
                 requireContext(),
                 title = "Submit Scores",
-                description = "Are you sure you want to submit these scores?",
+                description = "Are you sure you want to submit these scores for $selectedSubject?",
                 onBtnClick = {
-                    viewModel.submitScores(currentScores, year, semester)
+                    viewModel.submitScores(currentScores, selectedSubject)
                 }
             )
         }
     }
 
-    private fun fetchScores() {
-        val year = binding.yearSpinner.selectedItem.toString().toInt()
-        val semester = binding.semesterSpinner.selectedItem.toString().toInt()
-        viewModel.fetchStudents(year, semester)
+    private fun fetchScores(subject: String) {
+        viewModel.fetchStudentsBySubject(subject)
     }
 
     private fun observeViewModel() {
@@ -131,7 +129,8 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
                 }
 
                 if (state.submitSuccess) {
-                    fetchScores()
+                    val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
+                    fetchScores(selectedSubject)
                     Toast.makeText(requireContext(), "Scores submitted successfully", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -145,8 +144,8 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
     }
 
     private fun updateAverageScore(scores: List<StudentScore>) {
-        val average = scores.map { it.total }.average().takeIf { !it.isNaN() } ?: 0.0
-        binding.averageScoreText.text = getString(R.string.class_average).format(average)
+        val average = scores.map { it.total }.average().takeIf { !it.isNaN() } ?: 0
+//        binding.averageScoreText.text = getString(R.string.class_average).format(average)
     }
 
     override fun onDestroyView() {

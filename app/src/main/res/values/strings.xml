@@ -18,6 +18,14 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="subjects_array">
+        <item>OOP Java Programming</item>
+        <item>Linux</item>
+        <item>Mobile App Development</item>
+        <item>API Web Service</item>
+        <item>Internet of Thing</item>
+    </string-array>
+
     <string name="class_average">Class Average: %.2f</string>
     <string name="score_format">%.2f</string>
     <string name="overall_average">Overall Average: %.2f</string>
