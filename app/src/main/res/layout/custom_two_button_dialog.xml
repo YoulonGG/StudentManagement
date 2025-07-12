@@ -30,16 +30,34 @@
         android:textColor="@color/white"
         android:textSize="14sp" />
 
-    <Button
-        android:id="@+id/dialog_btn_okay"
-        android:layout_width="120dp"
-        android:layout_height="48dp"
-        android:layout_gravity="end"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:text="Okay"
-        android:textColor="@color/on_surface"
-        android:backgroundTint="@color/header_table_color"
-        android:textSize="16sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/dialog_btn_negative"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="@color/on_surface"
+            android:backgroundTint="@color/header_table_color"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/dialog_btn_positive"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:textColor="@color/on_surface"
+            android:text="Confirm"
+            android:backgroundTint="@color/green_btn"
+            android:textSize="16sp" />
+
+    </LinearLayout>
 
 </LinearLayout>

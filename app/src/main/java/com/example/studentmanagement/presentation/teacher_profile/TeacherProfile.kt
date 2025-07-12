@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.data.dto.TeacherResponse
 import com.example.studentmanagement.data.local.PreferencesKeys
 import com.example.studentmanagement.databinding.FragmentTeacherProfileBinding
@@ -49,18 +50,16 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
         logOut.text = "Log Out"
 
         logOut.setOnClickListener {
-//            Dialog.showDialog(
-//                requireContext(),
-//                "Log Out",
-//                "Are you sure you want to log out?",
-//                positiveButtonText = "Yes",
-//                negativeButtonText = "No",
-//                onPositiveClick = {
-//                    Logout()
-//                },
-//                onNegativeClick = {}
-//            )
-            Logout()
+            Dialog.showTwoButtonDialog(
+                requireContext(),
+                "Log Out",
+                "Are you sure you want to log out?",
+                positiveButtonText = "Yes",
+                negativeButtonText = "Cancel",
+                onPositiveClick = {
+                    Logout()
+                },
+            )
         }
 
         goBack.setOnClickListener {
