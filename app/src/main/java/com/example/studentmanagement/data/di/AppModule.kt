@@ -6,6 +6,7 @@ package com.example.studentmanagement.data.di
  * @Email: johnyoulong@gmail.com.
  */
 
+import android.app.Application
 import com.example.studentmanagement.presentation.approve_student.ApprovalStudentViewModel
 import com.example.studentmanagement.presentation.ask_permission.StudentPermissionViewModel
 import com.example.studentmanagement.presentation.attendace_history.StudentAttendanceViewModel
@@ -33,6 +34,7 @@ val appModule = module {
     single { FirebaseAuth.getInstance() }
     single { FirebaseFirestore.getInstance() }
     single { FirebaseStorage.getInstance() }
+    single { Application::class.java }
 
     viewModel { LoginViewModel(get(), get()) }
     viewModel { SignUpViewModel(get(), get()) }
@@ -44,7 +46,7 @@ val appModule = module {
     viewModel { StudentAttendanceViewModel(get()) }
     viewModel { HomeworkViewModel(get(), get(), get()) }
     viewModel { StudentPermissionViewModel(get(), get()) }
-    viewModel { SubjectListViewModel(get(), get()) }
+    viewModel { SubjectListViewModel(get(), get(), get()) }
     viewModel { ResetPasswordViewModel(get()) }
     viewModel { TeacherViewModel(get(), get()) }
     viewModel { CreateStudentViewModel(get(), get()) }

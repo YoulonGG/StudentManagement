@@ -4,22 +4,30 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/tool_bar_background"
         android:orientation="vertical">
 
         <include layout="@layout/toolbar_with_back" />
 
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_students"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/content_background"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            android:clipToPadding="false" />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_students"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:background="@color/white"
+                android:layout_marginTop="8dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

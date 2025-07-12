@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +29,10 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = viewModel.adapter
+
+        val studentListTitle = view.findViewById<TextView>(R.id.toolbarTitle)
+
+        studentListTitle.text = "Student List"
 
         viewModel.onAction(StudentListAction.StudentList)
 

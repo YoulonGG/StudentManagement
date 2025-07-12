@@ -11,7 +11,7 @@
 
     <path
         android:pathData="M50,4 A46,46 0 0,1 50,96"
-        android:strokeColor="@color/gold"
+        android:strokeColor="@color/on_primary"
         android:strokeWidth="8"
         android:fillColor="@android:color/transparent" />
 

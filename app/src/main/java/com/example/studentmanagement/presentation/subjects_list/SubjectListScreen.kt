@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
 import com.example.studentmanagement.databinding.FragmentSubjectListScreenBinding
+import com.example.studentmanagement.presentation.subjects_list.components.CreateSubjectBottomSheet
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -31,26 +33,19 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSubjectListScreenBinding.bind(view)
 
+        val subjectTitle = view.findViewById<TextView>(R.id.toolbarTitle)
+
+        subjectTitle.text = "Subjects"
+
         setupViews()
         observeState()
         viewModel.onAction(SubjectListEvent.LoadSubjects)
-
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                1001
-            )
-        }
-
+        checkPermissions()
     }
 
     private fun setupViews() {
         subjectAdapter = SubjectAdapter { subject ->
+            // Navigate to subject details or score submission
 //            findNavController().navigate(
 //                R.id.navigate_subject_list_to_submit_score,
 //                bundleOf("subjectId" to subject.id)
@@ -69,10 +64,24 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
                 )
             }
 
-            toolbar.setNavigationOnClickListener {
-                findNavController().navigateUp()
+            fabCreateSubject.setOnClickListener {
+                showCreateSubjectBottomSheet()
             }
         }
+    }
+
+    private fun showCreateSubjectBottomSheet() {
+        val bottomSheet = CreateSubjectBottomSheet()
+        bottomSheet.setOnSubjectCreatedListener { name, description, imageUri ->
+            viewModel.onAction(
+                SubjectListEvent.CreateSubject(
+                    name = name,
+                    description = description,
+                    imageUri = imageUri
+                )
+            )
+        }
+        bottomSheet.show(parentFragmentManager, "CreateSubjectBottomSheet")
     }
 
     private fun observeState() {
@@ -88,14 +97,33 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
     private fun updateUI(state: SubjectListState) {
         binding.apply {
             progressBar.isVisible = state.isLoading
+            progressBarCreate.isVisible = state.isCreating
             subjectAdapter.submitList(state.subjects)
 
-            textViewEmptyState.isVisible = state.subjects.isEmpty() && !state.isLoading
 
             state.error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 viewModel.onAction(SubjectListEvent.ClearError)
             }
+
+            state.successMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.onAction(SubjectListEvent.ClearError)
+            }
+        }
+    }
+
+    private fun checkPermissions() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                1001
+            )
         }
     }
 }

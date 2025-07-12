@@ -4,22 +4,120 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="24dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:text="Create New Subject"
-        android:textAppearance="?attr/textAppearanceHeadline6" />
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/on_surface"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
 
+    <!-- Image Section -->
+    <LinearLayout
+        android:id="@+id/imageContainer"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <!-- Default Add Image Text -->
+        <TextView
+            android:id="@+id/textAddImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📷 Add Subject Image"
+            android:textColor="@color/on_surface"
+            android:textSize="14sp"
+            android:gravity="center" />
+
+        <!-- Image Preview Container -->
+        <LinearLayout
+            android:id="@+id/imagePreviewContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <!-- Image Thumbnail -->
+            <ImageView
+                android:id="@+id/imagePreviewThumbnail"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        app:tint="@color/on_surface" />
+
+                    <TextView
+                        android:id="@+id/imageFileName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="image.jpg"
+                        android:textSize="14sp"
+                        android:textColor="@color/on_surface"
+                        android:layout_marginStart="8dp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Image selected"
+                    android:textSize="12sp"
+                    android:textColor="@color/on_surface"
+                    android:layout_marginTop="2dp" />
+
+            </LinearLayout>
+
+            <!-- Remove Button -->
+            <ImageButton
+                android:id="@+id/buttonRemoveImage"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/baseline_close_24"
+                app:tint="@color/red"
+                android:contentDescription="Remove image" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Subject Name Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/subjectNameLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:hint="Subject Name"
-        app:startIconDrawable="@drawable/baseline_calendar_month_24">
+        app:boxStrokeColor="@color/on_surface"
+        app:hintTextColor="@color/light_gray">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/subjectNameInput"
@@ -30,52 +128,49 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Subject Description Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/subjectDescriptionLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:hint="Description">
+        android:layout_marginBottom="24dp"
+        android:hint="Subject Description (Optional)"
+        app:boxStrokeColor="@color/on_surface"
+        app:hintTextColor="@color/light_gray">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/subjectDescriptionInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
-            android:minLines="3" />
+            android:maxLines="3" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/imageContainer"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginBottom="16dp"
-        app:cardElevation="0dp"
-        app:strokeColor="?attr/colorOutline"
-        app:strokeWidth="1dp">
-
-        <ImageView
-            android:id="@+id/subjectImage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
-
-        <TextView
-            android:id="@+id/textAddImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:drawablePadding="8dp"
-            android:text="Add Image (Optional)"
-            app:drawableTopCompat="@drawable/baseline_add_24" />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <Button
-        android:id="@+id/buttonCreate"
+    <!-- Buttons -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Subject" />
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textColor="@color/black"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonCreate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Subject"
+            android:backgroundTint="@color/on_surface"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
 
 </LinearLayout>

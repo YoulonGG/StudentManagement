@@ -89,7 +89,7 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 "Subjects",
                 R.drawable.teacher_subjects_card_icon
             ) {
-//                findNavController().navigate(R.id.navigate_teacher_to_subject_list)
+                findNavController().navigate(R.id.navigate_teacher_to_subject_list)
             },
             HomeCardItem(
                 3,
