@@ -9,4 +9,6 @@
     <color name="permission_stroke">#FB8C00</color>
     <color name="permission_approved_color">#4CAF50</color>
     <color name="hint_color">#757575</color>
+    <color name="splash_gradient_top">#80298F</color>
+    <color name="splash_gradient_bottom">#280B28</color>
 </resources>
