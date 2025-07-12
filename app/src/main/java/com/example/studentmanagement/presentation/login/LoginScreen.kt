@@ -41,7 +41,7 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         val accountType = arguments?.getString("accountType") ?: "student"
         progressBar = view.findViewById(R.id.progressBar)
 
-        title.text = if (accountType == "teacher") "Login as Teacher" else "Login as Student"
+        title.text = if (accountType == "teacher") "Teacher Log In" else "Student Log In"
 
         signupText.visibility = if (accountType == "student") View.GONE else View.VISIBLE
 

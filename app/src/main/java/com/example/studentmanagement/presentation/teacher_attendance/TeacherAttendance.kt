@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
@@ -28,14 +31,23 @@ class TeacherAttendanceFragment : Fragment(R.layout.fragment_teacher_attendance)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentTeacherAttendanceBinding.bind(view)
+        val goBack = view.findViewById<ImageView>(R.id.goBack)
+        val teacherProfileToolbarTitle = view.findViewById<TextView>(R.id.toolbarTitle)
+
+        teacherProfileToolbarTitle.text = "Report Attendance"
+        goBack.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         setupViews()
         observeState()
 
         viewModel.onAction(TeacherAttendanceEvent.LoadStudents)
-        viewModel.onAction(TeacherAttendanceEvent.SetDate(
-            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        ))
+        viewModel.onAction(
+            TeacherAttendanceEvent.SetDate(
+                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            )
+        )
     }
 
     private fun setupViews() {
@@ -110,12 +122,8 @@ class TeacherAttendanceFragment : Fragment(R.layout.fragment_teacher_attendance)
                 ).show()
                 viewModel.onAction(TeacherAttendanceEvent.ClearSuccess)
             }
-
-            textViewEmptyState.visibility = if (state.students.isEmpty() && !state.isLoading)
-                View.VISIBLE else View.GONE
         }
     }
-
 
 
     private fun updateSubmitButton(state: TeacherAttendanceState) {

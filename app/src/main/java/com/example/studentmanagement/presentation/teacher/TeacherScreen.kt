@@ -28,22 +28,17 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
     private lateinit var recyclerView: RecyclerView
     private val viewModel: TeacherViewModel by viewModel()
     private lateinit var teacherImage: ImageView
-    private lateinit var button: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.recyclerView)
         teacherImage = view.findViewById(R.id.teacherImage)
-        button = view.findViewById(R.id.btnLogOut)
 
         setupRecyclerView()
         observeViewModel()
         viewModel.onAction(TeacherAction.LoadTeacherData)
         viewModel.onAction(TeacherAction.LoadTotalStudents)
-        button.setOnClickListener {
-            handleLogout()
-        }
     }
 
 
@@ -84,39 +79,42 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
         val items = listOf(
             HomeCardItem(
                 1,
-                "Check Attendance",
-                R.drawable.attendance_icon
-            ) {
-                findNavController().navigate(R.id.navigate_teacher_to_attendance)
-            },
-            HomeCardItem(
-                2,
-                "Attendance Record",
-                R.drawable.attendance_icon
-            ) {
-                findNavController().navigate(R.id.navigate_teacher_to_attendance_history)
-            },
-            HomeCardItem(
-                3,
                 "Profile",
-                R.drawable.attendance_icon
+                R.drawable.teacher_profile_card_icon
             ) {
                 findNavController().navigate(R.id.navigate_teacher_to_teacher_profile)
             },
             HomeCardItem(
+                2,
+                "Subjects",
+                R.drawable.teacher_subjects_card_icon
+            ) {
+//                findNavController().navigate(R.id.navigate_teacher_to_subject_list)
+            },
+            HomeCardItem(
+                3,
+                "Attendance Record",
+                R.drawable.teacher_attendance_record_card_icon
+            ) {
+                findNavController().navigate(R.id.navigate_teacher_to_attendance_history)
+            },
+            HomeCardItem(
+                4,
+                "Check Attendance",
+                R.drawable.teacher_check_attendance_card_icon
+            ) {
+                findNavController().navigate(R.id.navigate_teacher_to_attendance)
+            },
+
+            HomeCardItem(
                 4,
                 "Student List",
-                R.drawable.attendance_icon
+                R.drawable.teacher_student_list_card_icon
             ) {
                 findNavController().navigate(R.id.navigate_teacher_to_student_list)
             },
-//            HomeCardItem(
-//                5,
-//                "Subjects",
-//                R.drawable.attendance_icon
-//            ) { findNavController().navigate(R.id.navigate_teacher_to_subject_list) },
             HomeCardItem(
-                6,
+                5,
                 "Create Student",
                 R.drawable.attendance_icon
             ) { findNavController().navigate(R.id.navigate_teacher_to_create_student) },

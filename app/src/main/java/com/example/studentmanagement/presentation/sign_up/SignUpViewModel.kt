@@ -79,11 +79,9 @@ class SignUpViewModel(
             "accountType" to "teacher",
             "password" to password,
             "username" to username,
-            "createdAt" to FieldValue.serverTimestamp(),
             "gender" to gender,
             "authUid" to user.uid,
             "imageUrl" to "",
-            "lastLogin" to FieldValue.serverTimestamp(),
         )
 
         firestore.collection("users").document(user.uid)

@@ -1,9 +1,11 @@
 package com.example.studentmanagement.presentation.teacher_attendance
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -402,7 +404,6 @@ class AttendanceAdapter(
             chipGroupStatus.setOnCheckedChangeListener(null)
 
             when {
-                // Case 1: Permission approved or rejected - lock the status
                 item.status == AttendanceStatus.PERMISSION ||
                         (item.statusModified && item.hasPermissionRequest && item.status == AttendanceStatus.ABSENT) -> {
                     if (item.status == AttendanceStatus.PERMISSION) {
@@ -412,6 +413,11 @@ class AttendanceAdapter(
                             isChecked = true
                             text = "Permission"
                             isEnabled = false
+                            alpha = 1.0f
+                            setTextColor(ContextCompat.getColor(context, android.R.color.white))
+                            chipBackgroundColor = ColorStateList.valueOf(
+                                ContextCompat.getColor(context, R.color.chip_permission_background)
+                            )
                         }
                     } else {
                         chipPresent.visibility = View.GONE
@@ -419,19 +425,38 @@ class AttendanceAdapter(
                             visibility = View.VISIBLE
                             isChecked = true
                             isEnabled = false
+                            alpha = 1.0f
+                            setTextColor(ContextCompat.getColor(context, android.R.color.white))
+                            chipBackgroundColor = ColorStateList.valueOf(
+                                ContextCompat.getColor(context, R.color.chip_absent_selected)
+                            )
                         }
                     }
                 }
-                // Case 2: Submitted attendance - show final status
+
                 item.isSubmitted -> {
                     when (item.status) {
                         AttendanceStatus.PRESENT -> {
-                            chipPresent.isChecked = true
+                            chipPresent.apply {
+                                isChecked = true
+                                alpha = 1.0f
+                                setTextColor(ContextCompat.getColor(context, android.R.color.white))
+                                chipBackgroundColor = ColorStateList.valueOf(
+                                    ContextCompat.getColor(context, R.color.chip_present_selected)
+                                )
+                            }
                             chipAbsent.visibility = View.GONE
                         }
 
                         AttendanceStatus.ABSENT -> {
-                            chipAbsent.isChecked = true
+                            chipAbsent.apply {
+                                isChecked = true
+                                alpha = 1.0f
+                                setTextColor(ContextCompat.getColor(context, android.R.color.white))
+                                chipBackgroundColor = ColorStateList.valueOf(
+                                    ContextCompat.getColor(context, R.color.chip_absent_selected)
+                                )
+                            }
                             chipPresent.visibility = View.GONE
                         }
 
@@ -439,26 +464,113 @@ class AttendanceAdapter(
                     }
                     setChipsEnabled(false)
                 }
-                // Case 3: Normal attendance selection - allow changes
+
                 else -> {
-                    // Show both chips and enable them
                     chipPresent.apply {
                         text = "Present"
                         visibility = View.VISIBLE
                         isEnabled = true
+                        alpha = 1.0f
                         isChecked = item.statusModified && item.status == AttendanceStatus.PRESENT
+
+                        if (isChecked) {
+                            chipBackgroundColor = ColorStateList.valueOf(
+                                ContextCompat.getColor(context, R.color.chip_present_selected)
+                            )
+                            setTextColor(ContextCompat.getColor(context, android.R.color.white))
+                        } else {
+                            chipBackgroundColor = ColorStateList.valueOf(
+                                ContextCompat.getColor(context, R.color.chip_default_background)
+                            )
+                            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+                        }
                     }
+
                     chipAbsent.apply {
                         visibility = View.VISIBLE
                         isEnabled = true
+                        alpha = 1.0f
                         isChecked = item.statusModified && item.status == AttendanceStatus.ABSENT
+
+                        if (isChecked) {
+                            chipBackgroundColor = ColorStateList.valueOf(
+                                ContextCompat.getColor(context, R.color.chip_absent_selected)
+                            )
+                            setTextColor(ContextCompat.getColor(context, android.R.color.white))
+                        } else {
+                            chipBackgroundColor = ColorStateList.valueOf(
+                                ContextCompat.getColor(context, R.color.chip_default_background)
+                            )
+                            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+                        }
                     }
 
-                    // Add change listener for normal attendance
                     chipGroupStatus.setOnCheckedChangeListener { _, checkedId ->
                         val status = when (checkedId) {
-                            R.id.chipPresent -> AttendanceStatus.PRESENT
-                            R.id.chipAbsent -> AttendanceStatus.ABSENT
+                            R.id.chipPresent -> {
+                                chipPresent.apply {
+                                    chipBackgroundColor = ColorStateList.valueOf(
+                                        ContextCompat.getColor(
+                                            context,
+                                            R.color.chip_present_selected
+                                        )
+                                    )
+                                    setTextColor(
+                                        ContextCompat.getColor(
+                                            context,
+                                            android.R.color.white
+                                        )
+                                    )
+                                }
+                                chipAbsent.apply {
+                                    chipBackgroundColor = ColorStateList.valueOf(
+                                        ContextCompat.getColor(
+                                            context,
+                                            R.color.chip_default_background
+                                        )
+                                    )
+                                    setTextColor(
+                                        ContextCompat.getColor(
+                                            context,
+                                            android.R.color.black
+                                        )
+                                    )
+                                }
+                                AttendanceStatus.PRESENT
+                            }
+
+                            R.id.chipAbsent -> {
+                                chipAbsent.apply {
+                                    chipBackgroundColor = ColorStateList.valueOf(
+                                        ContextCompat.getColor(
+                                            context,
+                                            R.color.chip_absent_selected
+                                        )
+                                    )
+                                    setTextColor(
+                                        ContextCompat.getColor(
+                                            context,
+                                            android.R.color.white
+                                        )
+                                    )
+                                }
+                                chipPresent.apply {
+                                    chipBackgroundColor = ColorStateList.valueOf(
+                                        ContextCompat.getColor(
+                                            context,
+                                            R.color.chip_default_background
+                                        )
+                                    )
+                                    setTextColor(
+                                        ContextCompat.getColor(
+                                            context,
+                                            android.R.color.black
+                                        )
+                                    )
+                                }
+                                AttendanceStatus.ABSENT
+                            }
+
                             else -> return@setOnCheckedChangeListener
                         }
                         onStatusChanged(item.studentId, status)
@@ -466,9 +578,21 @@ class AttendanceAdapter(
                 }
             }
 
-            // No chips selected initially for new attendance
             if (!item.statusModified && !item.isSubmitted) {
                 chipGroupStatus.clearCheck()
+                // Reset both chips to default background and text color
+                chipPresent.apply {
+                    chipBackgroundColor = ColorStateList.valueOf(
+                        ContextCompat.getColor(context, R.color.chip_default_background)
+                    )
+                    setTextColor(ContextCompat.getColor(context, android.R.color.black))
+                }
+                chipAbsent.apply {
+                    chipBackgroundColor = ColorStateList.valueOf(
+                        ContextCompat.getColor(context, R.color.chip_default_background)
+                    )
+                    setTextColor(ContextCompat.getColor(context, android.R.color.black))
+                }
             }
         }
 

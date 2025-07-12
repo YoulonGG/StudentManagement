@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class TeacherResponse(
+    val accountType: String? = null,
     val username: String? = null,
     val email: String? = null,
     val phone: String? = null,
