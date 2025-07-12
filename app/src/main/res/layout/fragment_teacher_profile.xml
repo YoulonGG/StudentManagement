@@ -17,7 +17,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/content_background"
             android:orientation="vertical">
 
@@ -62,8 +62,8 @@
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxStrokeColor="@color/tool_bar_background"
-                        app:boxStrokeWidth="2dp"
                         app:boxStrokeErrorColor="@color/red"
+                        app:boxStrokeWidth="2dp"
                         app:boxStrokeWidthFocused="2dp">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -87,8 +87,8 @@
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxStrokeColor="@color/tool_bar_background"
-                        app:boxStrokeWidth="2dp"
                         app:boxStrokeErrorColor="@color/red"
+                        app:boxStrokeWidth="2dp"
                         app:boxStrokeWidthFocused="2dp">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -112,8 +112,8 @@
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxStrokeColor="@color/tool_bar_background"
-                        app:boxStrokeWidth="2dp"
                         app:boxStrokeErrorColor="@color/red"
+                        app:boxStrokeWidth="2dp"
                         app:boxStrokeWidthFocused="2dp">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -137,8 +137,8 @@
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxStrokeColor="@color/tool_bar_background"
-                        app:boxStrokeWidth="2dp"
                         app:boxStrokeErrorColor="@color/red"
+                        app:boxStrokeWidth="2dp"
                         app:boxStrokeWidthFocused="2dp">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -150,18 +150,18 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <LinearLayout
-                        android:orientation="horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:orientation="horizontal"
                         android:weightSum="2">
 
                         <com.google.android.material.textfield.TextInputLayout
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_marginEnd="8dp"
                             android:layout_marginBottom="8dp"
+                            android:layout_weight="1"
                             android:hint="Age"
                             app:boxBackgroundColor="@android:color/white"
                             app:boxBackgroundMode="outline"
@@ -170,8 +170,8 @@
                             app:boxCornerRadiusTopEnd="12dp"
                             app:boxCornerRadiusTopStart="12dp"
                             app:boxStrokeColor="@color/tool_bar_background"
-                            app:boxStrokeWidth="2dp"
                             app:boxStrokeErrorColor="@color/red"
+                            app:boxStrokeWidth="2dp"
                             app:boxStrokeWidthFocused="2dp">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -186,9 +186,9 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_marginStart="8dp"
                             android:layout_marginBottom="8dp"
+                            android:layout_weight="1"
                             android:hint="Gender"
                             app:boxBackgroundColor="@android:color/white"
                             app:boxBackgroundMode="outline"
@@ -197,8 +197,8 @@
                             app:boxCornerRadiusTopEnd="12dp"
                             app:boxCornerRadiusTopStart="12dp"
                             app:boxStrokeColor="@color/tool_bar_background"
-                            app:boxStrokeWidth="2dp"
                             app:boxStrokeErrorColor="@color/red"
+                            app:boxStrokeWidth="2dp"
                             app:boxStrokeWidthFocused="2dp">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -212,18 +212,18 @@
 
                     <TextView
                         android:id="@+id/btnSave"
-                        android:text="Save Changes"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:background="@drawable/common_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="end"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/common_button"
                         android:gravity="center"
                         android:paddingHorizontal="16dp"
-                        android:layout_marginTop="10dp"
                         android:paddingVertical="8dp"
+                        android:text="Save Changes"
                         android:textColor="@color/white"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                 </LinearLayout>
 

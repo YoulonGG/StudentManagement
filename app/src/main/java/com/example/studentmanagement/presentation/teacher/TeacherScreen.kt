@@ -1,7 +1,5 @@
 package com.example.studentmanagement.presentation.teacher
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.View
@@ -16,8 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
-import com.example.studentmanagement.data.local.PreferencesKeys
-import com.example.studentmanagement.presentation.activity.MainActivity
 import com.example.studentmanagement.presentation.teacher.components.HomeCardItem
 import com.example.studentmanagement.presentation.teacher.components.TeacherHomeCardAdapter
 import kotlinx.coroutines.launch
@@ -38,9 +34,8 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
         setupRecyclerView()
         observeViewModel()
         viewModel.onAction(TeacherAction.LoadTeacherData)
-        viewModel.onAction(TeacherAction.LoadTotalStudents)
+        viewModel.onAction(TeacherAction.LoadStudentCounts)
     }
-
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -49,7 +44,15 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                     view?.findViewById<TextView>(R.id.teacherNameTitle)?.text = state.teacherName
 
                     view?.findViewById<TextView>(R.id.studentCount)?.let { textView ->
-                        textView.text = "Total Students: ${state.totalStudents}"
+                        textView.text = "${state.totalStudents}"
+                    }
+
+                    view?.findViewById<TextView>(R.id.maleStudentCount)?.let { textView ->
+                        textView.text = "Male: ${state.maleStudents}"
+                    }
+
+                    view?.findViewById<TextView>(R.id.femaleStudentCount)?.let { textView ->
+                        textView.text = "Female: ${state.femaleStudents}"
                     }
 
                     state.profileImageUrl?.let { imageUrl ->
@@ -116,7 +119,7 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
             HomeCardItem(
                 5,
                 "Create Student",
-                R.drawable.attendance_icon
+                R.drawable.crate_student_icon
             ) { findNavController().navigate(R.id.navigate_teacher_to_create_student) },
             HomeCardItem(
                 6,
@@ -144,20 +147,5 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 outRect.bottom = spacingInPixels
             }
         })
-    }
-
-    private fun handleLogout() {
-        val sharedPref = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            remove(PreferencesKeys.IS_LOGGED_IN)
-            remove(PreferencesKeys.ACCOUNT_TYPE)
-            apply()
-        }
-
-        val intent = Intent(requireContext(), MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
-        requireActivity().finish()
     }
 }

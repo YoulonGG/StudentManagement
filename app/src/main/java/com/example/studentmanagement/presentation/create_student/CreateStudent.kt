@@ -31,6 +31,7 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
     private lateinit var errorText: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var backButton: ImageView
+    private lateinit var toolbarTitle: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,12 +39,14 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
         nameInput = view.findViewById(R.id.createStudentName)
         studentIdInput = view.findViewById(R.id.createStudent)
         emailInput = view.findViewById(R.id.createStudentEmail)
-//        passwordInput = view.findViewById(R.id.createStudentPassword)
         genderSpinner = view.findViewById(R.id.genderSpinner)
         createBtn = view.findViewById(R.id.btnCreateStudent)
         errorText = view.findViewById(R.id.createStudentErrorText)
         progressBar = view.findViewById(R.id.createStudentProgressBar)
         backButton = view.findViewById(R.id.goBack)
+        toolbarTitle = view.findViewById(R.id.toolbarTitle)
+
+        toolbarTitle.text = "Create Student"
 
         setupGenderSpinner()
 

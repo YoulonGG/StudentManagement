@@ -3,6 +3,7 @@ package com.example.studentmanagement.presentation.student_detail
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
@@ -31,6 +32,9 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
         _binding = FragmentStudentDetailScreenBinding.bind(view)
 
         val backBtn = view.findViewById<ImageView>(R.id.goBack)
+        val studentDetail = view.findViewById<TextView>(R.id.toolbarTitle)
+
+        studentDetail.text = "Student Detail"
         backBtn.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -50,25 +54,23 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
                     state.student?.let { student ->
                         binding.apply {
-                            studentDetailName.text = student.name
-                            studentDetailID.text = student.studentID
-                            edtName.setText(student.name)
-                            edtEmail.setText(student.email)
-                            edtAddress.setText(student.address)
-                            edtPhone.setText(student.phone)
+                            studentDetailName.text = student.name ?: ""
+                            studentDetailID.text = student.studentID ?: ""
+                            edtEmail.setText(student.email ?: "")
+                            edtAddress.setText(student.address ?: "")
+                            edtPhone.setText(student.phone ?: "")
                             edtAge.setText(student.age?.toString() ?: "")
-                            edtStudentId.setText(student.studentID)
-                            edtGuardian.setText(student.guardian)
-                            edtGuardianContact.setText(student.guardianContact)
-                            edtMajoring.setText(student.majoring)
+                            edtGuardian.setText(student.guardian ?: "")
+                            edtGuardianContact.setText(student.guardianContact ?: "")
+                            edtMajoring.setText(student.majoring ?: "")
 
                             if (!student.imageUrl.isNullOrEmpty()) {
                                 Glide.with(this@StudentDetailScreen)
                                     .load(student.imageUrl)
-                                    .placeholder(R.drawable.student_option)
+                                    .placeholder(R.drawable.ic_place_holder_profile)
                                     .into(imgStudent)
                             } else {
-                                imgStudent.setImageResource(R.drawable.student_option)
+                                imgStudent.setImageResource(R.drawable.ic_place_holder_profile)
                             }
                         }
                     }
@@ -102,12 +104,10 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
             val updatedStudent = StudentResponse(
                 imageUrl = currentStudent?.imageUrl,
-                name = binding.edtName.text.toString(),
                 email = binding.edtEmail.text.toString(),
                 address = binding.edtAddress.text.toString(),
                 phone = binding.edtPhone.text.toString(),
                 age = binding.edtAge.text.toString().toIntOrNull(),
-                studentID = binding.edtStudentId.text.toString(),
                 guardian = binding.edtGuardian.text.toString(),
                 guardianContact = binding.edtGuardianContact.text.toString(),
                 majoring = binding.edtMajoring.text.toString()
