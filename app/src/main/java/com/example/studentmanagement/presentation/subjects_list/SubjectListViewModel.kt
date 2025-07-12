@@ -59,7 +59,6 @@ class SubjectListViewModel(
         setState { copy(isLoading = true) }
 
         db.collection("subjects")
-            .whereEqualTo("teacherId", auth.currentUser?.uid)
             .get()
             .addOnSuccessListener { snapshot ->
                 val subjects = snapshot.documents.map { doc ->

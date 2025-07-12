@@ -16,7 +16,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
-import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.data.dto.TeacherResponse
 import com.example.studentmanagement.data.local.PreferencesKeys
 import com.example.studentmanagement.databinding.FragmentTeacherProfileBinding
@@ -82,6 +81,7 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
                 address = binding.teacherDetailAddress.text.toString(),
                 gender = binding.teacherDetailGender.text.toString(),
                 phone = binding.teacherDetailPhoneNumber.text.toString(),
+                age = binding.teacherDetailAge.text.toString(),
                 imageUrl = viewModel.uiState.value.teacher?.imageUrl
             )
             viewModel.onAction(TeacherProfileAction.SaveTeacher(teacher))

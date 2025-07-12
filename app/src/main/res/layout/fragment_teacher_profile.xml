@@ -210,8 +210,20 @@
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
-
-
+                    <TextView
+                        android:id="@+id/btnSave"
+                        android:text="Save Changes"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/common_button"
+                        android:layout_gravity="end"
+                        android:gravity="center"
+                        android:paddingHorizontal="16dp"
+                        android:layout_marginTop="10dp"
+                        android:paddingVertical="8dp"
+                        android:textColor="@color/white"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
                 </LinearLayout>
 
@@ -222,7 +234,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/btnSave"
+        android:id="@+id/toolbar_logout_btn"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_gravity="bottom"

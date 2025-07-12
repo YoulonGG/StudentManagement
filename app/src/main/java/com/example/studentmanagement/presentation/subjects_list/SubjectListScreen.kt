@@ -4,11 +4,11 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -34,7 +34,11 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
         binding = FragmentSubjectListScreenBinding.bind(view)
 
         val subjectTitle = view.findViewById<TextView>(R.id.toolbarTitle)
+        val backButton = view.findViewById<ImageView>(R.id.goBack)
 
+        backButton.setOnClickListener {
+            findNavController().navigateUp()
+        }
         subjectTitle.text = "Subjects"
 
         setupViews()
