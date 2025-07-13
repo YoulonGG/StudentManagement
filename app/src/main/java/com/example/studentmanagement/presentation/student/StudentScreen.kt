@@ -69,9 +69,22 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
                     studentName.text = name
                 }
 
+                view?.findViewById<TextView>(R.id.studentCount)?.let { textView ->
+                    textView.text = "${state.totalStudents}"
+                }
+
+                view?.findViewById<TextView>(R.id.maleStudentCount)?.let { textView ->
+                    textView.text = "Male: ${state.maleStudents}"
+                }
+
+                view?.findViewById<TextView>(R.id.femaleStudentCount)?.let { textView ->
+                    textView.text = "Female: ${state.femaleStudents}"
+                }
+
                 state.student?.imageUrl?.takeIf { it.isNotEmpty() }?.let { imageUrl ->
                     Glide.with(requireContext())
                         .load(imageUrl)
+                        .circleCrop()
                         .placeholder(R.drawable.ic_place_holder_profile)
                         .error(R.drawable.ic_place_holder_profile)
                         .into(studentImage)
@@ -88,14 +101,14 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
             HomeCardItem(
                 1,
                 "Ask Permission",
-                R.drawable.attendance_icon
+                R.drawable.student_ask_permission_icon
             ) {
                 findNavController().navigate(R.id.navigate_student_to_ask_permission)
             },
             HomeCardItem(
                 2,
                 "Profile",
-                R.drawable.attendance_icon
+                R.drawable.teacher_profile_card_icon
             ) {
                 val currentStudent = viewModel.uiState.value.student
                 if (currentStudent != null) {

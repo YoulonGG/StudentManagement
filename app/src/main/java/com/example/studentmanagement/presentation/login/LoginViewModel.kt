@@ -31,7 +31,6 @@ class LoginViewModel(
                         )
                     }
                 } else {
-                    // Login failed
                     setState {
                         copy(
                             isLoading = false,

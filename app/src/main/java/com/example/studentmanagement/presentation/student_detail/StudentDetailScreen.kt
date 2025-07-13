@@ -19,7 +19,6 @@ import com.example.studentmanagement.databinding.FragmentStudentDetailScreenBind
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-
 class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
     private val viewModel: StudentDetailViewModel by viewModel()
@@ -79,6 +78,7 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
                     state.error?.let { error ->
                         Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+                        viewModel.onAction(StudentDetailAction.ClearError)
                     }
                 }
             }
@@ -94,23 +94,25 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
     private fun setupListeners() {
         binding.imgStudent.setOnClickListener {
-            if (!viewModel.uiState.value.isTeacher) {
-                imagePicker.launch("image/*")
-            }
+            imagePicker.launch("image/*")
         }
 
         binding.btnSave.setOnClickListener {
             val currentStudent = viewModel.uiState.value.student
 
+            // Fixed: Preserve name, studentID, and authUid
             val updatedStudent = StudentResponse(
-                imageUrl = currentStudent?.imageUrl,
+                name = currentStudent?.name,           // Preserve existing name
+                studentID = currentStudent?.studentID, // Preserve existing studentID
+                imageUrl = currentStudent?.imageUrl,   // Preserve existing imageUrl
                 email = binding.edtEmail.text.toString(),
                 address = binding.edtAddress.text.toString(),
                 phone = binding.edtPhone.text.toString(),
                 age = binding.edtAge.text.toString().toIntOrNull(),
                 guardian = binding.edtGuardian.text.toString(),
                 guardianContact = binding.edtGuardianContact.text.toString(),
-                majoring = binding.edtMajoring.text.toString()
+                majoring = binding.edtMajoring.text.toString(),
+                authUid = currentStudent?.authUid      // Preserve existing authUid
             )
 
             viewModel.onAction(StudentDetailAction.SaveStudent(updatedStudent))
@@ -122,4 +124,3 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
         _binding = null
     }
 }
-

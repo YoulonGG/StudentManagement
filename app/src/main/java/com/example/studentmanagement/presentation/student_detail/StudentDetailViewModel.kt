@@ -35,24 +35,25 @@ class StudentDetailViewModel(
         when (event) {
             is StudentDetailAction.LoadStudent -> {
                 setState { copy(student = event.student) }
-                checkUserRole()
             }
 
             is StudentDetailAction.SaveStudent -> saveStudentToFirestore(event.updatedStudent)
             is StudentDetailAction.UploadImage -> {
-                if (!uiState.value.isTeacher) {
-                    uploadImageToStorage(event.imageUri)
-                }
+                uploadImageToStorage(event.imageUri)
             }
 
             StudentDetailAction.LoadCurrentStudent -> {
                 loadCurrentStudentData()
             }
+
+            StudentDetailAction.ClearError -> {
+                setState { copy(error = null) }
+            }
         }
     }
 
     private fun uploadImageToStorage(uri: Uri) {
-        setState { copy(isLoading = true) }
+        setState { copy(isLoading = true, error = null) }
 
         val context = application.applicationContext
         val file = FileUtils.from(context, uri)
@@ -95,8 +96,7 @@ class StudentDetailViewModel(
                         val json = JSONObject(body)
                         val imageUrl = json.getString("secure_url")
 
-                        val updatedStudent =
-                            uiState.value.student?.copy(imageUrl = imageUrl)
+                        val updatedStudent = uiState.value.student?.copy(imageUrl = imageUrl)
 
                         if (updatedStudent != null) {
                             saveStudentToFirestore(updatedStudent)
@@ -122,22 +122,23 @@ class StudentDetailViewModel(
         setState { copy(isLoading = true, error = null) }
 
         val current = uiState.value.student ?: run {
-            setState { copy(error = "No student loaded") }
+            setState { copy(isLoading = false, error = "No student loaded") }
             return
         }
 
+        // Fixed: Properly preserve name, studentID, and other essential fields
         val updatedStudent = current.copy(
-            name = student.name,
-            email = student.email,
-            address = student.address,
-            phone = student.phone,
-            age = student.age,
-            imageUrl = student.imageUrl,
-            studentID = student.studentID,
-            guardian = student.guardian,
-            guardianContact = student.guardianContact,
-            majoring = student.majoring,
-            authUid = current.authUid
+            name = student.name ?: current.name,                      // Preserve if null
+            studentID = student.studentID ?: current.studentID,      // Preserve if null
+            email = student.email ?: current.email,                  // Use new value or preserve
+            address = student.address ?: current.address,            // Use new value or preserve
+            phone = student.phone ?: current.phone,                  // Use new value or preserve
+            age = student.age ?: current.age,                        // Use new value or preserve
+            imageUrl = student.imageUrl ?: current.imageUrl,         // Preserve if null
+            guardian = student.guardian ?: current.guardian,         // Use new value or preserve
+            guardianContact = student.guardianContact ?: current.guardianContact, // Use new value or preserve
+            majoring = student.majoring ?: current.majoring,         // Use new value or preserve
+            authUid = current.authUid                                // Always preserve authUid
         )
 
         val authUid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
@@ -145,57 +146,28 @@ class StudentDetailViewModel(
             return
         }
 
-        firestore.collection("users").document(authUid).get()
-            .addOnSuccessListener { document ->
-                val isTeacher = document.getString("accountType") == "teacher"
+        // Prepare update data, filtering out null values
+        val allowedFields = mapOf(
+            "name" to updatedStudent.name,
+            "email" to updatedStudent.email,
+            "address" to updatedStudent.address,
+            "phone" to updatedStudent.phone,
+            "age" to updatedStudent.age,
+            "imageUrl" to updatedStudent.imageUrl,
+            "guardian" to updatedStudent.guardian,
+            "guardianContact" to updatedStudent.guardianContact,
+            "majoring" to updatedStudent.majoring,
+            "studentID" to updatedStudent.studentID
+        ).filterValues { it != null }
 
-                val allowedFields = if (isTeacher) {
-                    mapOf(
-                        "name" to updatedStudent.name,
-                        "email" to updatedStudent.email,
-                        "address" to updatedStudent.address,
-                        "phone" to updatedStudent.phone,
-                        "age" to updatedStudent.age,
-                        "imageUrl" to updatedStudent.imageUrl,
-                        "guardian" to updatedStudent.guardian,
-                        "guardianContact" to updatedStudent.guardianContact,
-                        "majoring" to updatedStudent.majoring
-                    )
-                } else {
-                    mapOf(
-                        "name" to updatedStudent.name,
-                        "imageUrl" to updatedStudent.imageUrl
-                    )
-                }.filterValues { it != null }
-
-                firestore.collection("students")
-                    .document(updatedStudent.authUid ?: "")
-                    .update(allowedFields)
-                    .addOnSuccessListener {
-                        setState { copy(isLoading = false, student = updatedStudent) }
-                    }
-                    .addOnFailureListener { e ->
-                        setState { copy(isLoading = false, error = e.message) }
-                    }
-
+        firestore.collection("students")
+            .document(updatedStudent.authUid ?: authUid)
+            .update(allowedFields)
+            .addOnSuccessListener {
+                setState { copy(isLoading = false, student = updatedStudent, error = null) }
             }
             .addOnFailureListener { e ->
-                setState {
-                    copy(
-                        isLoading = false,
-                        error = "Failed to fetch user role: ${e.message}"
-                    )
-                }
-            }
-    }
-
-    private fun checkUserRole() {
-        val authUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
-        firestore.collection("users").document(authUid).get()
-            .addOnSuccessListener { document ->
-                val isTeacher = document.getString("accountType") == "teacher"
-                setState { copy(isTeacher = isTeacher) }
+                setState { copy(isLoading = false, error = "Failed to save: ${e.message}") }
             }
     }
 
@@ -212,8 +184,6 @@ class StudentDetailViewModel(
             .get()
             .addOnSuccessListener { userDoc ->
                 val accountType = userDoc.getString("accountType")
-                val isTeacher = accountType == "teacher"
-                setState { copy(isTeacher = isTeacher) }
 
                 if (accountType == "student") {
                     firestore.collection("students")
@@ -230,10 +200,12 @@ class StudentDetailViewModel(
                                     )
                                 }
                             } else {
+                                // Create initial student profile
                                 val initialStudent = StudentResponse(
                                     authUid = currentUser,
                                     name = userDoc.getString("name") ?: "",
-                                    email = userDoc.getString("email") ?: ""
+                                    email = userDoc.getString("email") ?: "",
+                                    studentID = generateStudentID() // Generate a student ID
                                 )
 
                                 firestore.collection("students")
@@ -267,7 +239,7 @@ class StudentDetailViewModel(
                             }
                         }
                 } else {
-                    setState { copy(isLoading = false) }
+                    setState { copy(isLoading = false, error = "User is not a student") }
                 }
             }
             .addOnFailureListener { e ->
@@ -278,24 +250,25 @@ class StudentDetailViewModel(
                     )
                 }
             }
-    }}
+    }
 
+    private fun generateStudentID(): String {
+        // Generate a simple student ID with current timestamp
+        val currentTime = System.currentTimeMillis()
+        return "STU${currentTime.toString().takeLast(6)}"
+    }
+}
 
 sealed class StudentDetailAction {
     data class LoadStudent(val student: StudentResponse) : StudentDetailAction()
     data class SaveStudent(val updatedStudent: StudentResponse) : StudentDetailAction()
     data class UploadImage(val imageUri: Uri) : StudentDetailAction()
     data object LoadCurrentStudent : StudentDetailAction()
-
+    data object ClearError : StudentDetailAction()
 }
-
 
 data class StudentDetailUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val student: StudentResponse? = null,
-    val isTeacher: Boolean = false
+    val student: StudentResponse? = null
 )
-
-
-
