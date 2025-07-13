@@ -109,7 +109,6 @@ class CreateStudentViewModel(
             "studentID" to studentID,
             "authUid" to user.uid,
             "accountType" to "student",
-            "createdAt" to FieldValue.serverTimestamp(),
             "imageUrl" to "",
             "address" to "",
             "phone" to "",
