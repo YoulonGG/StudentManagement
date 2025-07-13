@@ -125,6 +125,6 @@ data class TeacherUiState(
 )
 
 sealed interface TeacherAction {
-    object LoadTeacherData : TeacherAction
-    object LoadStudentCounts : TeacherAction
+    data object LoadTeacherData : TeacherAction
+    data object LoadStudentCounts : TeacherAction
 }

@@ -10,8 +10,10 @@ import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.ui_components.Dialog
@@ -58,7 +60,6 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
         createBtn.setOnClickListener {
             errorText.visibility = View.GONE
             val email = emailInput.text.toString().trim()
-//            val password = passwordInput.text.toString().trim()
             val name = nameInput.text.toString().trim()
             val studentID = studentIdInput.text.toString().trim()
             val gender = if (genderSpinner.selectedItemPosition != 0)
@@ -99,9 +100,14 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
                         title = "Success",
                         description = "Student created successfully!"
                     ) {
-                        findNavController().navigateUp()
+                        findNavController().navigate(
+                            R.id.navigate_create_student_to_teacher,
+                            bundleOf("accountType" to "teacher"),
+                            NavOptions.Builder()
+                                .setPopUpTo(R.id.navigate_create_student_to_teacher, false)
+                                .build()
+                        )
                     }
-//                    errorText.visibility = View.VISIBLE
                     viewModel.resetState()
                     viewModel.clearError()
                 }

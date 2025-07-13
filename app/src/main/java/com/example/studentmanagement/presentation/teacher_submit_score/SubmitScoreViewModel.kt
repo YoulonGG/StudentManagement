@@ -1,6 +1,5 @@
 package com.example.studentmanagement.presentation.teacher_submit_score
 
-
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.studentmanagement.core.base.BaseViewModel
@@ -15,9 +14,34 @@ class SubmitScoreViewModel(
     private val _studentScores = MutableLiveData<List<StudentScore>>()
     val studentScores: LiveData<List<StudentScore>> = _studentScores
 
+    private val _subjects = MutableLiveData<List<String>>()
+    val subjects: LiveData<List<String>> = _subjects
+
     override fun setInitialState(): SubmitScoreUiState = SubmitScoreUiState()
 
     override fun onAction(event: SubmitScoreAction) {}
+
+    fun fetchSubjects() {
+        setState { copy(isLoading = true, error = null, submitSuccess = false) }
+        firestore.collection("subjects")
+            .get()
+            .addOnSuccessListener { result ->
+                val subjectList = result.documents.mapNotNull { doc ->
+                    doc.getString("name")
+                }
+                _subjects.value = subjectList
+                setState { copy(isLoading = false, submitSuccess = false) }
+            }
+            .addOnFailureListener {
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to fetch subjects: ${it.message}",
+                        submitSuccess = false
+                    )
+                }
+            }
+    }
 
     fun fetchStudentsBySubject(subject: String) {
         setState { copy(isLoading = true, error = null, submitSuccess = false) }
@@ -70,8 +94,7 @@ class SubmitScoreViewModel(
                         assignment = existingScore?.getDouble("assignment")?.toFloat() ?: 0f,
                         midterm = existingScore?.getDouble("midterm")?.toFloat() ?: 0f,
                         final = existingScore?.getDouble("final")?.toFloat() ?: 0f,
-                        homework = existingScore?.getDouble("homework")?.toFloat() ?: 0f,
-                        participation = existingScore?.getDouble("participation")?.toFloat() ?: 0f
+                        homework = existingScore?.getDouble("homework")?.toFloat() ?: 0f
                     )
                 }
                 _studentScores.value = scores
@@ -118,7 +141,6 @@ class SubmitScoreViewModel(
                     "midterm" to score.midterm,
                     "final" to score.final,
                     "homework" to score.homework,
-                    "participation" to score.participation,
                     "total" to score.total,
                     "subject" to subject,
                     "timestamp" to FieldValue.serverTimestamp()
@@ -153,8 +175,7 @@ class SubmitScoreViewModel(
             score.assignment in 0f..100f &&
                     score.midterm in 0f..100f &&
                     score.final in 0f..100f &&
-                    score.homework in 0f..100f &&
-                    score.participation in 0f..100f
+                    score.homework in 0f..100f
         }
     }
 }
@@ -173,9 +194,8 @@ data class StudentScore(
     var assignment: Float = 0f,
     var midterm: Float = 0f,
     var final: Float = 0f,
-    var homework: Float = 0f,
-    var participation: Float = 0f
+    var homework: Float = 0f
 ) {
     val total: Float
-        get() = assignment + midterm + final + homework + participation
+        get() = assignment + midterm + final + homework
 }

@@ -121,7 +121,14 @@
     <fragment
         android:id="@+id/create_student"
         android:name="com.example.studentmanagement.presentation.create_student.CreateStudentFragment"
-        android:label="Create Student Screen" />
+        android:label="Create Student Screen">
+
+        <action
+            android:id="@+id/navigate_create_student_to_teacher"
+            app:destination="@id/teacher" />
+
+
+    </fragment>
 
     <fragment
         android:id="@+id/attendance"

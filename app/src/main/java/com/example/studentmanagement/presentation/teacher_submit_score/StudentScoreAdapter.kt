@@ -7,10 +7,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.studentmanagement.R
 import com.example.studentmanagement.databinding.ItemStudentScoreBinding
 
-class StudentScoreAdapter : ListAdapter<StudentScore, StudentScoreAdapter.ViewHolder>(ScoreDiffCallback()) {
+
+class StudentScoreAdapter :
+    ListAdapter<StudentScore, StudentScoreAdapter.ViewHolder>(ScoreDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemStudentScoreBinding.inflate(
@@ -40,19 +41,23 @@ class StudentScoreAdapter : ListAdapter<StudentScore, StudentScoreAdapter.ViewHo
             binding.homeworkScore.addTextChangedListener(scoreWatcher)
             binding.midtermScore.addTextChangedListener(scoreWatcher)
             binding.finalScore.addTextChangedListener(scoreWatcher)
-            binding.participationScore.addTextChangedListener(scoreWatcher)
         }
 
         fun bind(item: StudentScore) {
             binding.apply {
                 studentNameText.text = item.name
-                assignmentScore.setText(item.assignment.toString())
-                homeworkScore.setText(item.homework.toString())
-                midtermScore.setText(item.midterm.toString())
-                finalScore.setText(item.final.toString())
-                participationScore.setText(item.participation.toString())
-                totalScore.text = root.context.getString(R.string.score_format).format(item.total)
-                averageScore.text = root.context.getString(R.string.score_format).format((item.total / 500) * 100)
+                assignmentScore.setText(
+                    if (item.assignment == 0f) "0" else item.assignment.toInt().toString()
+                )
+                homeworkScore.setText(
+                    if (item.homework == 0f) "0" else item.homework.toInt().toString()
+                )
+                midtermScore.setText(
+                    if (item.midterm == 0f) "0" else item.midterm.toInt().toString()
+                )
+                finalScore.setText(if (item.final == 0f) "0" else item.final.toInt().toString())
+                totalScore.text = item.total.toInt().toString()
+                averageScore.text = ((item.total / 400) * 100).toInt().toString()
             }
         }
 
@@ -65,8 +70,8 @@ class StudentScoreAdapter : ListAdapter<StudentScore, StudentScoreAdapter.ViewHo
                     item.homework = homeworkScore.text.toString().toFloatOrNull() ?: 0f
                     item.midterm = midtermScore.text.toString().toFloatOrNull() ?: 0f
                     item.final = finalScore.text.toString().toFloatOrNull() ?: 0f
-                    item.participation = participationScore.text.toString().toFloatOrNull() ?: 0f
-                    totalScore.text = root.context.getString(R.string.score_format).format(item.total)
+                    totalScore.text = item.total.toInt().toString()
+                    averageScore.text = ((item.total / 400) * 100).toInt().toString()
                 }
             }
         }

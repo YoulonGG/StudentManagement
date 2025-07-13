@@ -17,6 +17,7 @@
     <color name="tool_bar_background">#C2309E</color>
     <color name="header_table_color">#F8B1FA</color>
     <color name="green_btn">#2DBB34</color>
+    <color name="table_header_background">#A50F7B</color>
 
     <color name="chip_default_background">#FCECF8</color>
     <color name="chip_present_selected">#4CAF50</color>

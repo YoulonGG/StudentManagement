@@ -4,11 +4,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.ui_components.Dialog
@@ -23,30 +24,28 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
     private val viewModel: SubmitScoreViewModel by viewModel()
     private val scoreAdapter = StudentScoreAdapter()
 
-    private val subjects = listOf(
-        "OOP Java Programming",
-        "Linux",
-        "Mobile App Development",
-        "API Web Service",
-        "Internet of Thing"
-    )
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSubmitScoreScreenBinding.bind(view)
+
+        val goBack = view.findViewById<View>(R.id.goBack)
+        val submitScoreTitle = view.findViewById<TextView>(R.id.toolbarTitle)
+        submitScoreTitle.text = "Submit Scores"
+        goBack.setOnClickListener { findNavController().navigateUp() }
 
         setupRecyclerView()
         setupScrollSynchronization()
         setupSubjectSpinner()
         setupSubmitButton()
         observeViewModel()
+
+        viewModel.fetchSubjects()
     }
 
     private fun setupRecyclerView() {
         binding.studentScoreRecycler.apply {
             adapter = scoreAdapter
             layoutManager = LinearLayoutManager(requireContext())
-            addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         }
     }
 
@@ -61,20 +60,30 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
     }
 
     private fun setupSubjectSpinner() {
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, subjects).apply {
+        val adapter = ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            mutableListOf()
+        ).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         binding.subjectSpinner.adapter = adapter
-        binding.subjectSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedSubject = subjects[position]
-                fetchScores(selectedSubject)
-            }
+        binding.subjectSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedSubject = parent?.getItemAtPosition(position)?.toString() ?: ""
+                    if (selectedSubject.isNotEmpty()) {
+                        fetchScores(selectedSubject)
+                    }
+                }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // No action needed
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-        }
     }
 
     private fun setupSubmitButton() {
@@ -83,7 +92,8 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
             val currentScores = scoreAdapter.currentList
 
             if (selectedSubject.isEmpty()) {
-                Toast.makeText(requireContext(), "Please select a subject", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please select a subject", Toast.LENGTH_SHORT)
+                    .show()
                 return@setOnClickListener
             }
 
@@ -96,17 +106,20 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
                     score.assignment !in 0f..100f ||
                             score.midterm !in 0f..100f ||
                             score.final !in 0f..100f ||
-                            score.homework !in 0f..100f ||
-                            score.participation !in 0f..100f
+                            score.homework !in 0f..100f
                 }) {
-                Toast.makeText(requireContext(), "All scores must be between 0 and 100", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    "All scores must be between 0 and 100",
+                    Toast.LENGTH_LONG
+                ).show()
                 return@setOnClickListener
             }
 
             Dialog.showDialog(
                 requireContext(),
                 title = "Submit Scores",
-                description = "Are you sure you want to submit these scores for $selectedSubject?",
+                description = "Are you sure you want to submit these scores ?",
                 onBtnClick = {
                     viewModel.submitScores(currentScores, selectedSubject)
                 }
@@ -131,7 +144,11 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
                 if (state.submitSuccess) {
                     val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
                     fetchScores(selectedSubject)
-                    Toast.makeText(requireContext(), "Scores submitted successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Scores submitted successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -140,6 +157,13 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
             scoreAdapter.submitList(scores)
             updateAverageScore(scores)
             binding.submitScoresBtn.isEnabled = scores.isNotEmpty()
+        }
+
+        viewModel.subjects.observe(viewLifecycleOwner) { subjects ->
+            val adapter = binding.subjectSpinner.adapter as ArrayAdapter<String>
+            adapter.clear()
+            adapter.addAll(subjects)
+            adapter.notifyDataSetChanged()
         }
     }
 

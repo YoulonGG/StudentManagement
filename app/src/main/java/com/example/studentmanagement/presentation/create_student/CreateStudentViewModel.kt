@@ -39,7 +39,6 @@ class CreateStudentViewModel(
         viewModelScope.launch {
             if (!validateInputs(email, name, studentID, gender)) return@launch
 
-            // Check if student ID already exists
             if (!checkStudentIdAvailability(studentID)) return@launch
 
             setState { copy(isLoading = true, error = null) }
@@ -119,8 +118,6 @@ class CreateStudentViewModel(
             "guardianContact" to "",
             "majoring" to "Computer Science and Engineering",
             "gender" to gender,
-            "status" to "active",
-            "lastLogin" to FieldValue.serverTimestamp()
         )
 
         firestore.collection("students")
