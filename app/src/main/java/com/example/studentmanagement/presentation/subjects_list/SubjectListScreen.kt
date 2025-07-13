@@ -16,13 +16,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.databinding.FragmentSubjectListScreenBinding
 import com.example.studentmanagement.presentation.subjects_list.components.CreateSubjectBottomSheet
+import com.example.studentmanagement.presentation.subjects_list.components.SubjectAdapter
+import com.example.studentmanagement.presentation.subjects_list.components.SwipeToDeleteCallback
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-
 
 class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
     private val viewModel: SubjectListViewModel by viewModel()
@@ -66,6 +69,26 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
                         DividerItemDecoration.VERTICAL
                     )
                 )
+
+                val swipeToDeleteCallback = SwipeToDeleteCallback(requireContext()) { position ->
+                    val subject = subjectAdapter.currentList[position]
+                    Dialog.showTwoButtonDialog(
+                        requireContext(),
+                        title = "Delete Subject",
+                        description = "Are you sure you want to delete '${subject.name}'?",
+                        positiveButtonText = "Delete",
+                        negativeButtonText = "Cancel",
+                        onPositiveClick = {
+                            subjectAdapter.notifyDataSetChanged()
+                            viewModel.onAction(SubjectListEvent.DeleteSubject(subject.id))
+                        },
+                        onNegativeClick = {
+                            subjectAdapter.notifyDataSetChanged()
+                        }
+                    )
+                }
+                val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
+                itemTouchHelper.attachToRecyclerView(this)
             }
 
             fabCreateSubject.setOnClickListener {
@@ -76,12 +99,15 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
 
     private fun showCreateSubjectBottomSheet() {
         val bottomSheet = CreateSubjectBottomSheet()
-        bottomSheet.setOnSubjectCreatedListener { name, description, imageUri ->
+        bottomSheet.setOnSubjectCreatedListener { subjectData ->
             viewModel.onAction(
                 SubjectListEvent.CreateSubject(
-                    name = name,
-                    description = description,
-                    imageUri = imageUri
+                    name = subjectData.name,
+                    description = subjectData.description,
+                    code = subjectData.code,
+                    className = subjectData.className,
+                    classTime = subjectData.classTime,
+                    imageUri = subjectData.imageUri
                 )
             )
         }
@@ -104,15 +130,26 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
             progressBarCreate.isVisible = state.isCreating
             subjectAdapter.submitList(state.subjects)
 
-
             state.error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 viewModel.onAction(SubjectListEvent.ClearError)
+//                Dialog.showDialog(
+//                    requireContext(),
+//                    title = "Error",
+//                    description = it,
+//                    buttonText = "OK"
+//                ) {}
             }
 
             state.successMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 viewModel.onAction(SubjectListEvent.ClearError)
+                Dialog.showDialog(
+                    requireContext(),
+                    title = "Success",
+                    description = it,
+                    buttonText = "OK"
+                ) {}
             }
         }
     }

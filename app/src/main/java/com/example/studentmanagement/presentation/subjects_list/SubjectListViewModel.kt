@@ -2,16 +2,6 @@ package com.example.studentmanagement.presentation.subjects_list
 
 import android.app.Application
 import android.net.Uri
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.studentmanagement.R
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.example.studentmanagement.core.utils.FileUtils
 import com.example.studentmanagement.data.dto.Subject
@@ -34,7 +24,6 @@ import org.json.JSONObject
  * @Email: johnyoulong@gmail.com.
  */
 
-
 class SubjectListViewModel(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth,
@@ -48,10 +37,14 @@ class SubjectListViewModel(
             SubjectListEvent.LoadSubjects -> loadSubjects()
             SubjectListEvent.ClearError -> setState { copy(error = null) }
             is SubjectListEvent.CreateSubject -> createSubject(
-                event.name,
-                event.description,
-                event.imageUri
+                name = event.name,
+                description = event.description,
+                code = event.code,
+                className = event.className,
+                classTime = event.classTime,
+                imageUri = event.imageUri
             )
+            is SubjectListEvent.DeleteSubject -> deleteSubject(event.subjectId)
         }
     }
 
@@ -66,6 +59,9 @@ class SubjectListViewModel(
                         id = doc.id,
                         name = doc.getString("name") ?: "",
                         description = doc.getString("description"),
+                        code = doc.getString("code"),
+                        className = doc.getString("className"),
+                        classTime = doc.getString("classTime"),
                         imageUrl = doc.getString("imageUrl"),
                     )
                 }
@@ -86,7 +82,14 @@ class SubjectListViewModel(
             }
     }
 
-    private fun createSubject(name: String, description: String, imageUri: Uri?) {
+    private fun createSubject(
+        name: String,
+        description: String,
+        code: String,
+        className: String,
+        classTime: String,
+        imageUri: Uri?
+    ) {
         setState { copy(isCreating = true) }
 
         val currentUser = auth.currentUser
@@ -101,15 +104,43 @@ class SubjectListViewModel(
         }
 
         if (imageUri != null) {
-            uploadImageToCloudinary(name, description, imageUri, currentUser.uid)
+            uploadImageToCloudinary(name, description, code, className, classTime, imageUri, currentUser.uid)
         } else {
-            createSubjectInFirestore(name, description, null, currentUser.uid)
+            createSubjectInFirestore(name, description, code, className, classTime, null, currentUser.uid)
         }
+    }
+
+    private fun deleteSubject(subjectId: String) {
+        setState { copy(isLoading = true) }
+
+        db.collection("subjects")
+            .document(subjectId)
+            .delete()
+            .addOnSuccessListener {
+                setState {
+                    copy(
+                        isLoading = false,
+                        successMessage = "Subject deleted successfully!"
+                    )
+                }
+                loadSubjects()
+            }
+            .addOnFailureListener { e ->
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to delete subject: ${e.message}"
+                    )
+                }
+            }
     }
 
     private fun uploadImageToCloudinary(
         name: String,
         description: String,
+        code: String,
+        className: String,
+        classTime: String,
         imageUri: Uri,
         teacherId: String
     ) {
@@ -148,7 +179,7 @@ class SubjectListViewModel(
                     if (response.isSuccessful && body != null) {
                         try {
                             val imageUrl = JSONObject(body).getString("secure_url")
-                            createSubjectInFirestore(name, description, imageUrl, teacherId)
+                            createSubjectInFirestore(name, description, code, className, classTime, imageUrl, teacherId)
                         } catch (e: Exception) {
                             setState {
                                 copy(
@@ -180,12 +211,18 @@ class SubjectListViewModel(
     private fun createSubjectInFirestore(
         name: String,
         description: String,
+        code: String,
+        className: String,
+        classTime: String,
         imageUrl: String?,
         teacherId: String
     ) {
         val subjectData = hashMapOf(
             "name" to name,
             "description" to description,
+            "code" to code,
+            "className" to className,
+            "classTime" to classTime,
             "imageUrl" to imageUrl,
             "teacherId" to teacherId,
             "createdAt" to System.currentTimeMillis()
@@ -200,7 +237,6 @@ class SubjectListViewModel(
                         successMessage = "Subject created successfully!"
                     )
                 }
-                // Reload subjects to show the new one
                 loadSubjects()
             }
             .addOnFailureListener { e ->
@@ -211,47 +247,6 @@ class SubjectListViewModel(
                     )
                 }
             }
-    }
-}
-
-class SubjectAdapter(
-    private val onSubjectClicked: (Subject) -> Unit
-) : ListAdapter<Subject, SubjectAdapter.ViewHolder>(DiffCallback()) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_subject, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
-    }
-
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textViewName: TextView = view.findViewById(R.id.textViewSubjectName)
-        private val imageViewSubject: ImageView = view.findViewById(R.id.imageViewSubjectIcon)
-        private val textViewSubjectDescription: TextView = view.findViewById(R.id.textViewSubjectDes)
-        private val root: View = view.findViewById(R.id.root)
-
-        fun bind(subject: Subject) {
-            textViewName.text = subject.name
-            textViewSubjectDescription.text = subject.description ?: "No description available"
-            imageViewSubject.id = View.generateViewId()
-            Glide.with(imageViewSubject.context)
-                .load(subject.imageUrl)
-                .circleCrop()
-                .into(imageViewSubject)
-            root.setOnClickListener { onSubjectClicked(subject) }
-        }
-    }
-
-    private class DiffCallback : DiffUtil.ItemCallback<Subject>() {
-        override fun areItemsTheSame(oldItem: Subject, newItem: Subject): Boolean =
-            oldItem.id == newItem.id
-
-        override fun areContentsTheSame(oldItem: Subject, newItem: Subject): Boolean =
-            oldItem == newItem
     }
 }
 
@@ -269,6 +264,10 @@ sealed class SubjectListEvent {
     data class CreateSubject(
         val name: String,
         val description: String,
+        val code: String,
+        val className: String,
+        val classTime: String,
         val imageUri: Uri?
     ) : SubjectListEvent()
+    data class DeleteSubject(val subjectId: String) : SubjectListEvent()
 }

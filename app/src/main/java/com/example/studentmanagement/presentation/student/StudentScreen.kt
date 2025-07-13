@@ -69,15 +69,15 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
                     studentName.text = name
                 }
 
-                view?.findViewById<TextView>(R.id.studentCount)?.let { textView ->
+                view.findViewById<TextView>(R.id.studentCount)?.let { textView ->
                     textView.text = "${state.totalStudents}"
                 }
 
-                view?.findViewById<TextView>(R.id.maleStudentCount)?.let { textView ->
+                view.findViewById<TextView>(R.id.maleStudentCount)?.let { textView ->
                     textView.text = "Male: ${state.maleStudents}"
                 }
 
-                view?.findViewById<TextView>(R.id.femaleStudentCount)?.let { textView ->
+                view.findViewById<TextView>(R.id.femaleStudentCount)?.let { textView ->
                     textView.text = "Female: ${state.femaleStudents}"
                 }
 
@@ -126,37 +126,18 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
             },
             HomeCardItem(
                 2,
-                "Course",
+                "My Subjects",
                 R.drawable.attendance_icon
             ) {
 //                findNavController().navigate(R.id.navigate_student_list_to_student_details)
             },
             HomeCardItem(
                 2,
-                "My Subjects",
+                "My Scores",
                 R.drawable.attendance_icon
             ) {
 //                findNavController().navigate(R.id.navigate_student_list_to_student_details)
             },
-//            HomeCardItem(
-//                2,
-//                "Log Out",
-//                R.drawable.attendance_icon
-//            ) {
-//                val sharedPref =
-//                    requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-//                with(sharedPref.edit()) {
-//                    remove(PreferencesKeys.IS_LOGGED_IN)
-//                    remove(ACCOUNT_TYPE)
-//                    apply()
-//                }
-//
-//                val intent = Intent(requireContext(), MainActivity::class.java).apply {
-//                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//                }
-//                startActivity(intent)
-//                requireActivity().finish()
-//            },
         )
 
         val adapter = TeacherHomeCardAdapter(items)
