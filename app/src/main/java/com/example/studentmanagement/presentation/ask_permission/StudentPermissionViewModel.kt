@@ -61,7 +61,6 @@ class StudentPermissionViewModel(
                     return@addOnSuccessListener
                 }
 
-                // Check for existing request
                 db.collection("permission_requests")
                     .whereEqualTo("studentId", currentUser.uid)
                     .whereEqualTo("date", uiState.value.selectedDate)
@@ -77,14 +76,12 @@ class StudentPermissionViewModel(
                             return@addOnSuccessListener
                         }
 
-                        // Submit new request
                         val request = hashMapOf(
                             "studentId" to currentUser.uid,
                             "studentName" to studentName,
                             "date" to uiState.value.selectedDate,
                             "reason" to uiState.value.reason,
                             "status" to PermissionStatus.PENDING.name,
-                            "timestamp" to FieldValue.serverTimestamp()
                         )
 
                         db.collection("permission_requests")
