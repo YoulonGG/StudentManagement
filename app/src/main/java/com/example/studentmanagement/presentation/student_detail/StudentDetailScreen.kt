@@ -100,11 +100,10 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
         binding.btnSave.setOnClickListener {
             val currentStudent = viewModel.uiState.value.student
 
-            // Fixed: Preserve name, studentID, and authUid
             val updatedStudent = StudentResponse(
-                name = currentStudent?.name,           // Preserve existing name
-                studentID = currentStudent?.studentID, // Preserve existing studentID
-                imageUrl = currentStudent?.imageUrl,   // Preserve existing imageUrl
+                name = currentStudent?.name,
+                studentID = currentStudent?.studentID,
+                imageUrl = currentStudent?.imageUrl,
                 email = binding.edtEmail.text.toString(),
                 address = binding.edtAddress.text.toString(),
                 phone = binding.edtPhone.text.toString(),
@@ -112,7 +111,7 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
                 guardian = binding.edtGuardian.text.toString(),
                 guardianContact = binding.edtGuardianContact.text.toString(),
                 majoring = binding.edtMajoring.text.toString(),
-                authUid = currentStudent?.authUid      // Preserve existing authUid
+                authUid = currentStudent?.authUid
             )
 
             viewModel.onAction(StudentDetailAction.SaveStudent(updatedStudent))

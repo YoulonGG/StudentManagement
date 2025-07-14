@@ -416,7 +416,7 @@ class AttendanceAdapter(
                             alpha = 1.0f
                             setTextColor(ContextCompat.getColor(context, android.R.color.white))
                             chipBackgroundColor = ColorStateList.valueOf(
-                                ContextCompat.getColor(context, R.color.chip_permission_background)
+                                ContextCompat.getColor(context, R.color.grade_c)
                             )
                         }
                     } else {
