@@ -1,52 +1,83 @@
-package com.example.studentmanagement.presentation.student_score
+package com.example.studentmanagement.presentation.student_score_view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.studentmanagement.databinding.ItemStudentScoreViewBinding
+import com.example.studentmanagement.R
+import com.example.studentmanagement.databinding.ItemStudentScoreDetailBinding
+import com.example.studentmanagement.presentation.student_score.StudentScoreDetail
 
-class StudentScoreViewAdapter :
-    ListAdapter<ScoreItem, StudentScoreViewAdapter.ScoreViewHolder>(ScoreDiffCallback()) {
+class StudentScoreDetailAdapter :
+    ListAdapter<StudentScoreDetail, StudentScoreDetailAdapter.ViewHolder>(ScoreDetailDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScoreViewHolder {
-        val binding = ItemStudentScoreViewBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ItemStudentScoreDetailBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
         )
-        return ScoreViewHolder(binding)
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ScoreViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position), position)
     }
 
-    class ScoreViewHolder(
-        private val binding: ItemStudentScoreViewBinding
+    inner class ViewHolder(
+        private val binding: ItemStudentScoreDetailBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(score: ScoreItem) {
+        fun bind(item: StudentScoreDetail, position: Int) {
             binding.apply {
-                yearSemesterText.text = "${score.year} - ${score.semester}"
-                assignmentScoreText.text = "%.1f".format(score.assignment)
-                homeworkScoreText.text = "%.1f".format(score.homework)
-                midtermScoreText.text = "%.1f".format(score.midterm)
-                finalScoreText.text = "%.1f".format(score.final)
-                participationScoreText.text = "%.1f".format(score.participation)
-                totalScoreText.text = "%.1f".format(score.total)
+                val backgroundColor = if (position % 2 == 0) {
+                    ContextCompat.getColor(root.context, R.color.table_row_even)
+                } else {
+                    ContextCompat.getColor(root.context, R.color.table_row_odd)
+                }
+                root.setBackgroundColor(backgroundColor)
+
+                subjectText.text = item.subject
+                assignmentScoreText.text = item.assignment.toInt().toString()
+                homeworkScoreText.text = item.homework.toInt().toString()
+                midtermScoreText.text = item.midterm.toInt().toString()
+                finalScoreText.text = item.final.toInt().toString()
+                totalScoreText.text = item.total.toInt().toString()
+
+                val percentage = item.percentage
+                percentageText.text = String.format("%.1f%%", percentage)
+
+                gradeText.text = item.grade
+                setGradeColor(gradeText, item.grade)
             }
         }
+
+        private fun setGradeColor(textView: android.widget.TextView, grade: String) {
+            val colorRes = when (grade) {
+                "A" -> R.color.grade_a
+                "B" -> R.color.grade_b
+                "C" -> R.color.grade_c
+                "D" -> R.color.grade_d
+                "F" -> R.color.grade_f
+                else -> R.color.primary
+            }
+            textView.setTextColor(ContextCompat.getColor(textView.context, colorRes))
+        }
+    }
+}
+
+class ScoreDetailDiffCallback : DiffUtil.ItemCallback<StudentScoreDetail>() {
+    override fun areItemsTheSame(
+        oldItem: StudentScoreDetail,
+        newItem: StudentScoreDetail
+    ): Boolean {
+        return oldItem.subject == newItem.subject
     }
 
-    private class ScoreDiffCallback : DiffUtil.ItemCallback<ScoreItem>() {
-        override fun areItemsTheSame(oldItem: ScoreItem, newItem: ScoreItem): Boolean {
-            return oldItem.year == newItem.year && oldItem.semester == newItem.semester
-        }
-
-        override fun areContentsTheSame(oldItem: ScoreItem, newItem: ScoreItem): Boolean {
-            return oldItem == newItem
-        }
+    override fun areContentsTheSame(
+        oldItem: StudentScoreDetail,
+        newItem: StudentScoreDetail
+    ): Boolean {
+        return oldItem == newItem
     }
 }

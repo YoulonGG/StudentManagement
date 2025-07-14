@@ -29,4 +29,10 @@
     <string name="class_average">Class Average: %.2f</string>
     <string name="score_format">%.2f</string>
     <string name="overall_average">Overall Average: %.2f</string>
+    <string name="ask_permission">Ask Permission</string>
+    <string name="profile">Profile</string>
+    <string name="my_subjects">My Subjects</string>
+    <string name="my_scores">My Scores</string>
+    <string name="failed_to_load_student_data">Failed to load student info</string>
+    <string name="student_id_not_found">Student ID not found</string>
 </resources>

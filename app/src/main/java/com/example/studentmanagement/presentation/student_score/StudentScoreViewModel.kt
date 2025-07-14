@@ -7,63 +7,157 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class StudentScoreViewModel(
     private val firestore: FirebaseFirestore
-) : BaseViewModel<StudentScoreAction, StudentScoreUiState>() {
+) : BaseViewModel<StudentScoreViewAction, StudentScoreViewUiState>() {
 
-    private val _studentScores = MutableLiveData<List<ScoreItem>>()
-    val studentScores: LiveData<List<ScoreItem>> = _studentScores
+    private val _studentScores = MutableLiveData<List<StudentScoreDetail>>()
+    val studentScores: LiveData<List<StudentScoreDetail>> = _studentScores
 
-    override fun setInitialState(): StudentScoreUiState = StudentScoreUiState()
+    private val _studentInfo = MutableLiveData<StudentInfo>()
+    val studentInfo: LiveData<StudentInfo> = _studentInfo
 
-    override fun onAction(event: StudentScoreAction) {}
+    override fun setInitialState(): StudentScoreViewUiState = StudentScoreViewUiState()
 
-    fun fetchScores(studentId: String) {
+    override fun onAction(event: StudentScoreViewAction) {
+        when (event) {
+            is StudentScoreViewAction.LoadStudentScores -> loadStudentScores(event.studentId)
+            is StudentScoreViewAction.RefreshScores -> refreshScores(event.studentId)
+        }
+    }
+
+    private fun loadStudentScores(studentId: String) {
         setState { copy(isLoading = true, error = null) }
-        firestore.collection("scores")
-            .whereEqualTo("studentId", studentId)
-            .orderBy("year")
-            .orderBy("semester")
+
+        // First, get student info
+        firestore.collection("students")
+            .document(studentId)
             .get()
-            .addOnSuccessListener { result ->
-                val scores = result.documents.map { doc ->
-                    ScoreItem(
-                        year = doc.getLong("year")?.toInt() ?: 0,
-                        semester = doc.getLong("semester")?.toInt() ?: 0,
-                        assignment = doc.getDouble("assignment")?.toFloat() ?: 0f,
-                        midterm = doc.getDouble("midterm")?.toFloat() ?: 0f,
-                        final = doc.getDouble("final")?.toFloat() ?: 0f,
-                        homework = doc.getDouble("homework")?.toFloat() ?: 0f,
-                        participation = doc.getDouble("participation")?.toFloat() ?: 0f,
-                        total = doc.getDouble("total")?.toFloat() ?: 0f
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val studentInfo = StudentInfo(
+                        id = document.id,
+                        name = document.getString("name") ?: "",
+                        email = document.getString("email") ?: "",
+                        studentId = document.getString("studentId") ?: ""
                     )
+                    _studentInfo.value = studentInfo
+
+                    fetchScores(studentId)
+                } else {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Student not found"
+                        )
+                    }
                 }
-                _studentScores.value = scores
-                setState { copy(isLoading = false) }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { exception ->
                 setState {
                     copy(
                         isLoading = false,
-                        error = "Failed to fetch scores: ${it.message}"
+                        error = "Failed to load student info: ${exception.message}"
                     )
                 }
             }
     }
+
+    private fun fetchScores(studentId: String) {
+        firestore.collection("scores")
+            .whereEqualTo("studentId", studentId)
+            .get()
+            .addOnSuccessListener { result ->
+                val scores = result.documents.mapNotNull { doc ->
+                    try {
+                        StudentScoreDetail(
+                            subject = doc.getString("subject") ?: "",
+                            assignment = doc.getDouble("assignment")?.toFloat() ?: 0f,
+                            homework = doc.getDouble("homework")?.toFloat() ?: 0f,
+                            midterm = doc.getDouble("midterm")?.toFloat() ?: 0f,
+                            final = doc.getDouble("final")?.toFloat() ?: 0f,
+                            total = doc.getDouble("total")?.toFloat() ?: 0f,
+                            timestamp = doc.getTimestamp("timestamp")
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
+                }.sortedBy { it.subject }
+
+                _studentScores.value = scores
+                setState { copy(isLoading = false) }
+            }
+            .addOnFailureListener { exception ->
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to load scores: ${exception.message}"
+                    )
+                }
+            }
+    }
+
+    private fun refreshScores(studentId: String) {
+        loadStudentScores(studentId)
+    }
+
+    fun calculateOverallGPA(scores: List<StudentScoreDetail>): Float {
+        if (scores.isEmpty()) return 0f
+
+        val totalPercentage = scores.map { (it.total / 400) * 100 }.average()
+        return when {
+            totalPercentage >= 90 -> 4.0f
+            totalPercentage >= 80 -> 3.0f
+            totalPercentage >= 70 -> 2.0f
+            totalPercentage >= 60 -> 1.0f
+            else -> 0.0f
+        }
+    }
+
+    fun getGradeForScore(percentage: Float): String {
+        return when {
+            percentage >= 90 -> "A"
+            percentage >= 80 -> "B"
+            percentage >= 70 -> "C"
+            percentage >= 60 -> "D"
+            else -> "F"
+        }
+    }
 }
 
-data class StudentScoreUiState(
+data class StudentScoreViewUiState(
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
-sealed interface StudentScoreAction
+sealed interface StudentScoreViewAction {
+    data class LoadStudentScores(val studentId: String) : StudentScoreViewAction
+    data class RefreshScores(val studentId: String) : StudentScoreViewAction
+}
 
-data class ScoreItem(
-    val year: Int,
-    val semester: Int,
+data class StudentInfo(
+    val id: String,
+    val name: String,
+    val email: String,
+    val studentId: String
+)
+
+data class StudentScoreDetail(
+    val subject: String,
     val assignment: Float,
+    val homework: Float,
     val midterm: Float,
     val final: Float,
-    val homework: Float,
-    val participation: Float,
-    val total: Float
-)
+    val total: Float,
+    val timestamp: com.google.firebase.Timestamp?
+) {
+    val percentage: Float
+        get() = (total / 400) * 100
+
+    val grade: String
+        get() = when {
+            percentage >= 90 -> "A"
+            percentage >= 80 -> "B"
+            percentage >= 70 -> "C"
+            percentage >= 60 -> "D"
+            else -> "F"
+        }
+}

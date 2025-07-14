@@ -169,8 +169,26 @@
         <action
             android:id="@+id/navigate_student_to_student_profile"
             app:destination="@id/student_details" />
+        <action
+            android:id="@+id/navigate_student_to_student_score"
+            app:destination="@+id/student_score" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/student_score"
+        android:name="com.example.studentmanagement.presentation.student_score.StudentScoreViewFragment"
+        android:label="Student Profile Screen">
+
+        <argument
+            android:name="studentId"
+            app:argType="string" />
+
+    </fragment>
+
+    <action
+        android:id="@+id/navigate_student_profile_to_student"
+        app:destination="@id/student" />
 
     <fragment
         android:id="@+id/student_ask_permission"
@@ -210,7 +228,6 @@
         android:id="@+id/subject_list"
         android:name="com.example.studentmanagement.presentation.subjects_list.SubjectListFragment"
         android:label="Subject List Screen">
-
 
 
     </fragment>
