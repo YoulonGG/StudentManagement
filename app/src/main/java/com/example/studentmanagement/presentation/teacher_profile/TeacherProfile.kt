@@ -57,7 +57,7 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
                 positiveButtonText = "Yes",
                 negativeButtonText = "Cancel",
                 onPositiveClick = {
-                    Logout()
+                    logout()
                 },
             )
         }
@@ -119,7 +119,7 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
 
     }
 
-    private fun Logout() {
+    private fun logout() {
         val sharedPref = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
             remove(PreferencesKeys.IS_LOGGED_IN)

@@ -4,7 +4,6 @@ import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -140,26 +139,32 @@ class CreateStudentViewModel(
             setState { copy(error = "Email cannot be empty") }
             false
         }
+
         !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
             setState { copy(error = "Invalid email format") }
             false
         }
+
         name.trim().isEmpty() -> {
             setState { copy(error = "Name cannot be empty") }
             false
         }
+
         studentID.trim().isEmpty() -> {
             setState { copy(error = "Student ID cannot be empty") }
             false
         }
+
         !studentID.matches(Regex("^[A-Za-z0-9]+$")) -> {
             setState { copy(error = "Invalid Student ID format") }
             false
         }
+
         gender.isEmpty() -> {
             setState { copy(error = "Please select gender") }
             false
         }
+
         else -> true
     }
 
@@ -172,18 +177,4 @@ class CreateStudentViewModel(
     }
 }
 
-data class CreateStudentUiState(
-    val isLoading: Boolean = false,
-    val success: Boolean = false,
-    val error: String? = null,
-    val duplicateStudentId: String? = null
-)
 
-sealed interface CreateStudentAction {
-    data class SubmitStudent(
-        val email: String,
-        val name: String,
-        val studentID: String,
-        val gender: String
-    ) : CreateStudentAction
-}

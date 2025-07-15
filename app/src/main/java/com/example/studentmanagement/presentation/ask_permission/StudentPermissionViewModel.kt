@@ -12,7 +12,6 @@ import com.google.firebase.firestore.FirebaseFirestore
  */
 
 
-// StudentPermissionViewModel.kt
 class StudentPermissionViewModel(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth
@@ -107,25 +106,4 @@ class StudentPermissionViewModel(
                     }
             }
     }
-}
-
-data class StudentPermissionState(
-    val selectedDate: String = "",
-    val reason: String = "",
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val success: Boolean = false
-)
-
-sealed class StudentPermissionEvent {
-    data class SetDate(val date: String) : StudentPermissionEvent()
-    data class SetReason(val reason: String) : StudentPermissionEvent()
-    data object SubmitRequest : StudentPermissionEvent()
-    data object ClearError : StudentPermissionEvent()
-}
-
-enum class PermissionStatus {
-    PENDING,
-    APPROVED,
-    REJECTED
 }

@@ -2,11 +2,9 @@ package com.example.studentmanagement.presentation.login
 
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginViewModel(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
 ) : BaseViewModel<LoginAction, LoginUiState>() {
 
     override fun setInitialState(): LoginUiState = LoginUiState()
@@ -47,14 +45,3 @@ class LoginViewModel(
     }
 }
 
-sealed class LoginAction {
-    data class Login(val email: String, val password: String, val accountType: String) :
-        LoginAction()
-}
-
-data class LoginUiState(
-    val isLoading: Boolean = false,
-    val success: Boolean = false,
-    val error: String? = null,
-    val accountType: String? = null
-)

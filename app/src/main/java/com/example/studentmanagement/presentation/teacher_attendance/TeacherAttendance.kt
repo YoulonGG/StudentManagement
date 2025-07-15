@@ -1,12 +1,10 @@
 package com.example.studentmanagement.presentation.teacher_attendance
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.databinding.FragmentTeacherAttendanceBinding
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -34,23 +33,10 @@ class TeacherAttendanceFragment : Fragment(R.layout.fragment_teacher_attendance)
         val goBack = view.findViewById<ImageView>(R.id.goBack)
         val teacherProfileToolbarTitle = view.findViewById<TextView>(R.id.toolbarTitle)
 
-        teacherProfileToolbarTitle.text = "Report Attendance"
-        goBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
+        teacherProfileToolbarTitle.text = getString(R.string.report_attendance)
 
-        setupViews()
-        observeState()
+        goBack.setOnClickListener { findNavController().navigateUp() }
 
-        viewModel.onAction(TeacherAttendanceEvent.LoadStudents)
-        viewModel.onAction(
-            TeacherAttendanceEvent.SetDate(
-                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-            )
-        )
-    }
-
-    private fun setupViews() {
         binding.recyclerViewAttendance.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = viewModel.attendanceAdapter
@@ -62,84 +48,78 @@ class TeacherAttendanceFragment : Fragment(R.layout.fragment_teacher_attendance)
             )
         }
 
-        binding.textViewSelectedDate.setOnClickListener {
-            showDatePicker()
-        }
+        binding.textViewSelectedDate.setOnClickListener { showDatePicker() }
 
         binding.buttonSubmitAttendance.setOnClickListener {
             viewModel.onAction(TeacherAttendanceEvent.SubmitAttendance)
         }
 
-//        binding.buttonRefresh.setOnClickListener {
-//            viewModel.onAction(TeacherAttendanceEvent.LoadStudents)
-//        }
-    }
-
-    private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    updateUI(state)
+                    binding.apply {
+
+                        textViewSelectedDate.text = state.selectedDate
+                        progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+
+                        binding.buttonSubmitAttendance.apply {
+                            isEnabled = !state.isSubmitting &&
+                                    state.students.isNotEmpty() &&
+                                    !state.attendanceSubmitted
+
+                            text = when {
+                                state.attendanceSubmitted -> "Already Submitted"
+                                state.isSubmitting -> "Submitting..."
+                                else -> "Submit Attendance"
+                            }
+
+                            alpha = if (isEnabled) 1.0f else 0.6f
+                        }
+
+                        buttonSubmitAttendance.isEnabled = !state.isSubmitting &&
+                                state.students.isNotEmpty() &&
+                                !state.attendanceSubmitted
+
+
+                        buttonSubmitAttendance.text = when {
+                            state.isSubmitting -> "Submitting..."
+                            state.attendanceSubmitted -> "Submitted"
+                            else -> "Submit Attendance"
+                        }
+
+                        textViewStudentCount.text = "Students: ${state.students.size}"
+
+                        state.error?.let {
+                            Dialog.showDialog(
+                                requireContext(),
+                                title = "Error",
+                                description = it,
+                                onBtnClick = {
+                                    viewModel.onAction(TeacherAttendanceEvent.ClearError)
+                                }
+                            )
+                        }
+
+                        if (state.submissionSuccess) {
+                            Dialog.showDialog(
+                                requireContext(),
+                                title = "Success",
+                                description = "Attendance saved successfully!",
+                                onBtnClick = {
+                                    viewModel.onAction(TeacherAttendanceEvent.ClearSuccess)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
-
-
-    @SuppressLint("SetTextI18n")
-    private fun updateUI(state: TeacherAttendanceState) {
-        binding.apply {
-
-            textViewSelectedDate.text = state.selectedDate
-            progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-
-            updateSubmitButton(state)
-
-
-            buttonSubmitAttendance.isEnabled = !state.isSubmitting &&
-                    state.students.isNotEmpty() &&
-                    !state.attendanceSubmitted
-
-
-            buttonSubmitAttendance.text = when {
-                state.isSubmitting -> "Submitting..."
-                state.attendanceSubmitted -> "Submitted"
-                else -> "Submit Attendance"
-            }
-
-            textViewStudentCount.text = "Students: ${state.students.size}"
-
-            state.error?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-                viewModel.onAction(TeacherAttendanceEvent.ClearError)
-            }
-
-            if (state.submissionSuccess) {
-                Toast.makeText(
-                    requireContext(),
-                    "Attendance saved successfully!",
-                    Toast.LENGTH_SHORT
-                ).show()
-                viewModel.onAction(TeacherAttendanceEvent.ClearSuccess)
-            }
-        }
-    }
-
-
-    private fun updateSubmitButton(state: TeacherAttendanceState) {
-        binding.buttonSubmitAttendance.apply {
-            isEnabled = !state.isSubmitting &&
-                    state.students.isNotEmpty() &&
-                    !state.attendanceSubmitted
-
-            text = when {
-                state.attendanceSubmitted -> "Already Submitted"
-                state.isSubmitting -> "Submitting..."
-                else -> "Submit Attendance"
-            }
-
-            alpha = if (isEnabled) 1.0f else 0.6f
-        }
+        viewModel.onAction(TeacherAttendanceEvent.LoadStudents)
+        viewModel.onAction(
+            TeacherAttendanceEvent.SetDate(
+                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            )
+        )
     }
 
     private fun showDatePicker() {
@@ -151,7 +131,12 @@ class TeacherAttendanceFragment : Fragment(R.layout.fragment_teacher_attendance)
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             calendar.time = dateFormat.parse(currentDateStr) ?: Date()
         } catch (e: Exception) {
-
+            Dialog.showDialog(
+                requireContext(),
+                title = "Error",
+                description = e.message ?: "",
+                onBtnClick = {}
+            )
         }
 
         val datePickerDialog = DatePickerDialog(

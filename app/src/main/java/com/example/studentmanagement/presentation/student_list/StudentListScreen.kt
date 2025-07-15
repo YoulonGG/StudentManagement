@@ -32,7 +32,7 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
 
         val studentListTitle = view.findViewById<TextView>(R.id.toolbarTitle)
 
-        studentListTitle.text = "Student List"
+        studentListTitle.text = getString(R.string.student_list)
 
         viewModel.onAction(StudentListAction.StudentList)
 

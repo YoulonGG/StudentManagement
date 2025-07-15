@@ -77,29 +77,25 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loginViewModel.uiState.collect { state ->
-                    init(state, accountType)
+                    progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+                    loginBtn.isEnabled = !state.isLoading
+
+                    state.error?.let {
+                        Dialog.showDialog(
+                            context = requireContext(),
+                            title = "Error",
+                            description = it,
+                            onBtnClick = {
+                                loginViewModel.errorShown()
+                            }
+                        )
+                    }
+
+                    if (state.success) {
+                        saveLoginAndNavigate(state.accountType ?: accountType)
+                    }
                 }
             }
-        }
-    }
-
-    private fun init(state: LoginUiState, accountType: String) {
-        progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-//        loginBtn.isEnabled = !state.isLoading
-
-        state.error?.let {
-            Dialog.showDialog(
-                context = requireContext(),
-                title = "Error",
-                description = it,
-                onBtnClick = {
-                    loginViewModel.errorShown()
-                }
-            )
-        }
-
-        if (state.success) {
-            saveLoginAndNavigate(state.accountType ?: accountType)
         }
     }
 

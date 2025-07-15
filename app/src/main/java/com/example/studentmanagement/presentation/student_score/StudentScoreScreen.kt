@@ -3,13 +3,13 @@ package com.example.studentmanagement.presentation.student_score
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.databinding.FragmentStudentScoreScreenBinding
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -31,11 +31,42 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
 
         setupToolbar()
         setupRecyclerView()
-
         setupSwipeRefresh()
         setupScrollSynchronization()
-        observeViewModel()
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                binding.progressBar.isVisible =
+                    state.isLoading && !binding.swipeRefresh.isRefreshing
+                binding.swipeRefresh.isRefreshing =
+                    state.isLoading && binding.swipeRefresh.isRefreshing
+
+                state.error?.let { error ->
+                    showError(error)
+                    binding.swipeRefresh.isRefreshing = false
+                }
+
+                if (!state.isLoading) {
+                    binding.swipeRefresh.isRefreshing = false
+                }
+            }
+        }
+
+        viewModel.studentInfo.observe(viewLifecycleOwner) { studentInfo ->
+            if (studentInfo != null) {
+                binding.studentNameText.text = studentInfo.name
+                binding.studentIdText.text = "ID: ${studentInfo.studentId}"
+                binding.studentEmailText.text = studentInfo.email
+            }
+        }
+
+        viewModel.studentScores.observe(viewLifecycleOwner) { scores ->
+            scoreAdapter.submitList(scores)
+            updateSummaryStats(scores)
+
+            binding.emptyStateText.isVisible = scores.isEmpty()
+            binding.scoresContainer.isVisible = scores.isNotEmpty()
+        }
         if (studentId.isNotEmpty()) {
             viewModel.onAction(StudentScoreViewAction.LoadStudentScores(studentId))
         } else {
@@ -46,7 +77,7 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
     private fun setupToolbar() {
         val goBack = view?.findViewById<View>(R.id.goBack)
         val toolbarTitle = view?.findViewById<TextView>(R.id.toolbarTitle)
-        toolbarTitle?.text = "My Scores"
+        toolbarTitle?.text = getString(R.string.my_scores)
         goBack?.setOnClickListener { findNavController().navigateUp() }
     }
 
@@ -89,42 +120,6 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
 
     }
 
-    private fun observeViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                binding.progressBar.isVisible =
-                    state.isLoading && !binding.swipeRefresh.isRefreshing
-                binding.swipeRefresh.isRefreshing =
-                    state.isLoading && binding.swipeRefresh.isRefreshing
-
-                state.error?.let { error ->
-                    showError(error)
-                    binding.swipeRefresh.isRefreshing = false
-                }
-
-                if (!state.isLoading) {
-                    binding.swipeRefresh.isRefreshing = false
-                }
-            }
-        }
-
-        viewModel.studentInfo.observe(viewLifecycleOwner) { studentInfo ->
-            if (studentInfo != null) {
-                binding.studentNameText.text = studentInfo.name
-                binding.studentIdText.text = "ID: ${studentInfo.studentId}"
-                binding.studentEmailText.text = studentInfo.email
-            }
-        }
-
-        viewModel.studentScores.observe(viewLifecycleOwner) { scores ->
-            scoreAdapter.submitList(scores)
-            updateSummaryStats(scores)
-
-            binding.emptyStateText.isVisible = scores.isEmpty()
-            binding.scoresContainer.isVisible = scores.isNotEmpty()
-        }
-    }
-
     private fun updateSummaryStats(scores: List<StudentScoreDetail>) {
         if (scores.isEmpty()) {
             binding.totalSubjectsText.text = "0"
@@ -143,7 +138,12 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
     }
 
     private fun showError(error: String) {
-        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+        Dialog.showDialog(
+            requireContext(),
+            title = "Error",
+            description = error,
+            onBtnClick = {}
+        )
     }
 
     override fun onDestroyView() {

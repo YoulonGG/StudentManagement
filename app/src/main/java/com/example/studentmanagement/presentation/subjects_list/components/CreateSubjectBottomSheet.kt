@@ -55,16 +55,8 @@ class CreateSubjectBottomSheet : BottomSheetDialogFragment() {
         setupImagePicker()
         setupCreateButton()
         setupCancelButton()
-        setupClearButton() // Add a clear button functionality
     }
 
-    private fun setupClearButton() {
-        // If you want to add a clear/reset button, you can add it to your layout
-        // and implement it like this:
-        // binding.buttonClear.setOnClickListener {
-        //     clearForm()
-        // }
-    }
 
     private fun setupImagePicker() {
         binding.imageContainer.setOnClickListener {
@@ -183,7 +175,8 @@ class CreateSubjectBottomSheet : BottomSheetDialogFragment() {
             binding.subjectClassTimeInput.error = "Class time is required"
             isValid = false
         } else if (classTime.length < 5) {
-            binding.subjectClassTimeInput.error = "Please enter a valid class time (e.g., 9:00 AM - 10:30 AM)"
+            binding.subjectClassTimeInput.error =
+                "Please enter a valid class time (e.g., 9:00 AM - 10:30 AM)"
             isValid = false
         }
 

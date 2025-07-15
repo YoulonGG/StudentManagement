@@ -126,25 +126,5 @@ class StudentAttendanceViewModel(
                 }
             }
         }
-    }}
-
-data class AttendanceHistoryState(
-    val monthlyStats: List<MonthlyAttendanceStats> = emptyList(),
-    val selectedMonth: String = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date()),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
-
-sealed class AttendanceHistoryEvent {
-    data class LoadMonthStats(val monthYear: String) : AttendanceHistoryEvent()
-    data object ClearError : AttendanceHistoryEvent()
+    }
 }
-
-data class MonthlyAttendanceStats(
-    val studentId: String,
-    val studentName: String,
-    val totalDays: Int,
-    val presentCount: Int,
-    val absentCount: Int,
-    val permissionCount: Int
-)

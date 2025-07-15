@@ -10,7 +10,6 @@ import com.example.studentmanagement.R
 
 class TeacherHomeCardAdapter(
     private val items: List<HomeCardItem>,
-    private val clickListener: (HomeCardItem) -> Unit = {}
 ) : RecyclerView.Adapter<TeacherHomeCardAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -35,9 +34,3 @@ class TeacherHomeCardAdapter(
 }
 
 
-data class HomeCardItem(
-    val id: Int,
-    val title: String,
-    val icon: Int,
-    val onClick: () -> Unit
-)

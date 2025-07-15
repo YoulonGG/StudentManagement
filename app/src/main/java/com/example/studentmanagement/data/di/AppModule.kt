@@ -7,11 +7,9 @@ package com.example.studentmanagement.data.di
  */
 
 import android.app.Application
-import com.example.studentmanagement.presentation.approve_student.ApprovalStudentViewModel
 import com.example.studentmanagement.presentation.ask_permission.StudentPermissionViewModel
 import com.example.studentmanagement.presentation.attendace_history.StudentAttendanceViewModel
 import com.example.studentmanagement.presentation.create_student.CreateStudentViewModel
-import com.example.studentmanagement.presentation.home.HomeworkViewModel
 import com.example.studentmanagement.presentation.login.LoginViewModel
 import com.example.studentmanagement.presentation.reset_password.ResetPasswordViewModel
 import com.example.studentmanagement.presentation.sign_up.SignUpViewModel
@@ -37,15 +35,13 @@ val appModule = module {
     single { FirebaseStorage.getInstance() }
     single { Application::class.java }
 
-    viewModel { LoginViewModel(get(), get()) }
+    viewModel { LoginViewModel(get()) }
     viewModel { SignUpViewModel(get(), get()) }
-    viewModel { ApprovalStudentViewModel(get()) }
     viewModel { StudentViewModel(get(), get()) }
     viewModel { StudentListViewModel(get()) }
     viewModel { StudentDetailViewModel(get(), get()) }
     viewModel { TeacherAttendanceViewModel(get(), get()) }
     viewModel { StudentAttendanceViewModel(get()) }
-    viewModel { HomeworkViewModel(get(), get(), get()) }
     viewModel { StudentPermissionViewModel(get(), get()) }
     viewModel { SubjectListViewModel(get(), get(), get()) }
     viewModel { ResetPasswordViewModel(get()) }

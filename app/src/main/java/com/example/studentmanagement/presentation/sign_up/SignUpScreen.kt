@@ -1,6 +1,5 @@
 package com.example.studentmanagement.presentation.sign_up
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -35,7 +34,6 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
     private lateinit var backButton: ImageView
     private lateinit var genderSpinner: Spinner
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -48,11 +46,8 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         backButton = view.findViewById(R.id.goBack)
         genderSpinner = view.findViewById(R.id.genderSpinner)
 
-        setupGenderSpinner()
-
-        backButton.setOnClickListener {
-            findNavController().navigateUp()
-        }
+        genderSelection()
+        backButton.setOnClickListener { findNavController().navigateUp() }
 
         signupBtn.setOnClickListener {
             errorText.visibility = View.GONE
@@ -66,10 +61,32 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
             }
         }
 
-        observeState()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+                    signupBtn.isEnabled = !state.isLoading
+
+                    state.error?.let {
+                        errorText.text = it
+                        errorText.visibility = View.VISIBLE
+                    }
+
+                    if (state.success) {
+                        findNavController().navigate(
+                            R.id.action_signUp_to_login,
+                            bundleOf("accountType" to "teacher"),
+                            NavOptions.Builder()
+                                .setPopUpTo(R.id.action_signUp_to_login, false)
+                                .build()
+                        )
+                    }
+                }
+            }
+        }
     }
 
-    private fun setupGenderSpinner() {
+    private fun genderSelection() {
         val genders = arrayOf("Select Gender", "Male", "Female")
         val adapter = ArrayAdapter(
             requireContext(),
@@ -90,9 +107,19 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
             ) {
                 (view as? TextView)?.let { textView ->
                     if (position == 0) {
-                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.hint_color))
+                        textView.setTextColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.hint_color
+                            )
+                        )
                     } else {
-                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary))
+                        textView.setTextColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.primary
+                            )
+                        )
                     }
                 }
             }
@@ -122,29 +149,4 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         return false
     }
 
-    private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-                    signupBtn.isEnabled = !state.isLoading
-
-                    state.error?.let {
-                        errorText.text = it
-                        errorText.visibility = View.VISIBLE
-                    }
-
-                    if (state.success) {
-                        findNavController().navigate(
-                            R.id.action_signUp_to_login,
-                            bundleOf("accountType" to "teacher"),
-                            NavOptions.Builder()
-                                .setPopUpTo(R.id.action_signUp_to_login, false)
-                                .build()
-                        )
-                    }
-                }
-            }
-        }
-    }
 }

@@ -18,19 +18,6 @@ import okhttp3.Response
 import okio.IOException
 import org.json.JSONObject
 
-data class TeacherProfileUiState(
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val teacher: TeacherResponse? = null
-)
-
-sealed class TeacherProfileAction {
-    data class LoadTeacher(val teacher: TeacherResponse) : TeacherProfileAction()
-    data object LoadCurrentTeacher : TeacherProfileAction()
-    data class SaveTeacher(val updatedTeacher: TeacherResponse) : TeacherProfileAction()
-    data class UploadImage(val imageUri: Uri) : TeacherProfileAction()
-}
-
 
 class TeacherProfileViewModel(
     private val firestore: FirebaseFirestore,
@@ -125,9 +112,3 @@ class TeacherProfileViewModel(
             }
     }
 }
-
-
-
-
-
-

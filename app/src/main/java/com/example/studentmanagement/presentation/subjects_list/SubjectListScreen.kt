@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -44,29 +43,14 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
         }
         subjectTitle.text = "Subjects"
 
-        setupViews()
-        observeState()
-        viewModel.onAction(SubjectListEvent.LoadSubjects)
         checkPermissions()
-    }
-
-    private fun setupViews() {
-        subjectAdapter = SubjectAdapter { subject ->
-            // Navigate to subject details or score submission
-//            findNavController().navigate(
-//                R.id.navigate_subject_list_to_submit_score,
-//                bundleOf("subjectId" to subject.id)
-//            )
-        }
-
         binding.apply {
             recyclerViewSubjects.apply {
                 layoutManager = LinearLayoutManager(requireContext())
                 adapter = subjectAdapter
                 addItemDecoration(
                     DividerItemDecoration(
-                        requireContext(),
-                        DividerItemDecoration.VERTICAL
+                        requireContext(), DividerItemDecoration.VERTICAL
                     )
                 )
 
@@ -84,8 +68,7 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
                         },
                         onNegativeClick = {
                             subjectAdapter.notifyDataSetChanged()
-                        }
-                    )
+                        })
                 }
                 val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
                 itemTouchHelper.attachToRecyclerView(this)
@@ -95,6 +78,24 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
                 showCreateSubjectBottomSheet()
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    updateUI(state)
+                }
+            }
+        }
+        viewModel.onAction(SubjectListEvent.LoadSubjects)
+
+        subjectAdapter = SubjectAdapter { subject ->
+            // Navigate to subject details or score submission
+//            findNavController().navigate(
+//                R.id.navigate_subject_list_to_submit_score,
+//                bundleOf("subjectId" to subject.id)
+//            )
+        }
+
     }
 
     private fun showCreateSubjectBottomSheet() {
@@ -114,16 +115,6 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
         bottomSheet.show(parentFragmentManager, "CreateSubjectBottomSheet")
     }
 
-    private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    updateUI(state)
-                }
-            }
-        }
-    }
-
     private fun updateUI(state: SubjectListState) {
         binding.apply {
             progressBar.isVisible = state.isLoading
@@ -131,24 +122,16 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
             subjectAdapter.submitList(state.subjects)
 
             state.error?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 viewModel.onAction(SubjectListEvent.ClearError)
-//                Dialog.showDialog(
-//                    requireContext(),
-//                    title = "Error",
-//                    description = it,
-//                    buttonText = "OK"
-//                ) {}
+                Dialog.showDialog(
+                    requireContext(), title = "Error", description = it, buttonText = "OK"
+                ) {}
             }
 
             state.successMessage?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 viewModel.onAction(SubjectListEvent.ClearError)
                 Dialog.showDialog(
-                    requireContext(),
-                    title = "Success",
-                    description = it,
-                    buttonText = "OK"
+                    requireContext(), title = "Success", description = it, buttonText = "OK"
                 ) {}
             }
         }
@@ -156,14 +139,11 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
 
     private fun checkPermissions() {
         if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                1001
+                requireActivity(), arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1001
             )
         }
     }

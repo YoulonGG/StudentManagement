@@ -34,28 +34,6 @@ class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
         progressBar = view.findViewById(R.id.progressBar)
         backButton = view.findViewById(R.id.goBack)
 
-        setupListeners()
-        observeState()
-    }
-
-
-    private fun validateEmail(email: String): Boolean {
-        return when {
-            email.isEmpty() -> {
-                showError("Email cannot be empty")
-                false
-            }
-
-            else -> true
-        }
-    }
-
-    private fun showError(message: String) {
-        errorText.text = message
-        errorText.visibility = View.VISIBLE
-    }
-
-    private fun setupListeners() {
         backButton.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -66,9 +44,6 @@ class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
                 viewModel.onAction(PasswordResetAction.SendResetEmail(email))
             }
         }
-    }
-
-    private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
@@ -91,6 +66,18 @@ class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
                     }
                 }
             }
+        }
+    }
+
+    private fun validateEmail(email: String): Boolean {
+        return when {
+            email.isEmpty() -> {
+                errorText.text = "Email can not be empty"
+                errorText.visibility = View.VISIBLE
+                false
+            }
+
+            else -> true
         }
     }
 }

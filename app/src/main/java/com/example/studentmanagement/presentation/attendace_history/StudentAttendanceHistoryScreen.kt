@@ -35,26 +35,23 @@ class StudentAttendanceHistoryScreen :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentStudentAttendanceHistoryScreenBinding.bind(view)
+        val currentMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
 
         val goBack = view.findViewById<ImageView>(R.id.goBack)
         val toolbarTitle = view.findViewById<TextView>(R.id.toolbarTitle)
 
-        toolbarTitle.text = "Attendance Record"
-        goBack.setOnClickListener {
-            findNavController().navigateUp()
+        toolbarTitle.text = getString(R.string.attendance_record)
+        goBack.setOnClickListener { findNavController().navigateUp() }
+        binding.textViewSelectedMonth.setOnClickListener { showCustomMonthYearPicker() }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    updateUI(state)
+                }
+            }
         }
-
-        setupViews()
-        observeState()
-
-        val currentMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
         viewModel.onAction(AttendanceHistoryEvent.LoadMonthStats(currentMonth))
-    }
-
-    private fun setupViews() {
-        binding.textViewSelectedMonth.setOnClickListener {
-            showCustomMonthYearPicker()
-        }
     }
 
     private fun showCustomMonthYearPicker() {
@@ -96,22 +93,11 @@ class StudentAttendanceHistoryScreen :
             .show()
     }
 
-    private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    updateUI(state)
-                }
-            }
-        }
-    }
-
     private fun updateUI(state: AttendanceHistoryState) {
         binding.apply {
             progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
             tableLayout.visibility = if (state.isLoading) View.INVISIBLE else View.VISIBLE
 
-//            tableLayout.background = ContextCompat.getDrawable(requireContext(), R.drawable.table_border_background)
             textViewSelectedMonth.text = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
                 .format(
                     SimpleDateFormat("yyyy-MM", Locale.getDefault())
@@ -153,7 +139,7 @@ class StudentAttendanceHistoryScreen :
 
             tableLayout.addView(headerRow)
 
-            state.monthlyStats.forEachIndexed { index, stats ->
+            state.monthlyStats.forEachIndexed { _, stats ->
                 val row = TableRow(requireContext()).apply {
                     layoutParams = TableRow.LayoutParams(
                         TableRow.LayoutParams.MATCH_PARENT,

@@ -4,20 +4,20 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.data.local.PreferencesKeys
 import com.example.studentmanagement.data.local.PreferencesKeys.ACCOUNT_TYPE
 import com.example.studentmanagement.presentation.activity.MainActivity
+import com.example.studentmanagement.presentation.teacher.HomeCardItem
 import com.example.studentmanagement.presentation.teacher.components.HomeCardItem
 import com.example.studentmanagement.presentation.teacher.components.TeacherHomeCardAdapter
 import kotlinx.coroutines.launch
@@ -34,48 +34,33 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initializeViews(view)
-        setupClickListeners()
-        setupRecyclerView()
-        observeViewModel()
-
-        viewModel.onAction(StudentAction.LoadStudentData)
-    }
-
-    private fun initializeViews(view: View) {
         recyclerView = view.findViewById(R.id.studentRecyclerView)
         studentImage = view.findViewById(R.id.studentImage)
         studentName = view.findViewById(R.id.studentNameTitle)
         btnLogOut = view.findViewById(R.id.btnStudentLogOut)
-    }
 
-    private fun setupClickListeners() {
         btnLogOut.setOnClickListener { handleLogout() }
-    }
 
-    private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
-                handleUIState(state)
+                if (state.isLoading) {
+                    studentName.text = "Loading..."
+                }
+
+                state.error?.let { error ->
+                    showError(error)
+                }
+
+                state.student?.name?.let { name ->
+                    studentName.text = name
+                }
+
+                updateStudentCounts(state)
+                updateStudentImage(state.student?.imageUrl)
             }
         }
-    }
-
-    private fun handleUIState(state: StudentUiState) {
-        if (state.isLoading) {
-            studentName.text = "Loading..."
-        }
-
-        state.error?.let { error ->
-            showError(error)
-        }
-
-        state.student?.name?.let { name ->
-            studentName.text = name
-        }
-
-        updateStudentCounts(state)
-        updateStudentImage(state.student?.imageUrl)
+        viewModel.onAction(StudentAction.LoadStudentData)
+        setupRecyclerView()
     }
 
     private fun updateStudentCounts(state: StudentUiState) {
@@ -114,11 +99,14 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
     }
 
     private fun showError(error: String) {
-        Toast.makeText(
+        Dialog.showDialog(
             requireContext(),
-            "getString(R.string.error_message, error)",
-            Toast.LENGTH_LONG
-        ).show()
+            title = "Error",
+            description = error,
+            onBtnClick = {
+
+            }
+        )
     }
 
     private fun setupRecyclerView() {

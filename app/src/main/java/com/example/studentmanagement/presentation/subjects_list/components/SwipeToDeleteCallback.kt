@@ -2,10 +2,11 @@ package com.example.studentmanagement.presentation.subjects_list.components
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.R
@@ -25,8 +26,8 @@ class SwipeToDeleteCallback(
         deleteIcon = ContextCompat.getDrawable(context, R.drawable.bin)
         intrinsicWidth = deleteIcon?.intrinsicWidth ?: 0
         intrinsicHeight = deleteIcon?.intrinsicHeight ?: 0
-        backgroundColor = Color.parseColor("#f44336")
-        background = ColorDrawable(backgroundColor)
+        backgroundColor = "#f44336".toColorInt()
+        background = backgroundColor.toDrawable()
     }
 
     override fun onMove(
@@ -57,7 +58,7 @@ class SwipeToDeleteCallback(
         val backgroundCornerOffset = 20
 
         when {
-            dX < 0 -> { // Swiping to the left
+            dX < 0 -> {
                 val iconMargin = (itemView.height - intrinsicHeight) / 2
                 val iconTop = itemView.top + (itemView.height - intrinsicHeight) / 2
                 val iconBottom = iconTop + intrinsicHeight

@@ -126,19 +126,18 @@ class StudentDetailViewModel(
             return
         }
 
-        // Fixed: Properly preserve name, studentID, and other essential fields
         val updatedStudent = current.copy(
-            name = student.name ?: current.name,                      // Preserve if null
-            studentID = student.studentID ?: current.studentID,      // Preserve if null
-            email = student.email ?: current.email,                  // Use new value or preserve
-            address = student.address ?: current.address,            // Use new value or preserve
-            phone = student.phone ?: current.phone,                  // Use new value or preserve
-            age = student.age ?: current.age,                        // Use new value or preserve
-            imageUrl = student.imageUrl ?: current.imageUrl,         // Preserve if null
-            guardian = student.guardian ?: current.guardian,         // Use new value or preserve
-            guardianContact = student.guardianContact ?: current.guardianContact, // Use new value or preserve
-            majoring = student.majoring ?: current.majoring,         // Use new value or preserve
-            authUid = current.authUid                                // Always preserve authUid
+            name = student.name ?: current.name,
+            studentID = student.studentID ?: current.studentID,
+            email = student.email ?: current.email,
+            address = student.address ?: current.address,
+            phone = student.phone ?: current.phone,
+            age = student.age ?: current.age,
+            imageUrl = student.imageUrl ?: current.imageUrl,
+            guardian = student.guardian ?: current.guardian,
+            guardianContact = student.guardianContact ?: current.guardianContact,
+            majoring = student.majoring ?: current.majoring,
+            authUid = current.authUid
         )
 
         val authUid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
@@ -146,7 +145,6 @@ class StudentDetailViewModel(
             return
         }
 
-        // Prepare update data, filtering out null values
         val allowedFields = mapOf(
             "name" to updatedStudent.name,
             "email" to updatedStudent.email,
@@ -200,12 +198,11 @@ class StudentDetailViewModel(
                                     )
                                 }
                             } else {
-                                // Create initial student profile
                                 val initialStudent = StudentResponse(
                                     authUid = currentUser,
                                     name = userDoc.getString("name") ?: "",
                                     email = userDoc.getString("email") ?: "",
-                                    studentID = generateStudentID() // Generate a student ID
+                                    studentID = generateStudentID()
                                 )
 
                                 firestore.collection("students")
@@ -253,22 +250,7 @@ class StudentDetailViewModel(
     }
 
     private fun generateStudentID(): String {
-        // Generate a simple student ID with current timestamp
         val currentTime = System.currentTimeMillis()
         return "STU${currentTime.toString().takeLast(6)}"
     }
 }
-
-sealed class StudentDetailAction {
-    data class LoadStudent(val student: StudentResponse) : StudentDetailAction()
-    data class SaveStudent(val updatedStudent: StudentResponse) : StudentDetailAction()
-    data class UploadImage(val imageUri: Uri) : StudentDetailAction()
-    data object LoadCurrentStudent : StudentDetailAction()
-    data object ClearError : StudentDetailAction()
-}
-
-data class StudentDetailUiState(
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val student: StudentResponse? = null
-)

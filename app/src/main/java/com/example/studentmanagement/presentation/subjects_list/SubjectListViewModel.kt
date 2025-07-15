@@ -44,6 +44,7 @@ class SubjectListViewModel(
                 classTime = event.classTime,
                 imageUri = event.imageUri
             )
+
             is SubjectListEvent.DeleteSubject -> deleteSubject(event.subjectId)
         }
     }
@@ -104,9 +105,25 @@ class SubjectListViewModel(
         }
 
         if (imageUri != null) {
-            uploadImageToCloudinary(name, description, code, className, classTime, imageUri, currentUser.uid)
+            uploadImageToCloudinary(
+                name,
+                description,
+                code,
+                className,
+                classTime,
+                imageUri,
+                currentUser.uid
+            )
         } else {
-            createSubjectInFirestore(name, description, code, className, classTime, null, currentUser.uid)
+            createSubjectInFirestore(
+                name,
+                description,
+                code,
+                className,
+                classTime,
+                null,
+                currentUser.uid
+            )
         }
     }
 
@@ -179,7 +196,15 @@ class SubjectListViewModel(
                     if (response.isSuccessful && body != null) {
                         try {
                             val imageUrl = JSONObject(body).getString("secure_url")
-                            createSubjectInFirestore(name, description, code, className, classTime, imageUrl, teacherId)
+                            createSubjectInFirestore(
+                                name,
+                                description,
+                                code,
+                                className,
+                                classTime,
+                                imageUrl,
+                                teacherId
+                            )
                         } catch (e: Exception) {
                             setState {
                                 copy(
@@ -250,24 +275,3 @@ class SubjectListViewModel(
     }
 }
 
-data class SubjectListState(
-    val subjects: List<Subject> = emptyList(),
-    val isLoading: Boolean = false,
-    val isCreating: Boolean = false,
-    val error: String? = null,
-    val successMessage: String? = null
-)
-
-sealed class SubjectListEvent {
-    data object LoadSubjects : SubjectListEvent()
-    data object ClearError : SubjectListEvent()
-    data class CreateSubject(
-        val name: String,
-        val description: String,
-        val code: String,
-        val className: String,
-        val classTime: String,
-        val imageUri: Uri?
-    ) : SubjectListEvent()
-    data class DeleteSubject(val subjectId: String) : SubjectListEvent()
-}

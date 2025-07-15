@@ -14,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
-import com.example.studentmanagement.presentation.teacher.components.HomeCardItem
 import com.example.studentmanagement.presentation.teacher.components.TeacherHomeCardAdapter
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -40,7 +39,7 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.teacherData.collect { state ->
+                viewModel.uiState.collect { state ->
                     view?.findViewById<TextView>(R.id.teacherNameTitle)?.text = state.teacherName
 
                     view?.findViewById<TextView>(R.id.studentCount)?.let { textView ->
