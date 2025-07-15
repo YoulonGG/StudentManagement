@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -175,20 +176,25 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
 
     private fun navigateToScores() {
         val studentId = getCurrentStudentId()
+
         if (studentId.isNotEmpty()) {
             val bundle = Bundle().apply {
                 putString("studentId", studentId)
             }
             findNavController().navigate(R.id.navigate_student_to_student_score, bundle)
         } else {
-            showError(getString(R.string.student_id_not_found))
+            viewModel.onAction(StudentAction.LoadStudentData)
+            showError("Student data not available. Please try again.")
         }
     }
 
     private fun getCurrentStudentId(): String {
-        return viewModel.uiState.value.student?.studentID ?: run {
+        val studentFromState = viewModel.uiState.value.student?.authUid
+
+        return studentFromState ?: run {
             val sharedPref = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-            sharedPref.getString("current_student_id", "") ?: ""
+            val studentFromPrefs = sharedPref.getString("current_student_id", "") ?: ""
+            studentFromPrefs
         }
     }
 

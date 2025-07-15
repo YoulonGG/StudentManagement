@@ -11,7 +11,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
 import com.example.studentmanagement.databinding.FragmentStudentScoreScreenBinding
-import com.example.studentmanagement.presentation.student_score_view.StudentScoreDetailAdapter
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -21,7 +20,8 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
     private val binding get() = _binding!!
     private val viewModel: StudentScoreViewModel by viewModel()
     private val studentId: String by lazy {
-        arguments?.getString("studentId") ?: ""
+        val id = arguments?.getString("studentId") ?: ""
+        id
     }
     private val scoreAdapter = StudentScoreDetailAdapter()
 
@@ -31,11 +31,16 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
 
         setupToolbar()
         setupRecyclerView()
+
         setupSwipeRefresh()
         setupScrollSynchronization()
         observeViewModel()
 
-        viewModel.onAction(StudentScoreViewAction.LoadStudentScores(studentId))
+        if (studentId.isNotEmpty()) {
+            viewModel.onAction(StudentScoreViewAction.LoadStudentScores(studentId))
+        } else {
+            showError("Invalid student ID")
+        }
     }
 
     private fun setupToolbar() {
@@ -54,18 +59,34 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
 
     private fun setupSwipeRefresh() {
         binding.swipeRefresh.setOnRefreshListener {
-            viewModel.onAction(StudentScoreViewAction.RefreshScores(studentId))
+            if (studentId.isNotEmpty()) {
+                viewModel.onAction(StudentScoreViewAction.RefreshScores(studentId))
+            } else {
+                binding.swipeRefresh.isRefreshing = false
+                showError("Invalid student ID")
+            }
         }
     }
 
+    private var isSyncingScroll = false
     private fun setupScrollSynchronization() {
+
         binding.contentScrollView.setOnScrollChangeListener { _, scrollX, _, _, _ ->
-            binding.headerScrollView.scrollTo(scrollX, 0)
+            if (!isSyncingScroll) {
+                isSyncingScroll = true
+                binding.headerScrollView.scrollTo(scrollX, 0)
+                isSyncingScroll = false
+            }
         }
 
         binding.headerScrollView.setOnScrollChangeListener { _, scrollX, _, _, _ ->
-            binding.contentScrollView.scrollTo(scrollX, 0)
+            if (!isSyncingScroll) {
+                isSyncingScroll = true
+                binding.contentScrollView.scrollTo(scrollX, 0)
+                isSyncingScroll = false
+            }
         }
+
     }
 
     private fun observeViewModel() {
@@ -77,7 +98,7 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
                     state.isLoading && binding.swipeRefresh.isRefreshing
 
                 state.error?.let { error ->
-                    Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+                    showError(error)
                     binding.swipeRefresh.isRefreshing = false
                 }
 
@@ -88,9 +109,11 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
         }
 
         viewModel.studentInfo.observe(viewLifecycleOwner) { studentInfo ->
-            binding.studentNameText.text = studentInfo.name
-            binding.studentIdText.text = "ID: ${studentInfo.studentId}"
-            binding.studentEmailText.text = studentInfo.email
+            if (studentInfo != null) {
+                binding.studentNameText.text = studentInfo.name
+                binding.studentIdText.text = "ID: ${studentInfo.studentId}"
+                binding.studentEmailText.text = studentInfo.email
+            }
         }
 
         viewModel.studentScores.observe(viewLifecycleOwner) { scores ->
@@ -117,6 +140,10 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
         binding.totalSubjectsText.text = totalSubjects.toString()
         binding.overallGpaText.text = String.format("%.1f", overallGpa)
         binding.averageScoreText.text = String.format("%.1f%%", averagePercentage)
+    }
+
+    private fun showError(error: String) {
+        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {

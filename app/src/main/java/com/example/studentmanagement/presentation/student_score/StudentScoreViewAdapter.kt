@@ -1,4 +1,4 @@
-package com.example.studentmanagement.presentation.student_score_view
+package com.example.studentmanagement.presentation.student_score
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.R
 import com.example.studentmanagement.databinding.ItemStudentScoreDetailBinding
-import com.example.studentmanagement.presentation.student_score.StudentScoreDetail
 
 class StudentScoreDetailAdapter :
     ListAdapter<StudentScoreDetail, StudentScoreDetailAdapter.ViewHolder>(ScoreDetailDiffCallback()) {

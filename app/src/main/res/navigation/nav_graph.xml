@@ -180,9 +180,6 @@
         android:name="com.example.studentmanagement.presentation.student_score.StudentScoreViewFragment"
         android:label="Student Profile Screen">
 
-        <argument
-            android:name="studentId"
-            app:argType="string" />
 
     </fragment>
 

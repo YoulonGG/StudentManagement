@@ -55,15 +55,12 @@ class SubmitScoreViewModel(
     }
 
     fun fetchStudentsBySubject(subject: String) {
-        Log.d(TAG, "Fetching students for subject: $subject")
         setState { copy(isLoading = true, error = null, submitSuccess = false) }
 
         firestore.collection("students")
             .get()
             .addOnSuccessListener { result ->
-                Log.d(TAG, "Successfully fetched students. Count: ${result.size()}")
                 val studentIds = result.documents.map { doc ->
-                    Log.d(TAG, "Student ID: ${doc.id}, Name: ${doc.getString("name")}")
                     doc.id
                 }
                 checkExistingScores(studentIds, subject, result)
@@ -85,42 +82,32 @@ class SubmitScoreViewModel(
         subject: String,
         studentsResult: QuerySnapshot
     ) {
-        Log.d(TAG, "Checking existing scores for ${studentIds.size} students, subject: $subject")
-
         if (studentIds.isEmpty()) {
-            Log.d(TAG, "No students found")
             _studentScores.value = emptyList()
             setState { copy(isLoading = false, submitSuccess = false) }
             return
         }
 
-        // Split studentIds into chunks of 10 (Firestore whereIn limit)
         val chunkedStudentIds = studentIds.chunked(10)
         val allScores = mutableMapOf<String, com.google.firebase.firestore.DocumentSnapshot>()
         var completedChunks = 0
 
         fun processChunk(chunk: List<String>) {
-            Log.d(TAG, "Processing chunk of ${chunk.size} students")
 
             firestore.collection("scores")
                 .whereIn("studentId", chunk)
                 .whereEqualTo("subject", subject)
                 .get()
                 .addOnSuccessListener { scoresResult ->
-                    Log.d(TAG, "Successfully fetched scores for chunk. Found: ${scoresResult.size()}")
-
-                    // Add scores from this chunk
                     scoresResult.documents.forEach { doc ->
                         val studentId = doc.getString("studentId")
                         if (studentId != null) {
                             allScores[studentId] = doc
-                            Log.d(TAG, "Found existing score for student: $studentId")
                         }
                     }
 
                     completedChunks++
 
-                    // If all chunks are processed, create the final list
                     if (completedChunks == chunkedStudentIds.size) {
                         createStudentScoreList(allScores, studentsResult)
                     }
@@ -137,7 +124,6 @@ class SubmitScoreViewModel(
                 }
         }
 
-        // Process all chunks
         chunkedStudentIds.forEach { chunk ->
             processChunk(chunk)
         }
@@ -147,8 +133,6 @@ class SubmitScoreViewModel(
         scoresByStudentId: Map<String, com.google.firebase.firestore.DocumentSnapshot>,
         studentsResult: QuerySnapshot
     ) {
-        Log.d(TAG, "Creating student score list")
-
         val scores = studentsResult.documents.mapNotNull { doc ->
             val studentId = doc.id
             val studentName = doc.getString("name") ?: "Unknown"
@@ -170,16 +154,12 @@ class SubmitScoreViewModel(
             )
         }
 
-        Log.d(TAG, "Created ${scores.size} student scores")
         _studentScores.value = scores
         setState { copy(isLoading = false, submitSuccess = false) }
     }
 
     fun submitScores(scores: List<StudentScore>, subject: String) {
-        Log.d(TAG, "Submitting ${scores.size} scores for subject: $subject")
-
         if (!validateScores(scores)) {
-            Log.w(TAG, "Score validation failed")
             setState {
                 copy(
                     error = "Scores must be between 0 and 100",
@@ -208,7 +188,6 @@ class SubmitScoreViewModel(
                 "timestamp" to FieldValue.serverTimestamp()
             )
 
-            Log.d(TAG, "Adding score to batch for student: ${score.name}")
             batch.set(docRef, scoreData)
         }
 
@@ -244,9 +223,11 @@ class SubmitScoreViewModel(
                     score.homework in 0f..100f
 
             if (!isValid) {
-                Log.w(TAG, "Invalid score for student ${score.name}: " +
-                        "assignment=${score.assignment}, midterm=${score.midterm}, " +
-                        "final=${score.final}, homework=${score.homework}")
+                Log.w(
+                    TAG, "Invalid score for student ${score.name}: " +
+                            "assignment=${score.assignment}, midterm=${score.midterm}, " +
+                            "final=${score.final}, homework=${score.homework}"
+                )
             }
             isValid
         }
