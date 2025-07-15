@@ -1,8 +1,6 @@
 package com.example.studentmanagement.presentation.student_list
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +26,8 @@ class StudentListViewModel(
     private val firestore: FirebaseFirestore
 ) : BaseViewModel<StudentListAction, StudentListUiState>() {
 
+
+    private var allStudents: List<StudentResponse> = emptyList()
     val adapter = StudentAdapter()
 
     override fun setInitialState(): StudentListUiState = StudentListUiState()
@@ -37,7 +37,26 @@ class StudentListViewModel(
             StudentListAction.StudentList -> {
                 getStudentsList()
             }
+
+            is StudentListAction.SearchStudents -> {
+                searchStudents(event.query)
+            }
         }
+    }
+
+    private fun searchStudents(query: String) {
+        if (query.isEmpty()) {
+            adapter.submitList(allStudents)
+            setState { copy(student = allStudents) }
+            return
+        }
+
+        val filteredList = allStudents.filter { student ->
+            student.name?.contains(query, ignoreCase = true) == true
+        }
+
+        adapter.submitList(filteredList)
+        setState { copy(student = filteredList) }
     }
 
     private fun getStudentsList() {
@@ -47,13 +66,13 @@ class StudentListViewModel(
             .collection("students")
             .get()
             .addOnSuccessListener { result ->
-                val studentList =
+                allStudents =
                     result.documents.mapNotNull { it.toObject(StudentResponse::class.java) }
-                adapter.submitList(studentList)
+                adapter.submitList(allStudents)
                 setState {
                     copy(
                         isLoading = false,
-                        student = studentList
+                        student = allStudents
                     )
                 }
             }
@@ -145,4 +164,5 @@ data class StudentListUiState(
 
 sealed class StudentListAction {
     data object StudentList : StudentListAction()
+    data class SearchStudents(val query: String) : StudentListAction()
 }
