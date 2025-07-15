@@ -31,12 +31,6 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
         teacherImage = view.findViewById(R.id.teacherImage)
 
         setupRecyclerView()
-        observeViewModel()
-        viewModel.onAction(TeacherAction.LoadTeacherData)
-        viewModel.onAction(TeacherAction.LoadStudentCounts)
-    }
-
-    private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
@@ -75,6 +69,8 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 }
             }
         }
+        viewModel.onAction(TeacherAction.LoadTeacherData)
+        viewModel.onAction(TeacherAction.LoadStudentCounts)
     }
 
     private fun setupRecyclerView() {

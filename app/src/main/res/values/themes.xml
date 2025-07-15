@@ -1,8 +1,8 @@
 <resources>
     <style name="Base.Theme.StudentManagement" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <item name="colorPrimary">@color/aib_light_blue</item>
-        <item name="android:statusBarColor">@color/aib_light_blue</item>
+        <item name="android:statusBarColor">@color/tool_bar_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
     </style>
 
     <style name="Theme.StudentManagement" parent="Base.Theme.StudentManagement" />
