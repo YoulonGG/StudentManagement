@@ -18,7 +18,6 @@ import com.example.studentmanagement.data.local.PreferencesKeys
 import com.example.studentmanagement.data.local.PreferencesKeys.ACCOUNT_TYPE
 import com.example.studentmanagement.presentation.activity.MainActivity
 import com.example.studentmanagement.presentation.teacher.HomeCardItem
-import com.example.studentmanagement.presentation.teacher.components.HomeCardItem
 import com.example.studentmanagement.presentation.teacher.components.TeacherHomeCardAdapter
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel

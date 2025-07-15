@@ -44,6 +44,16 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
         subjectTitle.text = "Subjects"
 
         checkPermissions()
+
+        // Initialize the adapter before using it
+        subjectAdapter = SubjectAdapter { subject ->
+            // Navigate to subject details or score submission
+            // findNavController().navigate(
+            //     R.id.navigate_subject_list_to_submit_score,
+            //     bundleOf("subjectId" to subject.id)
+            // )
+        }
+
         binding.apply {
             recyclerViewSubjects.apply {
                 layoutManager = LinearLayoutManager(requireContext())
@@ -87,15 +97,6 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
             }
         }
         viewModel.onAction(SubjectListEvent.LoadSubjects)
-
-        subjectAdapter = SubjectAdapter { subject ->
-            // Navigate to subject details or score submission
-//            findNavController().navigate(
-//                R.id.navigate_subject_list_to_submit_score,
-//                bundleOf("subjectId" to subject.id)
-//            )
-        }
-
     }
 
     private fun showCreateSubjectBottomSheet() {
