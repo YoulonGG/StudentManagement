@@ -3,6 +3,7 @@ package com.example.studentmanagement.presentation.teacher
 import android.content.SharedPreferences
 import androidx.lifecycle.viewModelScope
 import com.example.studentmanagement.core.base.BaseViewModel
+import com.example.studentmanagement.data.dto.TeacherResponse
 import com.example.studentmanagement.data.local.PreferencesKeys
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,21 +34,49 @@ class TeacherViewModel(
     private fun loadTeacherData() {
         viewModelScope.launch {
             try {
+                val userId = auth.currentUser?.uid ?: run {
+                    setState { copy(error = "User not authenticated") }
+                    return@launch
+                }
 
-                val cachedData = getCachedTeacherData()
+                val cachedTeacher = loadTeacherFromSharedPrefs()
+                if (cachedTeacher != null) {
+                    setState {
+                        copy(
+                            teacherName = cachedTeacher.username ?: "Unknown Teacher",
+                            profileImageUrl = cachedTeacher.imageUrl,
+                            isLoading = false
+                        )
+                    }
+                    return@launch
+                }
 
                 setState { copy(isLoading = true) }
-                val userId = auth.currentUser?.uid ?: return@launch
+
                 val teacherDoc = db.collection("users")
                     .document(userId)
                     .get()
                     .await()
+                    .also { println("DEBUG: Firestore document: ${it.data}") }
 
-                val teacherName = teacherDoc.getString("username") ?: "Teacher"
+                if (!teacherDoc.exists()) {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Teacher document not found"
+                        )
+                    }
+                    return@launch
+                }
+
+                val teacherName = teacherDoc.getString("username") ?: run {
+                    setState { copy(error = "Username field missing") }
+                    return@launch
+                }
+
                 val profileImageUrl = teacherDoc.getString("imageUrl")
 
-                saveTeacherDataToPreferences(teacherName, profileImageUrl)
-
+                saveTeacherToSharedPrefs(teacherName, profileImageUrl)
                 setState {
                     copy(
                         isLoading = false,
@@ -61,20 +90,10 @@ class TeacherViewModel(
                 setState {
                     copy(
                         isLoading = false,
-                        error = e.message
+                        error = "Error loading data: ${e.localizedMessage}"
                     )
                 }
             }
-        }
-    }
-
-    private fun saveTeacherDataToPreferences(teacherName: String, imageUrl: String?) {
-        with(sharedPreferences.edit()) {
-            putString(PreferencesKeys.TEACHER_USERNAME, teacherName)
-            imageUrl?.let {
-                putString(PreferencesKeys.TEACHER_IMAGE_URL, it)
-            } ?: remove(PreferencesKeys.TEACHER_IMAGE_URL)
-            apply()
         }
     }
 
@@ -120,9 +139,26 @@ class TeacherViewModel(
         }
     }
 
-    private fun getCachedTeacherData(): Pair<String?, String?> {
-        val teacherName = sharedPreferences.getString(PreferencesKeys.TEACHER_USERNAME, null)
-        val imageUrl = sharedPreferences.getString(PreferencesKeys.TEACHER_IMAGE_URL, null)
-        return Pair(teacherName, imageUrl)
+    private fun saveTeacherToSharedPrefs(username: String, imageUrl: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PreferencesKeys.TEACHER_USERNAME, username)
+            putString(PreferencesKeys.TEACHER_IMAGE_URL, imageUrl)
+            apply()
+        }
+    }
+
+    private fun loadTeacherFromSharedPrefs(): TeacherResponse? {
+        val username = sharedPreferences.getString(PreferencesKeys.TEACHER_USERNAME, null)
+        val email = sharedPreferences.getString(PreferencesKeys.TEACHER_EMAIL, null)
+
+        if (username == null || email == null) {
+            return null
+        }
+
+        return TeacherResponse(
+            accountType = "teacher",
+            username = username,
+            imageUrl = sharedPreferences.getString(PreferencesKeys.TEACHER_IMAGE_URL, null)
+        )
     }
 }
