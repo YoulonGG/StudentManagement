@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -110,7 +109,12 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
                     binding.progressBar.isVisible = state.isLoading
 
                     state.error?.let {
-                        Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                        Dialog.showDialog(
+                            requireContext(),
+                            "Error",
+                            it,
+                            onBtnClick = {}
+                        )
                     }
                 }
             }
@@ -124,6 +128,14 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
         with(sharedPref.edit()) {
             remove(PreferencesKeys.IS_LOGGED_IN)
             remove(PreferencesKeys.ACCOUNT_TYPE)
+            remove(PreferencesKeys.TEACHER_USERNAME)
+            remove(PreferencesKeys.TEACHER_EMAIL)
+            remove(PreferencesKeys.TEACHER_PHONE)
+            remove(PreferencesKeys.TEACHER_ADDRESS)
+            remove(PreferencesKeys.TEACHER_AGE)
+            remove(PreferencesKeys.TEACHER_GENDER)
+            remove(PreferencesKeys.TEACHER_IMAGE_URL)
+
             apply()
         }
 
@@ -132,10 +144,5 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
         }
         startActivity(intent)
         requireActivity().finish()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

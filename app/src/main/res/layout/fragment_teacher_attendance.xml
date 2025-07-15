@@ -16,9 +16,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
             android:background="@drawable/content_background"
             android:orientation="vertical"
-            android:layout_marginTop="10dp"
             android:paddingHorizontal="16dp"
             android:paddingBottom="50dp">
 
@@ -28,6 +28,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="12dp"
+                android:layout_marginTop="16dp"
                 app:cardElevation="0dp"
                 app:strokeColor="#E0E0E0"
                 app:strokeWidth="1dp">
@@ -75,16 +76,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:paddingBottom="50dp"
                 android:clipToPadding="false"
                 android:fillViewport="true"
+                android:paddingBottom="50dp"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="1dp"
                     android:background="@drawable/table_border_background"
+                    android:padding="1dp"
                     android:stretchColumns="0">
 
                     <TableRow
@@ -124,8 +125,8 @@
                         android:id="@+id/recyclerViewAttendance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingHorizontal="8dp"
-                        android:overScrollMode="never" />
+                        android:overScrollMode="never"
+                        android:paddingHorizontal="8dp" />
 
                 </TableLayout>
 
@@ -149,11 +150,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:padding="16dp"
-        android:gravity="center"
-        android:textColor="@color/white"
         android:background="@drawable/common_button"
+        android:gravity="center"
+        android:padding="16dp"
         android:text="Submit Attendance"
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:cornerRadius="16dp"
         app:elevation="4dp" />

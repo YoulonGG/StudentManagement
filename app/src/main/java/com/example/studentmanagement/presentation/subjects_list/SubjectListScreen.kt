@@ -122,18 +122,26 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
             progressBarCreate.isVisible = state.isCreating
             subjectAdapter.submitList(state.subjects)
 
-            state.error?.let {
-                viewModel.onAction(SubjectListEvent.ClearError)
+            state.error?.let { errorMessage ->
                 Dialog.showDialog(
-                    requireContext(), title = "Error", description = it, buttonText = "OK"
-                ) {}
+                    requireContext(),
+                    title = "Error",
+                    description = errorMessage,
+                    buttonText = "Okay"
+                ) {
+                    viewModel.onAction(SubjectListEvent.ClearError)
+                }
             }
 
-            state.successMessage?.let {
-                viewModel.onAction(SubjectListEvent.ClearError)
+            state.successMessage?.let { successMessage ->
                 Dialog.showDialog(
-                    requireContext(), title = "Success", description = it, buttonText = "OK"
-                ) {}
+                    requireContext(),
+                    title = "Success",
+                    description = successMessage,
+                    buttonText = "Okay"
+                ) {
+                    viewModel.onAction(SubjectListEvent.ClearSuccessMessage)
+                }
             }
         }
     }

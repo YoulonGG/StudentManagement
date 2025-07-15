@@ -7,6 +7,7 @@ package com.example.studentmanagement.data.di
  */
 
 import android.app.Application
+import android.content.Context
 import com.example.studentmanagement.presentation.ask_permission.StudentPermissionViewModel
 import com.example.studentmanagement.presentation.attendace_history.StudentAttendanceViewModel
 import com.example.studentmanagement.presentation.create_student.CreateStudentViewModel
@@ -25,15 +26,21 @@ import com.example.studentmanagement.presentation.teacher_submit_score.SubmitSco
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
 
+
     single { FirebaseAuth.getInstance() }
     single { FirebaseFirestore.getInstance() }
     single { FirebaseStorage.getInstance() }
     single { Application::class.java }
+    single {
+        androidContext().getSharedPreferences("teacher_prefs", Context.MODE_PRIVATE)
+    }
+
 
     viewModel { LoginViewModel(get()) }
     viewModel { SignUpViewModel(get(), get()) }
@@ -45,9 +52,9 @@ val appModule = module {
     viewModel { StudentPermissionViewModel(get(), get()) }
     viewModel { SubjectListViewModel(get(), get(), get()) }
     viewModel { ResetPasswordViewModel(get()) }
-    viewModel { TeacherViewModel(get(), get()) }
+    viewModel { TeacherViewModel(get(), get(), get()) }
     viewModel { CreateStudentViewModel(get(), get()) }
-    viewModel { TeacherProfileViewModel(get(), get()) }
+    viewModel { TeacherProfileViewModel(get(), get(), get()) }
     viewModel { SubmitScoreViewModel(get()) }
     viewModel { StudentScoreViewModel(get()) }
 

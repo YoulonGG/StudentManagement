@@ -2,6 +2,8 @@ package com.example.studentmanagement.presentation.subjects_list
 
 import android.app.Application
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.example.studentmanagement.core.utils.FileUtils
 import com.example.studentmanagement.data.dto.Subject
@@ -45,12 +47,13 @@ class SubjectListViewModel(
                 imageUri = event.imageUri
             )
 
+            SubjectListEvent.ClearSuccessMessage -> setState { copy(successMessage = null) }
             is SubjectListEvent.DeleteSubject -> deleteSubject(event.subjectId)
         }
     }
 
     private fun loadSubjects() {
-        setState { copy(isLoading = true) }
+        setState { copy(isLoading = true, successMessage = null) }
 
         db.collection("subjects")
             .get()
@@ -69,7 +72,8 @@ class SubjectListViewModel(
                 setState {
                     copy(
                         subjects = subjects,
-                        isLoading = false
+                        isLoading = false,
+                        successMessage = null
                     )
                 }
             }
@@ -77,12 +81,12 @@ class SubjectListViewModel(
                 setState {
                     copy(
                         isLoading = false,
-                        error = "Failed to load subjects: ${e.message}"
+                        error = "Failed to load subjects: ${e.message}",
+                        successMessage = null
                     )
                 }
             }
     }
-
     private fun createSubject(
         name: String,
         description: String,
@@ -140,7 +144,9 @@ class SubjectListViewModel(
                         successMessage = "Subject deleted successfully!"
                     )
                 }
-                loadSubjects()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    loadSubjects()
+                }, 1000)
             }
             .addOnFailureListener { e ->
                 setState {
@@ -262,7 +268,9 @@ class SubjectListViewModel(
                         successMessage = "Subject created successfully!"
                     )
                 }
-                loadSubjects()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    loadSubjects()
+                }, 1000)
             }
             .addOnFailureListener { e ->
                 setState {

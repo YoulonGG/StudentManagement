@@ -1,7 +1,9 @@
 package com.example.studentmanagement.presentation.teacher
 
+import android.content.SharedPreferences
 import androidx.lifecycle.viewModelScope
 import com.example.studentmanagement.core.base.BaseViewModel
+import com.example.studentmanagement.data.local.PreferencesKeys
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -15,7 +17,8 @@ import kotlinx.coroutines.tasks.await
 
 class TeacherViewModel(
     private val db: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val sharedPreferences: SharedPreferences
 ) : BaseViewModel<TeacherAction, TeacherUiState>() {
 
     override fun setInitialState(): TeacherUiState = TeacherUiState()
@@ -30,6 +33,9 @@ class TeacherViewModel(
     private fun loadTeacherData() {
         viewModelScope.launch {
             try {
+
+                val cachedData = getCachedTeacherData()
+
                 setState { copy(isLoading = true) }
                 val userId = auth.currentUser?.uid ?: return@launch
                 val teacherDoc = db.collection("users")
@@ -39,6 +45,8 @@ class TeacherViewModel(
 
                 val teacherName = teacherDoc.getString("username") ?: "Teacher"
                 val profileImageUrl = teacherDoc.getString("imageUrl")
+
+                saveTeacherDataToPreferences(teacherName, profileImageUrl)
 
                 setState {
                     copy(
@@ -57,6 +65,16 @@ class TeacherViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun saveTeacherDataToPreferences(teacherName: String, imageUrl: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PreferencesKeys.TEACHER_USERNAME, teacherName)
+            imageUrl?.let {
+                putString(PreferencesKeys.TEACHER_IMAGE_URL, it)
+            } ?: remove(PreferencesKeys.TEACHER_IMAGE_URL)
+            apply()
         }
     }
 
@@ -101,5 +119,10 @@ class TeacherViewModel(
             }
         }
     }
-}
 
+    private fun getCachedTeacherData(): Pair<String?, String?> {
+        val teacherName = sharedPreferences.getString(PreferencesKeys.TEACHER_USERNAME, null)
+        val imageUrl = sharedPreferences.getString(PreferencesKeys.TEACHER_IMAGE_URL, null)
+        return Pair(teacherName, imageUrl)
+    }
+}

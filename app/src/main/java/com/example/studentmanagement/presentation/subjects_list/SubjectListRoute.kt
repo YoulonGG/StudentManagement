@@ -21,6 +21,7 @@ data class SubjectListState(
 sealed class SubjectListEvent {
     data object LoadSubjects : SubjectListEvent()
     data object ClearError : SubjectListEvent()
+    data object ClearSuccessMessage : SubjectListEvent()
     data class CreateSubject(
         val name: String,
         val description: String,
