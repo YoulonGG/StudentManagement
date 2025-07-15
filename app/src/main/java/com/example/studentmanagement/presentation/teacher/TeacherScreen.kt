@@ -84,11 +84,12 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
             },
             HomeCardItem(
                 2,
-                "Subjects",
-                R.drawable.teacher_subjects_card_icon
+                "Submit Score",
+                R.drawable.teacher_submit_score_card_icon
             ) {
-                findNavController().navigate(R.id.navigate_teacher_to_subject_list)
+                findNavController().navigate(R.id.navigate_teacher_to_submit_score)
             },
+
             HomeCardItem(
                 3,
                 "Attendance Record",
@@ -118,10 +119,10 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
             ) { findNavController().navigate(R.id.navigate_teacher_to_create_student) },
             HomeCardItem(
                 6,
-                "Submit Score",
-                R.drawable.attendance_icon
+                "Subjects",
+                R.drawable.teacher_subjects_card_icon
             ) {
-                findNavController().navigate(R.id.navigate_teacher_to_submit_score)
+                findNavController().navigate(R.id.navigate_teacher_to_subject_list)
             },
         )
 

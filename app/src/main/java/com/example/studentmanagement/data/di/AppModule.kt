@@ -18,6 +18,7 @@ import com.example.studentmanagement.presentation.student.StudentViewModel
 import com.example.studentmanagement.presentation.student_detail.StudentDetailViewModel
 import com.example.studentmanagement.presentation.student_list.StudentListViewModel
 import com.example.studentmanagement.presentation.student_score.StudentScoreViewModel
+import com.example.studentmanagement.presentation.subject_detail.SubjectDetailViewModel
 import com.example.studentmanagement.presentation.subjects_list.SubjectListViewModel
 import com.example.studentmanagement.presentation.teacher.TeacherViewModel
 import com.example.studentmanagement.presentation.teacher_attendance.TeacherAttendanceViewModel
@@ -57,5 +58,6 @@ val appModule = module {
     viewModel { TeacherProfileViewModel(get(), get(), get()) }
     viewModel { SubmitScoreViewModel(get()) }
     viewModel { StudentScoreViewModel(get()) }
+    viewModel { SubjectDetailViewModel(get(), get()) }
 
 }

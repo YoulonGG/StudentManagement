@@ -3,11 +3,13 @@ package com.example.studentmanagement.presentation.subjects_list
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -45,13 +47,12 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
 
         checkPermissions()
 
-        // Initialize the adapter before using it
         subjectAdapter = SubjectAdapter { subject ->
-            // Navigate to subject details or score submission
-            // findNavController().navigate(
-            //     R.id.navigate_subject_list_to_submit_score,
-            //     bundleOf("subjectId" to subject.id)
-            // )
+            Log.e("SubjectListFragment", "Subject clicked: ${subject.id}")
+            findNavController().navigate(
+                R.id.navigate_subject_to_subject_details,
+                bundleOf("subjectId" to subject.id)
+            )
         }
 
         binding.apply {
