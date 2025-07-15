@@ -111,7 +111,7 @@
     <fragment
         android:id="@+id/subject_details"
         android:name="com.example.studentmanagement.presentation.subject_detail.SubjectDetailScreen"
-        android:label="Subject Detail Screen" >
+        android:label="Subject Detail Screen">
 
         <argument
             android:name="subjectId"
@@ -171,13 +171,17 @@
             android:id="@+id/navigate_student_to_ask_permission"
             app:destination="@id/student_ask_permission" />
 
-
         <action
             android:id="@+id/navigate_student_to_student_profile"
             app:destination="@id/student_details" />
+
         <action
             android:id="@+id/navigate_student_to_student_score"
             app:destination="@+id/student_score" />
+
+        <action
+            android:id="@+id/navigate_student_to_subject_list"
+            app:destination="@id/subject_list" />
 
     </fragment>
 

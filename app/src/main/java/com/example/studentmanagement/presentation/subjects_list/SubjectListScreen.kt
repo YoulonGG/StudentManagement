@@ -37,6 +37,8 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSubjectListScreenBinding.bind(view)
 
+        val accountType = arguments?.getString("accountType", "teacher") ?: "teacher"
+
         val subjectTitle = view.findViewById<TextView>(R.id.toolbarTitle)
         val backButton = view.findViewById<ImageView>(R.id.goBack)
 
@@ -46,6 +48,8 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
         subjectTitle.text = "Subjects"
 
         checkPermissions()
+
+        binding.fabCreateSubject.isVisible = accountType != "student"
 
         subjectAdapter = SubjectAdapter { subject ->
             Log.e("SubjectListFragment", "Subject clicked: ${subject.id}")
@@ -65,24 +69,26 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
                     )
                 )
 
-                val swipeToDeleteCallback = SwipeToDeleteCallback(requireContext()) { position ->
-                    val subject = subjectAdapter.currentList[position]
-                    Dialog.showTwoButtonDialog(
-                        requireContext(),
-                        title = "Delete Subject",
-                        description = "Are you sure you want to delete '${subject.name}'?",
-                        positiveButtonText = "Delete",
-                        negativeButtonText = "Cancel",
-                        onPositiveClick = {
-                            subjectAdapter.notifyDataSetChanged()
-                            viewModel.onAction(SubjectListEvent.DeleteSubject(subject.id))
-                        },
-                        onNegativeClick = {
-                            subjectAdapter.notifyDataSetChanged()
-                        })
+                if (accountType != "student") {
+                    val swipeToDeleteCallback = SwipeToDeleteCallback(requireContext()) { position ->
+                        val subject = subjectAdapter.currentList[position]
+                        Dialog.showTwoButtonDialog(
+                            requireContext(),
+                            title = "Delete Subject",
+                            description = "Are you sure you want to delete '${subject.name}'?",
+                            positiveButtonText = "Delete",
+                            negativeButtonText = "Cancel",
+                            onPositiveClick = {
+                                subjectAdapter.notifyDataSetChanged()
+                                viewModel.onAction(SubjectListEvent.DeleteSubject(subject.id))
+                            },
+                            onNegativeClick = {
+                                subjectAdapter.notifyDataSetChanged()
+                            })
+                    }
+                    val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
+                    itemTouchHelper.attachToRecyclerView(this)
                 }
-                val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
-                itemTouchHelper.attachToRecyclerView(this)
             }
 
             fabCreateSubject.setOnClickListener {

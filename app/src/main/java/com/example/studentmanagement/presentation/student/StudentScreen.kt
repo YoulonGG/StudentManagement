@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -135,14 +136,15 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
             HomeCardItem(
                 3,
                 getString(R.string.my_subjects),
-                R.drawable.attendance_icon
+                R.drawable.student_subject_icon
             ) {
-
+                val bundle = bundleOf("accountType" to "student")
+                findNavController().navigate(R.id.navigate_student_to_subject_list, bundle)
             },
             HomeCardItem(
                 4,
                 getString(R.string.my_scores),
-                R.drawable.attendance_icon
+                R.drawable.student_my_grade_icon
             ) {
                 navigateToScores()
             }
