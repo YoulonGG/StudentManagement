@@ -74,8 +74,8 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
                     state.student?.let { student ->
                         binding.apply {
-                            studentDetailName.text = student.name ?: ""
-                            studentDetailID.text = student.studentID ?: ""
+                            studentDetailName.text = student.name ?: "N/A"
+                            studentDetailID.text = "ID : ${student.studentID ?: "N/A"}"
                             edtEmail.setText(student.email ?: "")
                             edtAddress.setText(student.address ?: "")
                             edtPhone.setText(student.phone ?: "")
