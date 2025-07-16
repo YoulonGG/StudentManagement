@@ -3,6 +3,7 @@ package com.example.studentmanagement.presentation.student_detail
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
@@ -18,7 +19,6 @@ import com.example.studentmanagement.databinding.FragmentStudentDetailScreenBind
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-
 class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
     private val viewModel: StudentDetailViewModel by viewModel()
@@ -31,6 +31,9 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
         _binding = FragmentStudentDetailScreenBinding.bind(view)
 
         val backBtn = view.findViewById<ImageView>(R.id.goBack)
+        val studentDetail = view.findViewById<TextView>(R.id.toolbarTitle)
+
+        studentDetail.text = "Student Detail"
         backBtn.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -42,33 +45,52 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
             viewModel.onAction(StudentDetailAction.LoadCurrentStudent)
         }
 
-        setupListeners()
+        binding.imgStudent.setOnClickListener {
+            imagePicker.launch("image/*")
+        }
 
+        binding.btnSave.setOnClickListener {
+            val currentStudent = viewModel.uiState.value.student
+
+            val updatedStudent = StudentResponse(
+                name = currentStudent?.name,
+                studentID = currentStudent?.studentID,
+                imageUrl = currentStudent?.imageUrl,
+                email = binding.edtEmail.text.toString(),
+                address = binding.edtAddress.text.toString(),
+                phone = binding.edtPhone.text.toString(),
+                age = binding.edtAge.text.toString().toIntOrNull(),
+                guardian = binding.edtGuardian.text.toString(),
+                guardianContact = binding.edtGuardianContact.text.toString(),
+                majoring = binding.edtMajoring.text.toString(),
+                authUid = currentStudent?.authUid
+            )
+
+            viewModel.onAction(StudentDetailAction.SaveStudent(updatedStudent))
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
 
                     state.student?.let { student ->
                         binding.apply {
-                            studentDetailName.text = student.name
-                            studentDetailID.text = student.studentID
-                            edtName.setText(student.name)
-                            edtEmail.setText(student.email)
-                            edtAddress.setText(student.address)
-                            edtPhone.setText(student.phone)
+                            studentDetailName.text = student.name ?: "N/A"
+                            studentDetailID.text = "ID : ${student.studentID ?: "N/A"}"
+                            edtEmail.setText(student.email ?: "")
+                            edtAddress.setText(student.address ?: "")
+                            edtPhone.setText(student.phone ?: "")
                             edtAge.setText(student.age?.toString() ?: "")
-                            edtStudentId.setText(student.studentID)
-                            edtGuardian.setText(student.guardian)
-                            edtGuardianContact.setText(student.guardianContact)
-                            edtMajoring.setText(student.majoring)
+                            edtGuardian.setText(student.guardian ?: "")
+                            edtGuardianContact.setText(student.guardianContact ?: "")
+                            edtMajoring.setText(student.majoring ?: "")
 
                             if (!student.imageUrl.isNullOrEmpty()) {
                                 Glide.with(this@StudentDetailScreen)
                                     .load(student.imageUrl)
-                                    .placeholder(R.drawable.student_option)
+                                    .placeholder(R.drawable.ic_place_holder_profile)
                                     .into(imgStudent)
                             } else {
-                                imgStudent.setImageResource(R.drawable.student_option)
+                                imgStudent.setImageResource(R.drawable.ic_place_holder_profile)
                             }
                         }
                     }
@@ -77,6 +99,7 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
 
                     state.error?.let { error ->
                         Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+                        viewModel.onAction(StudentDetailAction.ClearError)
                     }
                 }
             }
@@ -90,36 +113,8 @@ class StudentDetailScreen : Fragment(R.layout.fragment_student_detail_screen) {
             }
         }
 
-    private fun setupListeners() {
-        binding.imgStudent.setOnClickListener {
-            if (!viewModel.uiState.value.isTeacher) {
-                imagePicker.launch("image/*")
-            }
-        }
-
-        binding.btnSave.setOnClickListener {
-            val currentStudent = viewModel.uiState.value.student
-
-            val updatedStudent = StudentResponse(
-                imageUrl = currentStudent?.imageUrl,
-                name = binding.edtName.text.toString(),
-                email = binding.edtEmail.text.toString(),
-                address = binding.edtAddress.text.toString(),
-                phone = binding.edtPhone.text.toString(),
-                age = binding.edtAge.text.toString().toIntOrNull(),
-                studentID = binding.edtStudentId.text.toString(),
-                guardian = binding.edtGuardian.text.toString(),
-                guardianContact = binding.edtGuardianContact.text.toString(),
-                majoring = binding.edtMajoring.text.toString()
-            )
-
-            viewModel.onAction(StudentDetailAction.SaveStudent(updatedStudent))
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
-

@@ -23,12 +23,11 @@
         android:background="@color/white"
         android:minWidth="200dp">
 
-        <!-- Status Container -->
         <FrameLayout
             android:id="@+id/containerNormalStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:layout_gravity="end|center_vertical">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupStatus"
@@ -40,7 +39,7 @@
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipPresent"
                     style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="100dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:checkable="true"
                     android:text="Present"
@@ -49,7 +48,7 @@
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAbsent"
                     style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="100dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:checkable="true"
                     android:text="Absent"
@@ -58,7 +57,6 @@
             </com.google.android.material.chip.ChipGroup>
         </FrameLayout>
 
-        <!-- Permission Request Status -->
         <com.google.android.material.chip.Chip
             android:id="@+id/chipPermissionRequest"
             style="@style/Widget.Material3.Chip.Assist"

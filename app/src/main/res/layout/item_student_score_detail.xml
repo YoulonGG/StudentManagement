@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/subjectText"
+        style="@style/TableCell"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/assignmentScoreText"
+        style="@style/TableCell"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="85" />
+
+    <TextView
+        android:id="@+id/homeworkScoreText"
+        style="@style/TableCell"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="92" />
+
+    <TextView
+        android:id="@+id/midtermScoreText"
+        style="@style/TableCell"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="88" />
+
+    <TextView
+        android:id="@+id/finalScoreText"
+        style="@style/TableCell"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="90" />
+
+    <TextView
+        android:id="@+id/totalScoreText"
+        style="@style/TableCell"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="355"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/percentageText"
+        style="@style/TableCell"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="88.8%"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/gradeText"
+        style="@style/TableCell"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="B"
+        android:textStyle="bold"
+        />
+
+</LinearLayout>

@@ -6,12 +6,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.databinding.FragmentAskPermissionScreenBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -33,6 +34,13 @@ class StudentPermissionFragment : Fragment(R.layout.fragment_ask_permission_scre
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val toolbarTitle = view.findViewById<TextView>(R.id.toolbarTitle)
+        val gobackButton = view.findViewById<View>(R.id.goBack)
+        gobackButton.setOnClickListener {
+            findNavController().popBackStack()
+        }
+        toolbarTitle.text = "Ask Permission"
         setupViews()
         observeState()
     }
@@ -81,8 +89,14 @@ class StudentPermissionFragment : Fragment(R.layout.fragment_ask_permission_scre
                     }
 
                     if (state.success) {
-                        showSuccess()
-                        findNavController().popBackStack()
+                        Dialog.showDialog(
+                            requireContext(),
+                            "Success",
+                            "Your permission request has been submitted successfully.",
+                            onBtnClick = {
+                                findNavController().popBackStack()
+                            }
+                        )
                     }
                 }
             }
@@ -91,13 +105,5 @@ class StudentPermissionFragment : Fragment(R.layout.fragment_ask_permission_scre
 
     private fun showError(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-    }
-
-    private fun showSuccess() {
-        Toast.makeText(
-            requireContext(),
-            "Permission request submitted successfully",
-            Toast.LENGTH_SHORT
-        ).show()
     }
 }

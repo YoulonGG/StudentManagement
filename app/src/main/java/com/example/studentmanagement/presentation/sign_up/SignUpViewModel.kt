@@ -4,7 +4,6 @@ import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -60,6 +59,7 @@ class SignUpViewModel(
                 gender = event.gender,
                 username = event.username
             )
+
             SignUpAction.ClearError -> setState { copy(error = null) }
             SignUpAction.ResetState -> setState { SignUpUiState() }
         }
@@ -79,11 +79,9 @@ class SignUpViewModel(
             "accountType" to "teacher",
             "password" to password,
             "username" to username,
-            "createdAt" to FieldValue.serverTimestamp(),
             "gender" to gender,
             "authUid" to user.uid,
             "imageUrl" to "",
-            "lastLogin" to FieldValue.serverTimestamp(),
         )
 
         firestore.collection("users").document(user.uid)
@@ -106,6 +104,7 @@ class SignUpViewModel(
             setState { copy(error = "Please select gender") }
             false
         }
+
         else -> true
     }
 
@@ -114,40 +113,28 @@ class SignUpViewModel(
             setState { copy(error = "Email cannot be empty") }
             false
         }
+
         !isValidEmail(email) -> {
             setState { copy(error = "Invalid email format") }
             false
         }
+
         password.trim().isEmpty() -> {
             setState { copy(error = "Password cannot be empty") }
             false
         }
+
         password.length < 6 -> {
             setState { copy(error = "Password must be at least 6 characters") }
             false
         }
+
         else -> true
     }
 
-    private fun isValidEmail(email: String): Boolean =
-        Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    private fun isValidEmail(email: String): Boolean = Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }
 
-sealed class SignUpAction {
-    data class SubmitTeacher(
-        val email: String,
-        val password: String,
-        val gender: String,
-        val username: String
-    ) : SignUpAction()
 
-    data object ClearError : SignUpAction()
-    data object ResetState : SignUpAction()
-}
-data class SignUpUiState(
-    val isLoading: Boolean = false,
-    val success: Boolean = false,
-    val error: String? = null
-)
 
 

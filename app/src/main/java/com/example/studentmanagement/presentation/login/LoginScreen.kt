@@ -41,7 +41,7 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         val accountType = arguments?.getString("accountType") ?: "student"
         progressBar = view.findViewById(R.id.progressBar)
 
-        title.text = if (accountType == "teacher") "Login as Teacher" else "Login as Student"
+        title.text = if (accountType == "teacher") "Teacher Log In" else "Student Log In"
 
         signupText.visibility = if (accountType == "student") View.GONE else View.VISIBLE
 
@@ -77,29 +77,25 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loginViewModel.uiState.collect { state ->
-                    init(state, accountType)
+                    progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+                    loginBtn.isEnabled = !state.isLoading
+
+                    state.error?.let {
+                        Dialog.showDialog(
+                            context = requireContext(),
+                            title = "Error",
+                            description = it,
+                            onBtnClick = {
+                                loginViewModel.errorShown()
+                            }
+                        )
+                    }
+
+                    if (state.success) {
+                        saveLoginAndNavigate(state.accountType ?: accountType)
+                    }
                 }
             }
-        }
-    }
-
-    private fun init(state: LoginUiState, accountType: String) {
-        progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-//        loginBtn.isEnabled = !state.isLoading
-
-        state.error?.let {
-            Dialog.showDialog(
-                context = requireContext(),
-                title = "Error",
-                description = it,
-                onBtnClick = {
-                    loginViewModel.errorShown()
-                }
-            )
-        }
-
-        if (state.success) {
-            saveLoginAndNavigate(state.accountType ?: accountType)
         }
     }
 

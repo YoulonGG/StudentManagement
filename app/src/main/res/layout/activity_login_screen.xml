@@ -7,29 +7,28 @@
     android:backgroundTint="@color/white"
     android:orientation="vertical">
 
-    <include layout="@layout/toolbar_with_back" />
-
+    <include layout="@layout/tool_bar_with_white_background" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginHorizontal="16dp"
-        android:gravity="center"
+        android:layout_marginTop="100dp"
         android:orientation="vertical">
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:src="@drawable/mylogo" />
+            android:layout_height="100dp"
+            android:src="@drawable/school_logo" />
 
         <TextView
             android:id="@+id/txtLoginTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="70dp"
-            android:text="Login as Teacher"
-            android:textColor="@color/primary"
-            android:textSize="30sp"
+            android:layout_marginTop="50dp"
+            android:text="Teacher Login"
+            android:textColor="@color/on_surface"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
@@ -37,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="Enter your email and password to login your account"
-            android:textColor="@color/primary"
+            android:textColor="@color/on_surface"
             android:textSize="14sp" />
 
         <EditText
@@ -68,7 +67,7 @@
             android:layout_marginTop="10dp"
             android:text="Forgot Password? Reset it here"
             android:textAlignment="textEnd"
-            android:textColor="@color/black"
+            android:textColor="@color/on_surface"
             android:textSize="12sp" />
 
         <TextView
@@ -90,7 +89,7 @@
             android:gravity="center"
             android:paddingTop="16dp"
             android:text="Don't have an account? Sign Up"
-            android:textColor="@color/black" />
+            android:textColor="@color/on_surface" />
 
     </LinearLayout>
 

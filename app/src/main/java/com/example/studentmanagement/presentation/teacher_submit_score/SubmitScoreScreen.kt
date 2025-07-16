@@ -1,60 +1,179 @@
 package com.example.studentmanagement.presentation.teacher_submit_score
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
+import com.example.studentmanagement.databinding.FragmentSubmitScoreScreenBinding
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SubmitScoreScreen.newInstance] factory method to
- * create an instance of this fragment.
- */
-class SubmitScoreScreen : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var _binding: FragmentSubmitScoreScreenBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: SubmitScoreViewModel by viewModel()
+    private val scoreAdapter = StudentScoreAdapter()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentSubmitScoreScreenBinding.bind(view)
+
+        val goBack = view.findViewById<View>(R.id.goBack)
+        val submitScoreTitle = view.findViewById<TextView>(R.id.toolbarTitle)
+        submitScoreTitle.text = "Submit Scores"
+        goBack.setOnClickListener { findNavController().navigateUp() }
+
+        setupRecyclerView()
+        setupScrollSynchronization()
+        setupSubjectSpinner()
+        setupSubmitButton()
+        observeViewModel()
+
+        viewModel.fetchSubjects()
+    }
+
+    private fun setupRecyclerView() {
+        binding.studentScoreRecycler.apply {
+            adapter = scoreAdapter
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_submit_score_screen, container, false)
+    private fun setupScrollSynchronization() {
+        binding.contentScrollView.setOnScrollChangeListener { _, scrollX, _, _, _ ->
+            binding.headerScrollView.scrollTo(scrollX, 0)
+        }
+
+        binding.headerScrollView.setOnScrollChangeListener { _, scrollX, _, _, _ ->
+            binding.contentScrollView.scrollTo(scrollX, 0)
+        }
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SubmitScoreScreen.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SubmitScoreScreen().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun setupSubjectSpinner() {
+        val adapter = ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            mutableListOf()
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        binding.subjectSpinner.adapter = adapter
+        binding.subjectSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedSubject = parent?.getItemAtPosition(position)?.toString() ?: ""
+                    if (selectedSubject.isNotEmpty()) {
+                        fetchScores(selectedSubject)
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+    }
+
+    private fun setupSubmitButton() {
+        binding.submitScoresBtn.setOnClickListener {
+            val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
+            val currentScores = scoreAdapter.currentList
+
+            if (selectedSubject.isEmpty()) {
+                Toast.makeText(requireContext(), "Please select a subject", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+
+            if (currentScores.isEmpty()) {
+                Toast.makeText(requireContext(), "No scores to submit", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (currentScores.any { score ->
+                    score.assignment !in 0f..100f ||
+                            score.midterm !in 0f..100f ||
+                            score.final !in 0f..100f ||
+                            score.homework !in 0f..100f
+                }) {
+                Toast.makeText(
+                    requireContext(),
+                    "All scores must be between 0 and 100",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
+            Dialog.showDialog(
+                requireContext(),
+                title = "Submit Scores",
+                description = "Are you sure you want to submit these scores ?",
+                onBtnClick = {
+                    viewModel.submitScores(currentScores, selectedSubject)
+                }
+            )
+        }
+    }
+
+    private fun fetchScores(subject: String) {
+        viewModel.fetchStudentsBySubject(subject)
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                binding.progressBar.isVisible = state.isLoading
+                binding.submitScoresBtn.isEnabled = !state.isLoading
+
+                state.error?.let { error ->
+                    Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+                }
+
+                if (state.submitSuccess) {
+                    val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
+                    fetchScores(selectedSubject)
+                    Toast.makeText(
+                        requireContext(),
+                        "Scores submitted successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+        }
+
+        viewModel.studentScores.observe(viewLifecycleOwner) { scores ->
+            scoreAdapter.submitList(scores)
+            updateAverageScore(scores)
+            binding.submitScoresBtn.isEnabled = scores.isNotEmpty()
+        }
+
+        viewModel.subjects.observe(viewLifecycleOwner) { subjects ->
+            val adapter = binding.subjectSpinner.adapter as ArrayAdapter<String>
+            adapter.clear()
+            adapter.addAll(subjects)
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun updateAverageScore(scores: List<StudentScore>) {
+        val average = scores.map { it.total }.average().takeIf { !it.isNaN() } ?: 0
+//        binding.averageScoreText.text = getString(R.string.class_average).format(average)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

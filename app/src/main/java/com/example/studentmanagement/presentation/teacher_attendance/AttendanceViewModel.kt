@@ -1,25 +1,11 @@
 package com.example.studentmanagement.presentation.teacher_attendance
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import com.example.studentmanagement.R
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.example.studentmanagement.presentation.ask_permission.PermissionStatus
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.example.studentmanagement.presentation.teacher_attendance.components.AttendanceAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 /**
  * @Author: John Youlong.
@@ -88,7 +74,7 @@ class TeacherAttendanceViewModel(
                                     savedStatus != null -> savedStatus
                                     permissionInfo?.status == PermissionStatus.APPROVED -> AttendanceStatus.PERMISSION
                                     permissionInfo?.status == PermissionStatus.REJECTED -> AttendanceStatus.ABSENT
-                                    else -> AttendanceStatus.PRESENT // Default status, but not selected
+                                    else -> AttendanceStatus.PRESENT
                                 },
                                 hasPermissionRequest = permissionInfo?.status == PermissionStatus.PENDING,
                                 permissionReason = permissionInfo?.reason,
@@ -352,201 +338,4 @@ class TeacherAttendanceViewModel(
     companion object {
         private val savedStatuses = mutableMapOf<String, AttendanceStatus>()
     }
-}
-
-class AttendanceAdapter(
-    private val onStatusChanged: (String, AttendanceStatus) -> Unit,
-    private val onPermissionAction: (String, Boolean) -> Unit
-) : ListAdapter<StudentAttendance, AttendanceAdapter.ViewHolder>(DiffCallback()) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_attendance, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
-    }
-
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textViewStudentName: TextView = view.findViewById(R.id.textViewStudentName)
-        private val chipGroupStatus: ChipGroup = view.findViewById(R.id.chipGroupStatus)
-        private val chipPresent: Chip = view.findViewById(R.id.chipPresent)
-        private val chipAbsent: Chip = view.findViewById(R.id.chipAbsent)
-        private val chipPermissionRequest: Chip = view.findViewById(R.id.chipPermissionRequest)
-        private val containerNormalStatus: View = view.findViewById(R.id.containerNormalStatus)
-
-
-        fun bind(item: StudentAttendance) {
-            textViewStudentName.text = item.fullName
-
-            when {
-                item.hasPermissionRequest -> {
-                    containerNormalStatus.visibility = View.GONE
-                    chipPermissionRequest.visibility = View.VISIBLE
-                    chipPermissionRequest.setOnClickListener {
-                        showPermissionRequestDialog(item)
-                    }
-                }
-
-                else -> {
-                    containerNormalStatus.visibility = View.VISIBLE
-                    chipPermissionRequest.visibility = View.GONE
-                    setupNormalAttendance(item)
-                }
-            }
-        }
-
-        private fun setupNormalAttendance(item: StudentAttendance) {
-            chipGroupStatus.setOnCheckedChangeListener(null)
-
-            when {
-                // Case 1: Permission approved or rejected - lock the status
-                item.status == AttendanceStatus.PERMISSION ||
-                        (item.statusModified && item.hasPermissionRequest && item.status == AttendanceStatus.ABSENT) -> {
-                    if (item.status == AttendanceStatus.PERMISSION) {
-                        chipAbsent.visibility = View.GONE
-                        chipPresent.apply {
-                            visibility = View.VISIBLE
-                            isChecked = true
-                            text = "Permission"
-                            isEnabled = false
-                        }
-                    } else {
-                        chipPresent.visibility = View.GONE
-                        chipAbsent.apply {
-                            visibility = View.VISIBLE
-                            isChecked = true
-                            isEnabled = false
-                        }
-                    }
-                }
-                // Case 2: Submitted attendance - show final status
-                item.isSubmitted -> {
-                    when (item.status) {
-                        AttendanceStatus.PRESENT -> {
-                            chipPresent.isChecked = true
-                            chipAbsent.visibility = View.GONE
-                        }
-
-                        AttendanceStatus.ABSENT -> {
-                            chipAbsent.isChecked = true
-                            chipPresent.visibility = View.GONE
-                        }
-
-                        else -> {}
-                    }
-                    setChipsEnabled(false)
-                }
-                // Case 3: Normal attendance selection - allow changes
-                else -> {
-                    // Show both chips and enable them
-                    chipPresent.apply {
-                        text = "Present"
-                        visibility = View.VISIBLE
-                        isEnabled = true
-                        isChecked = item.statusModified && item.status == AttendanceStatus.PRESENT
-                    }
-                    chipAbsent.apply {
-                        visibility = View.VISIBLE
-                        isEnabled = true
-                        isChecked = item.statusModified && item.status == AttendanceStatus.ABSENT
-                    }
-
-                    // Add change listener for normal attendance
-                    chipGroupStatus.setOnCheckedChangeListener { _, checkedId ->
-                        val status = when (checkedId) {
-                            R.id.chipPresent -> AttendanceStatus.PRESENT
-                            R.id.chipAbsent -> AttendanceStatus.ABSENT
-                            else -> return@setOnCheckedChangeListener
-                        }
-                        onStatusChanged(item.studentId, status)
-                    }
-                }
-            }
-
-            // No chips selected initially for new attendance
-            if (!item.statusModified && !item.isSubmitted) {
-                chipGroupStatus.clearCheck()
-            }
-        }
-
-        private fun setChipsEnabled(enabled: Boolean) {
-            chipPresent.isEnabled = enabled
-            chipAbsent.isEnabled = enabled
-
-            chipPresent.alpha = if (enabled) 1.0f else 0.6f
-            chipAbsent.alpha = if (enabled) 1.0f else 0.6f
-        }
-
-        private fun showPermissionRequestDialog(item: StudentAttendance) {
-            MaterialAlertDialogBuilder(itemView.context).setView(R.layout.dialog_permission_request)
-                .show().apply {
-                    findViewById<TextView>(R.id.textViewStudentName)?.text = item.fullName
-                    findViewById<TextView>(R.id.textViewRequestDate)?.text = "Date: ${item.date}"
-                    findViewById<TextView>(R.id.textViewReason)?.text = item.permissionReason
-
-                    findViewById<MaterialButton>(R.id.buttonApprove)?.setOnClickListener {
-                        onPermissionAction(item.studentId, true)
-                        dismiss()
-                    }
-
-                    findViewById<MaterialButton>(R.id.buttonReject)?.setOnClickListener {
-                        onPermissionAction(item.studentId, false)
-                        dismiss()
-                    }
-                }
-        }
-    }
-
-    private class DiffCallback : DiffUtil.ItemCallback<StudentAttendance>() {
-        override fun areItemsTheSame(
-            oldItem: StudentAttendance, newItem: StudentAttendance
-        ): Boolean = oldItem.studentId == newItem.studentId
-
-        override fun areContentsTheSame(
-            oldItem: StudentAttendance, newItem: StudentAttendance
-        ): Boolean = oldItem == newItem
-    }
-}
-
-data class TeacherAttendanceState(
-    val students: List<StudentAttendance> = emptyList(),
-    val selectedDate: String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
-    val isLoading: Boolean = false,
-    val isSubmitting: Boolean = false,
-    val error: String? = null,
-    val submissionSuccess: Boolean = false,
-    val attendanceSubmitted: Boolean = false,
-
-    )
-
-data class StudentAttendance(
-    val studentId: String,
-    val fullName: String,
-    val status: AttendanceStatus,
-    val hasPermissionRequest: Boolean = false,
-    val permissionReason: String? = null,
-    val date: String = "",
-    val statusModified: Boolean = false,
-    val isSubmitted: Boolean = false,
-    val isStatusSelected: Boolean = false
-)
-
-sealed class TeacherAttendanceEvent {
-    data object LoadStudents : TeacherAttendanceEvent()
-    data class UpdateStatus(val studentId: String, val status: AttendanceStatus) :
-        TeacherAttendanceEvent()
-
-    data object SubmitAttendance : TeacherAttendanceEvent()
-    data class SetDate(val date: String) : TeacherAttendanceEvent()
-    data object ClearError : TeacherAttendanceEvent()
-    data object ClearSuccess : TeacherAttendanceEvent()
-    data class ApprovePermission(val studentId: String) : TeacherAttendanceEvent()
-    data class RejectPermission(val studentId: String) : TeacherAttendanceEvent()
-}
-
-enum class AttendanceStatus {
-    PRESENT, ABSENT, PERMISSION
 }

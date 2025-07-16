@@ -10,8 +10,10 @@ import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.ui_components.Dialog
@@ -23,7 +25,6 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
     private val viewModel: CreateStudentViewModel by viewModel()
 
     private lateinit var emailInput: EditText
-    private lateinit var passwordInput: EditText
     private lateinit var nameInput: EditText
     private lateinit var studentIdInput: EditText
     private lateinit var genderSpinner: Spinner
@@ -31,6 +32,7 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
     private lateinit var errorText: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var backButton: ImageView
+    private lateinit var toolbarTitle: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,24 +40,20 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
         nameInput = view.findViewById(R.id.createStudentName)
         studentIdInput = view.findViewById(R.id.createStudent)
         emailInput = view.findViewById(R.id.createStudentEmail)
-//        passwordInput = view.findViewById(R.id.createStudentPassword)
         genderSpinner = view.findViewById(R.id.genderSpinner)
         createBtn = view.findViewById(R.id.btnCreateStudent)
         errorText = view.findViewById(R.id.createStudentErrorText)
         progressBar = view.findViewById(R.id.createStudentProgressBar)
         backButton = view.findViewById(R.id.goBack)
+        toolbarTitle = view.findViewById(R.id.toolbarTitle)
+        toolbarTitle.text = getString(R.string.create_student)
 
-        setupGenderSpinner()
-
-        backButton.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
+        setupGenderSelection()
+        backButton.setOnClickListener { findNavController().navigateUp() }
 
         createBtn.setOnClickListener {
             errorText.visibility = View.GONE
             val email = emailInput.text.toString().trim()
-//            val password = passwordInput.text.toString().trim()
             val name = nameInput.text.toString().trim()
             val studentID = studentIdInput.text.toString().trim()
             val gender = if (genderSpinner.selectedItemPosition != 0)
@@ -96,9 +94,14 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
                         title = "Success",
                         description = "Student created successfully!"
                     ) {
-                        findNavController().navigateUp()
+                        findNavController().navigate(
+                            R.id.navigate_create_student_to_teacher,
+                            bundleOf("accountType" to "teacher"),
+                            NavOptions.Builder()
+                                .setPopUpTo(R.id.navigate_create_student_to_teacher, false)
+                                .build()
+                        )
                     }
-//                    errorText.visibility = View.VISIBLE
                     viewModel.resetState()
                     viewModel.clearError()
                 }
@@ -106,7 +109,7 @@ class CreateStudentFragment : Fragment(R.layout.fragment_create_student) {
         }
     }
 
-    private fun setupGenderSpinner() {
+    private fun setupGenderSelection() {
         val genders = arrayOf("Select Gender", "Male", "Female")
         val adapter = ArrayAdapter(
             requireContext(),

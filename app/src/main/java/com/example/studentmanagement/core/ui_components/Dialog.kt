@@ -1,18 +1,12 @@
 package com.example.studentmanagement.core.ui_components
 
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import com.example.studentmanagement.R
 
 /**
@@ -68,102 +62,61 @@ object Dialog {
         dialog.show()
     }
 
+
     /**
-     * Show a chip message at the top of the screen
-     * @param context Context (Activity context)
-     * @param title Chip title
-     * @param description Chip description
-     * @param type Message type (SUCCESS, ERROR, WARNING, INFO)
+     * Show a custom dialog with two action buttons
+     * @param context Context (Activity/Fragment context)
+     * @param title Dialog title
+     * @param description Dialog description
+     * @param positiveButtonText Positive button text (default: "Yes")
+     * @param negativeButtonText Negative button text (default: "No")
+     * @param onPositiveClick Callback for positive button click
+     * @param onNegativeClick Callback for negative button click (optional)
      */
-    fun showChipMessage(
+    fun showTwoButtonDialog(
         context: Context,
         title: String,
         description: String,
-        type: ChipType = ChipType.INFO
+        positiveButtonText: String = "Yes",
+        negativeButtonText: String = "No",
+        onPositiveClick: () -> Unit,
+        onNegativeClick: (() -> Unit)? = null
     ) {
-        if (context !is Activity) return
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         val inflater = LayoutInflater.from(context)
-        val chipView = inflater.inflate(R.layout.custom_chip_message, null)
+        val view = inflater.inflate(R.layout.custom_two_button_dialog, null)
 
-        val params = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-//            .apply {
-//            if (this is ViewGroup.MarginLayoutParams) {
-//                // Add margins if needed
-//                topMargin = context.resources.getDimensionPixelSize(R.dimen.chip_margin_top)
-//                leftMargin = context.resources.getDimensionPixelSize(R.dimen.chip_margin_horizontal)
-//                rightMargin = context.resources.getDimensionPixelSize(R.dimen.chip_margin_horizontal)
-//            }
-//        }
+        val txtTitle = view.findViewById<TextView>(R.id.dialog_title)
+        val txtDescription = view.findViewById<TextView>(R.id.dialog_description)
+        val btnPositive = view.findViewById<Button>(R.id.dialog_btn_positive)
+        val btnNegative = view.findViewById<Button>(R.id.dialog_btn_negative)
 
-        val rootView = context.findViewById<ViewGroup>(android.R.id.content)
-        rootView.addView(chipView, params)
+        txtTitle.text = title
+        txtDescription.text = description
+        btnPositive.text = positiveButtonText
+        btnNegative.text = negativeButtonText
 
-        val titleText = chipView.findViewById<TextView>(R.id.chip_title)
-        val descriptionText = chipView.findViewById<TextView>(R.id.chip_description)
-        val icon = chipView.findViewById<ImageView>(R.id.chip_icon)
-        val container = chipView.findViewById<View>(R.id.chip_container)
-
-        titleText.text = title
-        descriptionText.text = description
-
-        when (type) {
-            ChipType.SUCCESS -> {
-                container.setBackgroundColor(
-                    ContextCompat.getColor(
-                        context,
-                        android.R.color.holo_green_dark
-                    )
-                )
-                icon.setImageResource(android.R.drawable.ic_menu_upload)
-            }
-
-            ChipType.ERROR -> {
-                container.setBackgroundColor(
-                    ContextCompat.getColor(
-                        context,
-                        android.R.color.holo_red_dark
-                    )
-                )
-                icon.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-            }
-
-            ChipType.WARNING -> {
-                container.setBackgroundColor(
-                    ContextCompat.getColor(
-                        context,
-                        android.R.color.holo_orange_dark
-                    )
-                )
-                icon.setImageResource(android.R.drawable.ic_menu_info_details)
-            }
-
-            ChipType.INFO -> {
-                container.setBackgroundColor(
-                    ContextCompat.getColor(
-                        context,
-                        android.R.color.holo_blue_dark
-                    )
-                )
-                icon.setImageResource(android.R.drawable.ic_menu_info_details)
-            }
+        btnPositive.setOnClickListener {
+            onPositiveClick.invoke()
+            dialog.dismiss()
         }
 
+        btnNegative.setOnClickListener {
+            onNegativeClick?.invoke()
+            dialog.dismiss()
+        }
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                rootView.removeView(chipView)
-            } catch (e: Exception) {
-                // View might already be removed
-            }
-        }, 5000)
+        dialog.setContentView(view)
+        dialog.setCancelable(true)
+        dialog.window?.apply {
+            setBackgroundDrawableResource(android.R.color.transparent)
+            val width = (context.resources.displayMetrics.widthPixels * 0.75).toInt()
+            setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        dialog.show()
     }
 
-    enum class ChipType {
-        SUCCESS, ERROR, WARNING, INFO
-    }
 
 }

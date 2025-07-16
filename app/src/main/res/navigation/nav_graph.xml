@@ -77,8 +77,9 @@
         android:label="Teacher Screen">
 
         <action
-            android:id="@+id/navigate_teacher_to_approve_student"
-            app:destination="@id/approvalStudent" />
+            android:id="@+id/navigate_teacher_to_submit_score"
+            app:destination="@id/submit_score" />
+
 
         <action
             android:id="@+id/navigate_teacher_to_student_list"
@@ -93,9 +94,6 @@
             app:destination="@id/student_attendance_history" />
 
         <action
-            android:id="@+id/navigate_teacher_to_homework"
-            app:destination="@id/homework" />
-        <action
             android:id="@+id/navigate_teacher_to_subject_list"
             app:destination="@id/subject_list" />
 
@@ -107,6 +105,18 @@
             android:id="@+id/navigate_teacher_to_teacher_profile"
             app:destination="@id/teacher_profile" />
 
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/subject_details"
+        android:name="com.example.studentmanagement.presentation.subject_detail.SubjectDetailScreen"
+        android:label="Subject Detail Screen">
+
+        <argument
+            android:name="subjectId"
+            app:argType="string" />
+
     </fragment>
 
     <fragment
@@ -117,7 +127,14 @@
     <fragment
         android:id="@+id/create_student"
         android:name="com.example.studentmanagement.presentation.create_student.CreateStudentFragment"
-        android:label="Create Student Screen" />
+        android:label="Create Student Screen">
+
+        <action
+            android:id="@+id/navigate_create_student_to_teacher"
+            app:destination="@id/teacher" />
+
+
+    </fragment>
 
     <fragment
         android:id="@+id/attendance"
@@ -154,12 +171,31 @@
             android:id="@+id/navigate_student_to_ask_permission"
             app:destination="@id/student_ask_permission" />
 
-
         <action
             android:id="@+id/navigate_student_to_student_profile"
             app:destination="@id/student_details" />
 
+        <action
+            android:id="@+id/navigate_student_to_student_score"
+            app:destination="@+id/student_score" />
+
+        <action
+            android:id="@+id/navigate_student_to_subject_list"
+            app:destination="@id/subject_list" />
+
     </fragment>
+
+    <fragment
+        android:id="@+id/student_score"
+        android:name="com.example.studentmanagement.presentation.student_score.StudentScoreViewFragment"
+        android:label="Student Profile Screen">
+
+
+    </fragment>
+
+    <action
+        android:id="@+id/navigate_student_profile_to_student"
+        app:destination="@id/student" />
 
     <fragment
         android:id="@+id/student_ask_permission"
@@ -176,39 +212,19 @@
     </fragment>
 
     <fragment
-        android:id="@+id/approvalStudent"
-        android:name="com.example.studentmanagement.presentation.approve_student.ApprovalStudentScreen"
-        android:label="Approval Student Fragment">
-
-    </fragment>
-
-    <fragment
-        android:id="@+id/homework"
-        android:name="com.example.studentmanagement.presentation.home.HomeworkScreen"
-        android:label="Homework Fragment">
-
-        <argument
-            android:name="accountType"
-            android:defaultValue=""
-            app:argType="string"
-            app:nullable="true" />
-
-    </fragment>
-
-    <fragment
         android:id="@+id/subject_list"
         android:name="com.example.studentmanagement.presentation.subjects_list.SubjectListFragment"
         android:label="Subject List Screen">
 
         <action
-            android:id="@+id/navigate_subject_list_to_submit_score"
-            app:destination="@id/submit_score" />
+            android:id="@+id/navigate_subject_to_subject_details"
+            app:destination="@id/subject_details" />
 
     </fragment>
 
     <fragment
         android:id="@+id/submit_score"
-        android:name="com.example.studentmanagement.presentation.teacher_submit_score.SubmitScoreScreen"
+        android:name="com.example.studentmanagement.presentation.teacher_submit_score.SubmitScoreFragment"
         android:label="Submit Score Screen">
 
     </fragment>

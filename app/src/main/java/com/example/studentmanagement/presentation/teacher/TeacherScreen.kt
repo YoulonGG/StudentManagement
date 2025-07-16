@@ -1,7 +1,5 @@
 package com.example.studentmanagement.presentation.teacher
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.View
@@ -16,9 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
-import com.example.studentmanagement.data.local.PreferencesKeys
-import com.example.studentmanagement.presentation.activity.MainActivity
-import com.example.studentmanagement.presentation.teacher.components.HomeCardItem
 import com.example.studentmanagement.presentation.teacher.components.TeacherHomeCardAdapter
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -28,33 +23,29 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
     private lateinit var recyclerView: RecyclerView
     private val viewModel: TeacherViewModel by viewModel()
     private lateinit var teacherImage: ImageView
-    private lateinit var button: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.recyclerView)
         teacherImage = view.findViewById(R.id.teacherImage)
-        button = view.findViewById(R.id.btnLogOut)
 
         setupRecyclerView()
-        observeViewModel()
-        viewModel.onAction(TeacherAction.LoadTeacherData)
-        viewModel.onAction(TeacherAction.LoadTotalStudents)
-        button.setOnClickListener {
-            handleLogout()
-        }
-    }
-
-
-    private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.teacherData.collect { state ->
+                viewModel.uiState.collect { state ->
                     view?.findViewById<TextView>(R.id.teacherNameTitle)?.text = state.teacherName
 
                     view?.findViewById<TextView>(R.id.studentCount)?.let { textView ->
-                        textView.text = "Total Students: ${state.totalStudents}"
+                        textView.text = "${state.totalStudents}"
+                    }
+
+                    view?.findViewById<TextView>(R.id.maleStudentCount)?.let { textView ->
+                        textView.text = "Male: ${state.maleStudents}"
+                    }
+
+                    view?.findViewById<TextView>(R.id.femaleStudentCount)?.let { textView ->
+                        textView.text = "Female: ${state.femaleStudents}"
                     }
 
                     state.profileImageUrl?.let { imageUrl ->
@@ -78,48 +69,61 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 }
             }
         }
+        viewModel.onAction(TeacherAction.LoadTeacherData)
+        viewModel.onAction(TeacherAction.LoadStudentCounts)
     }
 
     private fun setupRecyclerView() {
         val items = listOf(
             HomeCardItem(
                 1,
-                "Check Attendance",
-                R.drawable.attendance_icon
-            ) {
-                findNavController().navigate(R.id.navigate_teacher_to_attendance)
-            },
-            HomeCardItem(
-                2,
-                "Attendance Record",
-                R.drawable.attendance_icon
-            ) {
-                findNavController().navigate(R.id.navigate_teacher_to_attendance_history)
-            },
-            HomeCardItem(
-                3,
                 "Profile",
-                R.drawable.attendance_icon
+                R.drawable.teacher_profile_card_icon
             ) {
                 findNavController().navigate(R.id.navigate_teacher_to_teacher_profile)
             },
             HomeCardItem(
+                2,
+                "Submit Score",
+                R.drawable.teacher_submit_score_card_icon
+            ) {
+                findNavController().navigate(R.id.navigate_teacher_to_submit_score)
+            },
+
+            HomeCardItem(
+                3,
+                "Attendance Record",
+                R.drawable.teacher_attendance_record_card_icon
+            ) {
+                findNavController().navigate(R.id.navigate_teacher_to_attendance_history)
+            },
+            HomeCardItem(
+                4,
+                "Check Attendance",
+                R.drawable.teacher_check_attendance_card_icon
+            ) {
+                findNavController().navigate(R.id.navigate_teacher_to_attendance)
+            },
+
+            HomeCardItem(
                 4,
                 "Student List",
-                R.drawable.attendance_icon
+                R.drawable.teacher_student_list_card_icon
             ) {
                 findNavController().navigate(R.id.navigate_teacher_to_student_list)
             },
             HomeCardItem(
                 5,
-                "Subjects",
-                R.drawable.attendance_icon
-            ) { findNavController().navigate(R.id.navigate_teacher_to_subject_list) },
+                "Create Student",
+                R.drawable.crate_student_icon
+            ) { findNavController().navigate(R.id.navigate_teacher_to_create_student) },
             HomeCardItem(
                 6,
-                "Create Student",
-                R.drawable.attendance_icon
-            ) { findNavController().navigate(R.id.navigate_teacher_to_create_student) },
+                "Subjects",
+                R.drawable.teacher_subjects_card_icon
+            ) {
+                findNavController().navigate(R.id.navigate_teacher_to_subject_list)
+            },
         )
 
         val adapter = TeacherHomeCardAdapter(items)
@@ -139,20 +143,5 @@ class TeacherScreen : Fragment(R.layout.fragment_teacher_screen) {
                 outRect.bottom = spacingInPixels
             }
         })
-    }
-
-    private fun handleLogout() {
-        val sharedPref = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            remove(PreferencesKeys.IS_LOGGED_IN)
-            remove(PreferencesKeys.ACCOUNT_TYPE)
-            apply()
-        }
-
-        val intent = Intent(requireContext(), MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
-        requireActivity().finish()
     }
 }
