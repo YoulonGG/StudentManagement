@@ -104,7 +104,6 @@ class StudentPermissionViewModel(
     private fun checkExistingPermissionRequest(studentId: String, studentName: String) {
         val selectedDate = uiState.value.selectedDate
 
-        // Check if student already has a permission request for this date
         db.collection("permission_requests")
             .whereEqualTo("studentId", studentId)
             .whereEqualTo("date", selectedDate)
