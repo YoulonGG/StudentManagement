@@ -40,4 +40,5 @@
     <string name="student_list">Student List</string>
     <string name="report_attendance">Report Attendance</string>
     <string name="subject_details">Subject Details</string>
+    <string name="present">Present</string>
 </resources>

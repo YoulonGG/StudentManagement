@@ -74,7 +74,7 @@ class TeacherAttendanceViewModel(
                                     savedStatus != null -> savedStatus
                                     permissionInfo?.status == PermissionStatus.APPROVED -> AttendanceStatus.PERMISSION
                                     permissionInfo?.status == PermissionStatus.REJECTED -> AttendanceStatus.ABSENT
-                                    else -> AttendanceStatus.PRESENT // Default status, but not selected
+                                    else -> AttendanceStatus.PRESENT
                                 },
                                 hasPermissionRequest = permissionInfo?.status == PermissionStatus.PENDING,
                                 permissionReason = permissionInfo?.reason,
