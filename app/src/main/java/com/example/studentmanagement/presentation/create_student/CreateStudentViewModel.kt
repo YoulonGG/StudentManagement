@@ -35,98 +35,77 @@ class CreateStudentViewModel(
         gender: String,
     ) {
         val password = "aib123"
+
         viewModelScope.launch {
             if (!validateInputs(email, name, studentID, gender)) return@launch
-
-            if (!checkStudentIdAvailability(studentID)) return@launch
-
             setState { copy(isLoading = true, error = null) }
+
             try {
-                val result = signUpStudent(email, password, name, studentID, gender)
-                setState {
-                    copy(
-                        isLoading = false,
-                        success = result.isSuccess,
-                        error = result.exceptionOrNull()?.message
-                    )
+                val querySnapshot = firestore.collection("students")
+                    .whereEqualTo("studentID", studentID)
+                    .get()
+                    .await()
+
+                if (!querySnapshot.isEmpty) {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "DUPLICATE_STUDENT_ID",
+                            duplicateStudentId = studentID
+                        )
+                    }
+                    return@launch
                 }
             } catch (e: Exception) {
                 setState {
                     copy(
                         isLoading = false,
-                        error = "Failed to create student: ${e.message ?: "Unknown error"}"
+                        error = "Failed to verify Student ID availability: ${e.message ?: "Unknown error"}"
+                    )
+                }
+                return@launch
+            }
+
+            try {
+                val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+                val user = authResult.user ?: throw Exception("User creation failed")
+
+                val studentData = hashMapOf(
+                    "email" to email,
+                    "name" to name,
+                    "password" to password,
+                    "studentID" to studentID,
+                    "authUid" to user.uid,
+                    "accountType" to "student",
+                    "imageUrl" to "",
+                    "address" to "",
+                    "phone" to "",
+                    "age" to null,
+                    "guardian" to "",
+                    "guardianContact" to "",
+                    "majoring" to "Computer Science and Engineering",
+                    "gender" to gender,
+                )
+
+                firestore.collection("students")
+                    .document(user.uid)
+                    .set(studentData)
+                    .await()
+
+                setState {
+                    copy(isLoading = false, success = true, error = null)
+                }
+
+            } catch (e: Exception) {
+                auth.currentUser?.delete()?.await()
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Student registration failed: ${e.message ?: "Unknown error"}"
                     )
                 }
             }
         }
-    }
-
-    private suspend fun checkStudentIdAvailability(studentID: String): Boolean = try {
-        setState { copy(isLoading = true, error = null) }
-
-        val querySnapshot = firestore.collection("students")
-            .whereEqualTo("studentID", studentID)
-            .get()
-            .await()
-
-        if (!querySnapshot.isEmpty) {
-            setState {
-                copy(
-                    isLoading = false,
-                    error = "DUPLICATE_STUDENT_ID",
-                    duplicateStudentId = studentID
-                )
-            }
-            false
-        } else {
-            true
-        }
-    } catch (e: Exception) {
-        setState {
-            copy(
-                isLoading = false,
-                error = "Failed to verify Student ID availability: ${e.message ?: "Unknown error"}"
-            )
-        }
-        false
-    }
-
-    private suspend fun signUpStudent(
-        email: String,
-        password: String,
-        name: String,
-        studentID: String,
-        gender: String
-    ): Result<Unit> = try {
-        val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-        val user = authResult.user ?: throw Exception("User creation failed")
-
-        val studentData = hashMapOf(
-            "email" to email,
-            "name" to name,
-            "password" to password,
-            "studentID" to studentID,
-            "authUid" to user.uid,
-            "accountType" to "student",
-            "imageUrl" to "",
-            "address" to "",
-            "phone" to "",
-            "age" to null,
-            "guardian" to "",
-            "guardianContact" to "",
-            "majoring" to "Computer Science and Engineering",
-            "gender" to gender,
-        )
-
-        firestore.collection("students")
-            .document(user.uid)
-            .set(studentData)
-            .await()
-
-        Result.success(Unit)
-    } catch (e: Exception) {
-        auth.currentUser?.delete()?.await()
-        Result.failure(Exception("Student registration failed: ${e.message}"))
     }
 
     private fun validateInputs(
@@ -176,5 +155,3 @@ class CreateStudentViewModel(
         setState { CreateStudentUiState() }
     }
 }
-
-
