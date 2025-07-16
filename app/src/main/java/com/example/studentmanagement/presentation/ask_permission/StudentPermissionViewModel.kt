@@ -46,7 +46,6 @@ class StudentPermissionViewModel(
 
         setState { copy(isLoading = true, error = null) }
 
-        // First, get student information
         db.collection("students")
             .document(currentUser.uid)
             .get()
@@ -61,18 +60,7 @@ class StudentPermissionViewModel(
                     return@addOnSuccessListener
                 }
 
-                val studentClass = studentDoc.getString("class") ?: run {
-                    setState {
-                        copy(
-                            isLoading = false,
-                            error = "Student class information not found"
-                        )
-                    }
-                    return@addOnSuccessListener
-                }
-
-                // Check if teacher has already submitted attendance for this date and class
-                checkTeacherSubmission(currentUser.uid, studentName, studentClass)
+                checkTeacherSubmission(currentUser.uid, studentName)
             }
             .addOnFailureListener { e ->
                 setState {
@@ -84,14 +72,9 @@ class StudentPermissionViewModel(
             }
     }
 
-    private fun checkTeacherSubmission(
-        studentId: String,
-        studentName: String,
-        studentClass: String
-    ) {
+    private fun checkTeacherSubmission(studentId: String, studentName: String) {
         val selectedDate = uiState.value.selectedDate
 
-        // Check if teacher has submitted attendance for this date
         db.collection("attendance")
             .whereEqualTo("date", selectedDate)
             .get()
@@ -106,7 +89,7 @@ class StudentPermissionViewModel(
                     return@addOnSuccessListener
                 }
 
-                checkExistingPermissionRequest(studentId, studentName, studentClass)
+                checkExistingPermissionRequest(studentId, studentName)
             }
             .addOnFailureListener { e ->
                 setState {
@@ -118,13 +101,10 @@ class StudentPermissionViewModel(
             }
     }
 
-    private fun checkExistingPermissionRequest(
-        studentId: String,
-        studentName: String,
-        studentClass: String
-    ) {
+    private fun checkExistingPermissionRequest(studentId: String, studentName: String) {
         val selectedDate = uiState.value.selectedDate
 
+        // Check if student already has a permission request for this date
         db.collection("permission_requests")
             .whereEqualTo("studentId", studentId)
             .whereEqualTo("date", selectedDate)
@@ -140,7 +120,7 @@ class StudentPermissionViewModel(
                     return@addOnSuccessListener
                 }
 
-                createPermissionRequest(studentId, studentName, studentClass)
+                createPermissionRequest(studentId, studentName)
             }
             .addOnFailureListener { e ->
                 setState {
@@ -152,15 +132,10 @@ class StudentPermissionViewModel(
             }
     }
 
-    private fun createPermissionRequest(
-        studentId: String,
-        studentName: String,
-        studentClass: String
-    ) {
+    private fun createPermissionRequest(studentId: String, studentName: String) {
         val request = hashMapOf(
             "studentId" to studentId,
             "studentName" to studentName,
-            "studentClass" to studentClass,
             "date" to uiState.value.selectedDate,
             "reason" to uiState.value.reason,
             "status" to PermissionStatus.PENDING.name,
