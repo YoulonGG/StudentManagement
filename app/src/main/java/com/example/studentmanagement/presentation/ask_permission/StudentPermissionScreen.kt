@@ -14,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.databinding.FragmentAskPermissionScreenBinding
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Calendar
@@ -40,12 +39,9 @@ class StudentPermissionFragment : Fragment(R.layout.fragment_ask_permission_scre
         gobackButton.setOnClickListener {
             findNavController().popBackStack()
         }
-        toolbarTitle.text = "Ask Permission"
-        setupViews()
-        observeState()
-    }
 
-    private fun setupViews() {
+        toolbarTitle.text = getString(R.string.ask_permission)
+
         binding.apply {
             buttonSelectDate.setOnClickListener {
                 showDatePicker()
@@ -59,24 +55,7 @@ class StudentPermissionFragment : Fragment(R.layout.fragment_ask_permission_scre
                 viewModel.onAction(StudentPermissionEvent.SubmitRequest)
             }
         }
-    }
 
-    @SuppressLint("DefaultLocale")
-    private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        DatePickerDialog(
-            requireContext(),
-            { _, year, month, day ->
-                val date = String.format("%04d-%02d-%02d", year, month + 1, day)
-                viewModel.onAction(StudentPermissionEvent.SetDate(date))
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
-
-    private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 with(binding) {
@@ -103,7 +82,27 @@ class StudentPermissionFragment : Fragment(R.layout.fragment_ask_permission_scre
         }
     }
 
+    @SuppressLint("DefaultLocale")
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, day ->
+                val date = String.format("%04d-%02d-%02d", year, month + 1, day)
+                viewModel.onAction(StudentPermissionEvent.SetDate(date))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
     private fun showError(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+        Dialog.showDialog(
+            requireContext(),
+            "Error",
+            message,
+            onBtnClick = {}
+        )
     }
 }
