@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
  */
 
 
+@Suppress("LABEL_NAME_CLASH")
 class StudentPermissionViewModel(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth
