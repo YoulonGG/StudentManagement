@@ -1,5 +1,6 @@
 package com.example.studentmanagement.presentation.student_score
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -20,8 +21,7 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
     private val binding get() = _binding!!
     private val viewModel: StudentScoreViewModel by viewModel()
     private val studentId: String by lazy {
-        val id = arguments?.getString("studentId") ?: ""
-        id
+        arguments?.getString("studentId") ?: ""
     }
     private val scoreAdapter = StudentScoreDetailAdapter()
 
@@ -33,7 +33,17 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
         setupRecyclerView()
         setupSwipeRefresh()
         setupScrollSynchronization()
+        observeViewModel()
 
+        if (studentId.isNotEmpty()) {
+            viewModel.onAction(StudentScoreViewAction.LoadStudentScores(studentId))
+        } else {
+            showError("Invalid student ID")
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 binding.progressBar.isVisible =
@@ -46,31 +56,22 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
                     binding.swipeRefresh.isRefreshing = false
                 }
 
+                state.studentInformation?.let { info ->
+                    binding.studentNameText.text = info.name
+                    binding.studentIdText.text = "ID: ${info.studentId}"
+                    binding.studentEmailText.text = "Email: ${info.email}"
+                }
+
+                scoreAdapter.submitList(state.studentScores)
+                updateSummaryStats(state.studentScores)
+
+                binding.emptyStateText.isVisible = state.studentScores.isEmpty() && !state.isLoading
+                binding.scoresContainer.isVisible = state.studentScores.isNotEmpty()
+
                 if (!state.isLoading) {
                     binding.swipeRefresh.isRefreshing = false
                 }
             }
-        }
-
-        viewModel.studentInfo.observe(viewLifecycleOwner) { studentInfo ->
-            if (studentInfo != null) {
-                binding.studentNameText.text = studentInfo.name
-                binding.studentIdText.text = "ID: ${studentInfo.studentId}"
-                binding.studentEmailText.text = studentInfo.email
-            }
-        }
-
-        viewModel.studentScores.observe(viewLifecycleOwner) { scores ->
-            scoreAdapter.submitList(scores)
-            updateSummaryStats(scores)
-
-            binding.emptyStateText.isVisible = scores.isEmpty()
-            binding.scoresContainer.isVisible = scores.isNotEmpty()
-        }
-        if (studentId.isNotEmpty()) {
-            viewModel.onAction(StudentScoreViewAction.LoadStudentScores(studentId))
-        } else {
-            showError("Invalid student ID")
         }
     }
 
@@ -78,30 +79,41 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
         val goBack = view?.findViewById<View>(R.id.goBack)
         val toolbarTitle = view?.findViewById<TextView>(R.id.toolbarTitle)
         toolbarTitle?.text = getString(R.string.my_scores)
-        goBack?.setOnClickListener { findNavController().navigateUp() }
+        goBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
     }
 
     private fun setupRecyclerView() {
         binding.scoresRecyclerView.apply {
             adapter = scoreAdapter
             layoutManager = LinearLayoutManager(requireContext())
+            itemAnimator?.changeDuration = 300
         }
     }
 
     private fun setupSwipeRefresh() {
-        binding.swipeRefresh.setOnRefreshListener {
-            if (studentId.isNotEmpty()) {
-                viewModel.onAction(StudentScoreViewAction.RefreshScores(studentId))
-            } else {
-                binding.swipeRefresh.isRefreshing = false
-                showError("Invalid student ID")
+        binding.swipeRefresh.apply {
+            setOnRefreshListener {
+                if (studentId.isNotEmpty()) {
+                    viewModel.onAction(StudentScoreViewAction.RefreshScores(studentId))
+                } else {
+                    isRefreshing = false
+                    showError("Invalid student ID")
+                }
             }
+
+            setColorSchemeResources(
+                R.color.primary,
+                R.color.primary,
+                R.color.primary
+            )
         }
     }
 
     private var isSyncingScroll = false
-    private fun setupScrollSynchronization() {
 
+    private fun setupScrollSynchronization() {
         binding.contentScrollView.setOnScrollChangeListener { _, scrollX, _, _, _ ->
             if (!isSyncingScroll) {
                 isSyncingScroll = true
@@ -117,9 +129,9 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
                 isSyncingScroll = false
             }
         }
-
     }
 
+    @SuppressLint("DefaultLocale")
     private fun updateSummaryStats(scores: List<StudentScoreDetail>) {
         if (scores.isEmpty()) {
             binding.totalSubjectsText.text = "0"
@@ -142,7 +154,7 @@ class StudentScoreViewFragment : Fragment(R.layout.fragment_student_score_screen
             requireContext(),
             title = "Error",
             description = error,
-            onBtnClick = {}
+            onBtnClick = { }
         )
     }
 

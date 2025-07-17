@@ -77,5 +77,6 @@ dependencies {
 
     implementation (libs.gson)
 
-
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.paging.runtime)
 }

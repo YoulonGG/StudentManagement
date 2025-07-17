@@ -30,7 +30,7 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
 
         val goBack = view.findViewById<View>(R.id.goBack)
         val submitScoreTitle = view.findViewById<TextView>(R.id.toolbarTitle)
-        submitScoreTitle.text = "Submit Scores"
+        submitScoreTitle.text = getString(R.string.submit_scores)
         goBack.setOnClickListener { findNavController().navigateUp() }
 
         setupRecyclerView()
@@ -92,8 +92,12 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
             val currentScores = scoreAdapter.currentList
 
             if (selectedSubject.isEmpty()) {
-                Toast.makeText(requireContext(), "Please select a subject", Toast.LENGTH_SHORT)
-                    .show()
+                Dialog.showDialog(
+                    requireContext(),
+                    title = "No Subject Selected",
+                    description = "Please select a subject to submit scores.",
+                    onBtnClick = {}
+                )
                 return@setOnClickListener
             }
 
@@ -108,11 +112,12 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
                             score.final !in 0f..100f ||
                             score.homework !in 0f..100f
                 }) {
-                Toast.makeText(
+                Dialog.showDialog(
                     requireContext(),
-                    "All scores must be between 0 and 100",
-                    Toast.LENGTH_LONG
-                ).show()
+                    title = "Invalid Scores",
+                    description = "All scores must be between 0 and 100.",
+                    onBtnClick = {}
+                )
                 return@setOnClickListener
             }
 
@@ -144,11 +149,14 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
                 if (state.submitSuccess) {
                     val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
                     fetchScores(selectedSubject)
-                    Toast.makeText(
+                    Dialog.showDialog(
                         requireContext(),
-                        "Scores submitted successfully",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        title = "Success",
+                        description = "Scores have been successfully submitted.",
+                        onBtnClick = {
+                            findNavController().navigateUp()
+                        }
+                    )
                 }
             }
         }
