@@ -1,11 +1,5 @@
 package com.example.studentmanagement.presentation.student_list
 
-/**
- * @Author: John Youlong.
- * @Date: 7/17/25.
- * @Email: johnyoulong@gmail.com.
- */
-
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.findNavController
+import androidx.paging.LoadState
+import androidx.paging.LoadStateAdapter
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -77,5 +73,25 @@ class StudentPagingAdapter :
             override fun areContentsTheSame(oldItem: StudentResponse, newItem: StudentResponse) =
                 oldItem == newItem
         }
+    }
+}
+
+class SimpleLoadingStateAdapter(
+    private val retry: () -> Unit
+) : LoadStateAdapter<SimpleLoadingStateAdapter.LoadingViewHolder>() {
+
+    class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+
+    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): LoadingViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_loading, parent, false)
+        return LoadingViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: LoadingViewHolder, loadState: LoadState) {
+    }
+
+    override fun displayLoadStateAsItem(loadState: LoadState): Boolean {
+        return loadState is LoadState.Loading
     }
 }

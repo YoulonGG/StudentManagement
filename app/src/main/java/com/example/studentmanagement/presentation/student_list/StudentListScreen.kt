@@ -28,6 +28,7 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
 
     private val viewModel: StudentListViewModel by viewModel()
     private val adapter = StudentPagingAdapter()
+    private val loadingStateAdapter = SimpleLoadingStateAdapter { adapter.retry() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,7 +42,10 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
         studentListTitle.text = getString(R.string.student_list)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
+
+        recyclerView.adapter = adapter.withLoadStateFooter(
+            footer = loadingStateAdapter
+        )
 
         viewModel.onAction(StudentListAction.StudentList)
 
@@ -62,10 +66,13 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
         lifecycleScope.launch {
             adapter.loadStateFlow.collectLatest { loadStates ->
                 progressBar.visibility = when (loadStates.refresh) {
-                    is LoadState.Loading -> View.VISIBLE
+                    is LoadState.Loading -> {
+                        if (adapter.itemCount == 0) View.VISIBLE else View.GONE
+                    }
                     else -> View.GONE
                 }
 
+                // Handle errors
                 val errorState = loadStates.source.append as? LoadState.Error
                     ?: loadStates.source.prepend as? LoadState.Error
                     ?: loadStates.append as? LoadState.Error
