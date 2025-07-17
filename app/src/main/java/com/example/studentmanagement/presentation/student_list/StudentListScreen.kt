@@ -72,7 +72,6 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
                     else -> View.GONE
                 }
 
-                // Handle errors
                 val errorState = loadStates.source.append as? LoadState.Error
                     ?: loadStates.source.prepend as? LoadState.Error
                     ?: loadStates.append as? LoadState.Error
