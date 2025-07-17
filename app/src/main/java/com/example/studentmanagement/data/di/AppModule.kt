@@ -43,7 +43,7 @@ val appModule = module {
     }
 
 
-    viewModel { LoginViewModel(get()) }
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { SignUpViewModel(get(), get()) }
     viewModel { StudentViewModel(get(), get()) }
     viewModel { StudentListViewModel(get()) }
