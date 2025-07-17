@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.utils.animateNav
 import com.example.studentmanagement.data.dto.StudentResponse
 
 class StudentPagingAdapter :
@@ -61,7 +62,7 @@ class StudentPagingAdapter :
                 putParcelable("student", student)
             }
             holder.itemView.findNavController()
-                .navigate(R.id.navigate_student_list_to_student_details, bundle)
+                .navigate(R.id.navigate_student_list_to_student_details, bundle, animateNav())
         }
     }
 
@@ -76,9 +77,8 @@ class StudentPagingAdapter :
     }
 }
 
-class SimpleLoadingStateAdapter(
-    private val retry: () -> Unit
-) : LoadStateAdapter<SimpleLoadingStateAdapter.LoadingViewHolder>() {
+class SimpleLoadingStateAdapter :
+    LoadStateAdapter<SimpleLoadingStateAdapter.LoadingViewHolder>() {
 
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 

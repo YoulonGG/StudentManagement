@@ -3,13 +3,11 @@ package com.example.studentmanagement.presentation.login
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -19,6 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.ui_components.Dialog
+import com.example.studentmanagement.core.utils.animateNav
 import com.example.studentmanagement.data.local.PreferencesKeys
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -50,18 +49,24 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         signupText.setOnClickListener {
             findNavController().navigate(
                 R.id.navigate_login_to_signUp,
-                bundleOf("accountType" to accountType)
+                bundleOf("accountType" to accountType),
+                animateNav()
             )
         }
         resetPassword.setOnClickListener {
             findNavController().navigate(
                 R.id.navigate_login_to_reset_password,
-                bundleOf("accountType" to accountType)
+                bundleOf("accountType" to accountType),
+                animateNav()
             )
         }
 
         backButton.setOnClickListener {
-            findNavController().navigate(R.id.navigate_login_to_choose_login_type)
+            findNavController().navigate(
+                R.id.navigate_login_to_choose_login_type,
+                null,
+                animateNav()
+            )
         }
 
 
@@ -70,7 +75,12 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
             val password = passEt.text.toString().trim()
 
             if (email.isEmpty() || password.isEmpty()) {
-                showToast("Please fill in all fields")
+                Dialog.showDialog(
+                    context = requireContext(),
+                    title = "Input Error",
+                    description = "Please enter both email and password.",
+                    onBtnClick = {}
+                )
             } else {
                 loginViewModel.onAction(LoginAction.Login(email, password, accountType))
             }
@@ -111,12 +121,10 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
             "teacher" -> R.id.navigate_login_to_teacher
             else -> R.id.navigate_login_to_student
         }
-        findNavController().navigate(destination)
+        findNavController().navigate(destination, null, animateNav())
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
+
 }
 
 

@@ -9,6 +9,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.utils.animateNav
 import com.example.studentmanagement.data.local.PreferencesKeys
 
 @SuppressLint("CustomSplashScreen")
@@ -27,12 +28,25 @@ class SplashFragment : Fragment(R.layout.activity_splash_screen) {
 
             if (isLoggedIn && accountType != null) {
                 if (accountType == "teacher") {
-                    navController.navigate(R.id.navigate_splash_to_teacher_screen)
+                    navController.navigate(
+                        R.id.navigate_splash_to_teacher_screen,
+                        null,
+                        animateNav()
+                    )
                 } else {
-                    navController.navigate(R.id.navigate_splash_to_student_screen)
+                    navController.navigate(
+                        R.id.navigate_splash_to_student_screen,
+                        null,
+                        animateNav()
+                    )
                 }
             } else {
-                navController.navigate(R.id.navigate_splash_to_loginType)
+                navController.navigate(
+                    R.id.navigate_splash_to_loginType,
+                    null,
+                    animateNav()
+                )
+
             }
         }, 2500)
     }

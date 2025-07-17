@@ -1,9 +1,9 @@
 package com.example.studentmanagement.presentation.subjects_list
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.ui_components.Dialog
+import com.example.studentmanagement.core.utils.animateNav
 import com.example.studentmanagement.databinding.FragmentSubjectListScreenBinding
 import com.example.studentmanagement.presentation.subjects_list.components.CreateSubjectBottomSheet
 import com.example.studentmanagement.presentation.subjects_list.components.SubjectAdapter
@@ -33,6 +34,7 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
     private lateinit var binding: FragmentSubjectListScreenBinding
     private lateinit var subjectAdapter: SubjectAdapter
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSubjectListScreenBinding.bind(view)
@@ -43,19 +45,19 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
         val backButton = view.findViewById<ImageView>(R.id.goBack)
 
         backButton.setOnClickListener {
-            findNavController().navigateUp()
+            findNavController().popBackStack()
         }
-        subjectTitle.text = "Subjects"
+        subjectTitle.text = getString(R.string.subjects)
 
         checkPermissions()
 
         binding.fabCreateSubject.isVisible = accountType != "student"
 
         subjectAdapter = SubjectAdapter { subject ->
-            Log.e("SubjectListFragment", "Subject clicked: ${subject.id}")
             findNavController().navigate(
                 R.id.navigate_subject_to_subject_details,
-                bundleOf("subjectId" to subject.id)
+                bundleOf("subjectId" to subject.id),
+                animateNav()
             )
         }
 
@@ -70,22 +72,23 @@ class SubjectListFragment : Fragment(R.layout.fragment_subject_list_screen) {
                 )
 
                 if (accountType != "student") {
-                    val swipeToDeleteCallback = SwipeToDeleteCallback(requireContext()) { position ->
-                        val subject = subjectAdapter.currentList[position]
-                        Dialog.showTwoButtonDialog(
-                            requireContext(),
-                            title = "Delete Subject",
-                            description = "Are you sure you want to delete '${subject.name}'?",
-                            positiveButtonText = "Delete",
-                            negativeButtonText = "Cancel",
-                            onPositiveClick = {
-                                subjectAdapter.notifyDataSetChanged()
-                                viewModel.onAction(SubjectListEvent.DeleteSubject(subject.id))
-                            },
-                            onNegativeClick = {
-                                subjectAdapter.notifyDataSetChanged()
-                            })
-                    }
+                    val swipeToDeleteCallback =
+                        SwipeToDeleteCallback(requireContext()) { position ->
+                            val subject = subjectAdapter.currentList[position]
+                            Dialog.showTwoButtonDialog(
+                                requireContext(),
+                                title = "Delete Subject",
+                                description = "Are you sure you want to delete '${subject.name}'?",
+                                positiveButtonText = "Delete",
+                                negativeButtonText = "Cancel",
+                                onPositiveClick = {
+                                    subjectAdapter.notifyDataSetChanged()
+                                    viewModel.onAction(SubjectListEvent.DeleteSubject(subject.id))
+                                },
+                                onNegativeClick = {
+                                    subjectAdapter.notifyDataSetChanged()
+                                })
+                        }
                     val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
                     itemTouchHelper.attachToRecyclerView(this)
                 }

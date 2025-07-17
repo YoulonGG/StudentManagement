@@ -1,5 +1,6 @@
 package com.example.studentmanagement.presentation.teacher_profile
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -27,9 +28,7 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
 
     private var _binding: FragmentTeacherProfileBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: TeacherProfileViewModel by viewModel()
-
     private val imagePicker =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
@@ -37,6 +36,7 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
             }
         }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentTeacherProfileBinding.bind(view)
@@ -62,7 +62,7 @@ class TeacherProfile : Fragment(R.layout.fragment_teacher_profile) {
         }
 
         goBack.setOnClickListener {
-            findNavController().navigateUp()
+            findNavController().popBackStack()
         }
 
         viewModel.onAction(TeacherProfileAction.LoadCurrentTeacher)

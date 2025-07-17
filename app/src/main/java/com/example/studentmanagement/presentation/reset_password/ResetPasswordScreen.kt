@@ -35,7 +35,7 @@ class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
         backButton = view.findViewById(R.id.goBack)
 
         backButton.setOnClickListener {
-            findNavController().navigateUp()
+            findNavController().popBackStack()
         }
 
         resetButton.setOnClickListener {
@@ -61,7 +61,7 @@ class ResetPasswordScreen : Fragment(R.layout.fragment_reset_password_screen) {
                             title = "Check your Email",
                             description = "Reset link sent successfully!"
                         ) {
-                            findNavController().navigateUp()
+                            findNavController().popBackStack()
                         }
                     }
                 }
