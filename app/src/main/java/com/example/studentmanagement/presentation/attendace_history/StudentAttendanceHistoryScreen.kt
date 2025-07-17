@@ -9,7 +9,6 @@ import android.widget.ImageView
 import android.widget.NumberPicker
 import android.widget.TableRow
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
@@ -18,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
 import com.example.studentmanagement.databinding.FragmentStudentAttendanceHistoryScreenBinding
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -111,28 +111,27 @@ class StudentAttendanceHistoryScreen :
                     TableRow.LayoutParams.MATCH_PARENT,
                     resources.getDimensionPixelSize(R.dimen.table_row_height)
                 )
-//                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
             }
 
             addTableCell(
                 headerRow,
                 "Student Name",
-                weight = 2f,
+                width = 200, // Fixed width in dp
                 textColor = Color.BLACK,
                 isHeader = true
             )
             addTableCell(
                 headerRow,
                 "Present",
-                weight = 1f,
+                width = 80, // Fixed width in dp
                 textColor = Color.BLACK,
                 isHeader = true
             )
-            addTableCell(headerRow, "Absent", weight = 1f, textColor = Color.BLACK, isHeader = true)
+            addTableCell(headerRow, "Absent", width = 80, textColor = Color.BLACK, isHeader = true)
             addTableCell(
                 headerRow,
                 "Permission",
-                weight = 1f,
+                width = 100, // Fixed width in dp
                 textColor = Color.BLACK,
                 isHeader = true
             )
@@ -148,23 +147,23 @@ class StudentAttendanceHistoryScreen :
                     setBackgroundResource(R.drawable.table_cell_background)
                 }
 
-                addTableCell(row, stats.studentName, weight = 2f)
+                addTableCell(row, stats.studentName, width = 200)
                 addTableCell(
                     row,
                     stats.presentCount.toString(),
-                    weight = 1f,
+                    width = 100,
                     textColor = "#43A047".toColorInt()
                 )
                 addTableCell(
                     row,
                     stats.absentCount.toString(),
-                    weight = 1f,
+                    width = 100,
                     textColor = "#E53935".toColorInt()
                 )
                 addTableCell(
                     row,
                     stats.permissionCount.toString(),
-                    weight = 1f,
+                    width = 130,
                     textColor = "#FB8C00".toColorInt()
                 )
 
@@ -172,8 +171,14 @@ class StudentAttendanceHistoryScreen :
             }
 
             state.error?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-                viewModel.onAction(AttendanceHistoryEvent.ClearError)
+                Dialog.showDialog(
+                    requireContext(),
+                    title = "Error",
+                    description = it,
+                    onBtnClick = {
+                        viewModel.onAction(AttendanceHistoryEvent.ClearError)
+                    }
+                )
             }
         }
     }
@@ -181,18 +186,18 @@ class StudentAttendanceHistoryScreen :
     private fun addTableCell(
         row: TableRow,
         text: String,
-        weight: Float,
+        width: Int,
         gravity: Int = Gravity.CENTER,
         textColor: Int? = null,
         isHeader: Boolean = false
     ) {
         TextView(requireContext()).apply {
-            layoutParams = TableRow.LayoutParams(0, TableRow.LayoutParams.MATCH_PARENT).apply {
-                this.weight = weight
-            }
+            val widthInPx = (width * resources.displayMetrics.density).toInt()
+            layoutParams = TableRow.LayoutParams(widthInPx, TableRow.LayoutParams.MATCH_PARENT)
+
             this.text = text
             this.gravity = gravity
-            setPadding(0, 30, 0, 30)
+            setPadding(16, 30, 16, 30)
             textSize = if (isHeader) 14f else 12f
             if (isHeader) {
                 setTypeface(null, android.graphics.Typeface.BOLD)
@@ -203,6 +208,9 @@ class StudentAttendanceHistoryScreen :
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
             }
             setBackgroundResource(R.drawable.table_cell_background)
+
+            setSingleLine(true)
+
             row.addView(this)
         }
     }
