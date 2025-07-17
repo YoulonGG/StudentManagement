@@ -1,8 +1,10 @@
 package com.example.studentmanagement.presentation.login
 
+import android.util.Log
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 
 class LoginViewModel(
     private val auth: FirebaseAuth,
@@ -48,12 +50,29 @@ class LoginViewModel(
             return
         }
 
-        firestore.collection("users")
+        val collectionName = if (expectedAccountType.equals("student", ignoreCase = true)) {
+            "students"
+        } else {
+            "users"
+        }
+
+        Log.d("LoginViewModel", "Checking collection: $collectionName for account type: $expectedAccountType")
+
+        firestore.collection(collectionName)
             .document(currentUser.uid)
             .get()
             .addOnSuccessListener { document ->
+                Log.d("LoginViewModel", "Document exists: ${document.exists()}")
+
                 if (document.exists()) {
-                    val userAccountType = document.getString("accountType")
+                    val userAccountType = if (collectionName == "student") {
+                        "student"
+                    } else {
+                        document.getString("accountType")
+                    }
+
+                    Log.d("LoginViewModel", "User account type: $userAccountType, Expected: $expectedAccountType")
+
                     if (userAccountType != null) {
                         if (userAccountType.equals(expectedAccountType, ignoreCase = true)) {
                             setState {
@@ -98,12 +117,29 @@ class LoginViewModel(
                     }
                 }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { exception ->
+                Log.e("LoginViewModel", "Firestore error: ${exception.message}", exception)
                 auth.signOut()
+
+                val errorMessage = when (exception) {
+                    is FirebaseFirestoreException -> {
+                        when (exception.code) {
+                            FirebaseFirestoreException.Code.PERMISSION_DENIED ->
+                                "Access denied. Please check your permissions."
+                            FirebaseFirestoreException.Code.UNAVAILABLE ->
+                                "Service temporarily unavailable. Please try again."
+                            FirebaseFirestoreException.Code.UNAUTHENTICATED ->
+                                "Authentication expired. Please try again."
+                            else -> "Database error: ${exception.message}"
+                        }
+                    }
+                    else -> "Unable to verify account credentials. Please try again or contact system administrator."
+                }
+
                 setState {
                     copy(
                         isLoading = false,
-                        error = "Unable to verify account credentials. Please try again or contact system administrator."
+                        error = errorMessage
                     )
                 }
             }
