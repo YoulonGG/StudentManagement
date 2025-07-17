@@ -18,7 +18,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/content_background"
             android:orientation="vertical">
 
@@ -27,7 +27,6 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:strokeColor="@color/splash_gradient_bottom"
                 android:layout_gravity="start"
                 android:layout_margin="10dp"
                 android:textColor="@color/tool_bar_background"
@@ -35,6 +34,7 @@
                 app:icon="@drawable/baseline_calendar_month_24"
                 app:iconGravity="end"
                 app:iconTint="@color/tool_bar_background"
+                app:strokeColor="@color/splash_gradient_bottom"
                 tools:text="June 2025" />
 
             <ScrollView
@@ -42,6 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:scrollbars="none"
                 android:fillViewport="true">
 
                 <HorizontalScrollView
@@ -62,6 +63,10 @@
                     </TableLayout>
                 </HorizontalScrollView>
             </ScrollView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
         </LinearLayout>
 
     </LinearLayout>

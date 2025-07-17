@@ -111,28 +111,34 @@ class StudentAttendanceHistoryScreen :
                     TableRow.LayoutParams.MATCH_PARENT,
                     resources.getDimensionPixelSize(R.dimen.table_row_height)
                 )
+                setBackgroundColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.tool_bar_background
+                    )
+                )
             }
 
             addTableCell(
                 headerRow,
                 "Student Name",
-                width = 200, // Fixed width in dp
-                textColor = Color.BLACK,
+                width = 210,
+                textColor = Color.WHITE,
                 isHeader = true
             )
             addTableCell(
                 headerRow,
                 "Present",
-                width = 80, // Fixed width in dp
-                textColor = Color.BLACK,
+                width = 120,
+                textColor = Color.WHITE,
                 isHeader = true
             )
-            addTableCell(headerRow, "Absent", width = 80, textColor = Color.BLACK, isHeader = true)
+            addTableCell(headerRow, "Absent", width = 120, textColor = Color.WHITE, isHeader = true)
             addTableCell(
                 headerRow,
                 "Permission",
-                width = 100, // Fixed width in dp
-                textColor = Color.BLACK,
+                width = 140,
+                textColor = Color.WHITE,
                 isHeader = true
             )
 
@@ -151,19 +157,19 @@ class StudentAttendanceHistoryScreen :
                 addTableCell(
                     row,
                     stats.presentCount.toString(),
-                    width = 100,
+                    width = 80,
                     textColor = "#43A047".toColorInt()
                 )
                 addTableCell(
                     row,
                     stats.absentCount.toString(),
-                    width = 100,
+                    width = 80,
                     textColor = "#E53935".toColorInt()
                 )
                 addTableCell(
                     row,
                     stats.permissionCount.toString(),
-                    width = 130,
+                    width = 100,
                     textColor = "#FB8C00".toColorInt()
                 )
 
@@ -186,18 +192,19 @@ class StudentAttendanceHistoryScreen :
     private fun addTableCell(
         row: TableRow,
         text: String,
-        width: Int,
+        width: Int, // Width in dp
         gravity: Int = Gravity.CENTER,
         textColor: Int? = null,
         isHeader: Boolean = false
     ) {
         TextView(requireContext()).apply {
+            // Convert dp to pixels for consistent sizing
             val widthInPx = (width * resources.displayMetrics.density).toInt()
             layoutParams = TableRow.LayoutParams(widthInPx, TableRow.LayoutParams.MATCH_PARENT)
 
             this.text = text
             this.gravity = gravity
-            setPadding(16, 30, 16, 30)
+            setPadding(16, 30, 16, 30) // Added horizontal padding for better readability
             textSize = if (isHeader) 14f else 12f
             if (isHeader) {
                 setTypeface(null, android.graphics.Typeface.BOLD)
@@ -207,8 +214,13 @@ class StudentAttendanceHistoryScreen :
             } else {
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
             }
-            setBackgroundResource(R.drawable.table_cell_background)
 
+            // Don't add background to header cells since the row has the background
+            if (!isHeader) {
+                setBackgroundResource(R.drawable.table_cell_background)
+            }
+
+            // Ensure single line to prevent cell height issues
             setSingleLine(true)
 
             row.addView(this)
