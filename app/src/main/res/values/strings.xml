@@ -41,4 +41,6 @@
     <string name="report_attendance">Report Attendance</string>
     <string name="subject_details">Subject Details</string>
     <string name="present">Present</string>
+    <string name="permission_request">Permission Request</string>
+    <string name="submit_scores">Submit Scores</string>
 </resources>

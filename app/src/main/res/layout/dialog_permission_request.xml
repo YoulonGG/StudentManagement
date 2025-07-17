@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:orientation="vertical"
     android:padding="24dp">
 
@@ -10,67 +11,80 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="Permission Request"
-        android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+        android:text="@string/permission_request"
+        android:textSize="18dp"
+        android:textStyle="bold" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        app:cardBackgroundColor="#FFF3E0"
+        app:cardBackgroundColor="@color/light_gray"
         app:cardCornerRadius="12dp"
         app:cardElevation="0dp"
-        app:strokeColor="#FB8C00"
+        app:strokeColor="@color/tool_bar_background"
         app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="14dp">
 
             <TextView
-                android:id="@+id/textViewStudentName"
+                android:id="@+id/permissionStudentName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+                android:textColor="@color/on_surface"
+                android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/textViewRequestDate"
+                android:id="@+id/permissionRequestedDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+                android:textColor="@color/on_surface"
+                android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/textViewReason"
+                android:id="@+id/permissionReason"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+                android:textColor="@color/on_surface"
+                android:textSize="14sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="end"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/buttonReject"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Reject"
-            android:textColor="#D32F2F" />
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/header_table_color"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="@color/on_surface"
+            android:textSize="16sp" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/buttonApprove"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Approve" />
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/green_btn"
+            android:gravity="center"
+            android:text="Confirm"
+            android:textColor="@color/on_surface"
+            android:textSize="16sp" />
+
     </LinearLayout>
+
 </LinearLayout>

@@ -3,6 +3,7 @@ package com.example.studentmanagement.presentation.login
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -40,6 +41,7 @@ class LoginFragment : Fragment(R.layout.activity_login_screen) {
         val resetPassword = view.findViewById<TextView>(R.id.txtResetPassword)
         val accountType = arguments?.getString("accountType") ?: "student"
         progressBar = view.findViewById(R.id.progressBar)
+
 
         title.text = if (accountType == "teacher") "Teacher Log In" else "Student Log In"
 

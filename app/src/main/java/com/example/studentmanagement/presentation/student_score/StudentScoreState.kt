@@ -8,7 +8,9 @@ package com.example.studentmanagement.presentation.student_score
 
 data class StudentScoreViewUiState(
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val studentInformation: StudentInfo? = null,
+    val studentScores: List<StudentScoreDetail> = emptyList()
 )
 
 sealed interface StudentScoreViewAction {

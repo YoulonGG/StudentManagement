@@ -11,7 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
  * @Email: johnyoulong@gmail.com.
  */
 
-
+@Suppress("LABEL_NAME_CLASH")
 class StudentPermissionViewModel(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth
@@ -60,50 +60,106 @@ class StudentPermissionViewModel(
                     return@addOnSuccessListener
                 }
 
-                db.collection("permission_requests")
-                    .whereEqualTo("studentId", currentUser.uid)
-                    .whereEqualTo("date", uiState.value.selectedDate)
-                    .get()
-                    .addOnSuccessListener { snapshot ->
-                        if (!snapshot.isEmpty) {
-                            setState {
-                                copy(
-                                    isLoading = false,
-                                    error = "You already have a permission request for this date"
-                                )
-                            }
-                            return@addOnSuccessListener
-                        }
+                checkTeacherSubmission(currentUser.uid, studentName)
+            }
+            .addOnFailureListener { e ->
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to get student information: ${e.message}"
+                    )
+                }
+            }
+    }
 
-                        val request = hashMapOf(
-                            "studentId" to currentUser.uid,
-                            "studentName" to studentName,
-                            "date" to uiState.value.selectedDate,
-                            "reason" to uiState.value.reason,
-                            "status" to PermissionStatus.PENDING.name,
+    private fun checkTeacherSubmission(studentId: String, studentName: String) {
+        val selectedDate = uiState.value.selectedDate
+
+        db.collection("attendance")
+            .whereEqualTo("date", selectedDate)
+            .get()
+            .addOnSuccessListener { attendanceSnapshot ->
+                if (!attendanceSnapshot.isEmpty) {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "Cannot request permission for this date. Teacher has already submitted attendance."
                         )
-
-                        db.collection("permission_requests")
-                            .add(request)
-                            .addOnSuccessListener {
-                                setState {
-                                    copy(
-                                        isLoading = false,
-                                        success = true,
-                                        selectedDate = "",
-                                        reason = ""
-                                    )
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                setState {
-                                    copy(
-                                        isLoading = false,
-                                        error = "Failed to submit request: ${e.message}"
-                                    )
-                                }
-                            }
                     }
+                    return@addOnSuccessListener
+                }
+
+                checkExistingPermissionRequest(studentId, studentName)
+            }
+            .addOnFailureListener { e ->
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to check teacher submission: ${e.message}"
+                    )
+                }
+            }
+    }
+
+    private fun checkExistingPermissionRequest(studentId: String, studentName: String) {
+        val selectedDate = uiState.value.selectedDate
+
+        db.collection("permission_requests")
+            .whereEqualTo("studentId", studentId)
+            .whereEqualTo("date", selectedDate)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.isEmpty) {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = "You already have a permission request for this date"
+                        )
+                    }
+                    return@addOnSuccessListener
+                }
+
+                createPermissionRequest(studentId, studentName)
+            }
+            .addOnFailureListener { e ->
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to check existing requests: ${e.message}"
+                    )
+                }
+            }
+    }
+
+    private fun createPermissionRequest(studentId: String, studentName: String) {
+        val request = hashMapOf(
+            "studentId" to studentId,
+            "studentName" to studentName,
+            "date" to uiState.value.selectedDate,
+            "reason" to uiState.value.reason,
+            "status" to PermissionStatus.PENDING.name,
+            "timestamp" to FieldValue.serverTimestamp()
+        )
+
+        db.collection("permission_requests")
+            .add(request)
+            .addOnSuccessListener {
+                setState {
+                    copy(
+                        isLoading = false,
+                        success = true,
+                        selectedDate = "",
+                        reason = ""
+                    )
+                }
+            }
+            .addOnFailureListener { e ->
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = "Failed to submit request: ${e.message}"
+                    )
+                }
             }
     }
 }

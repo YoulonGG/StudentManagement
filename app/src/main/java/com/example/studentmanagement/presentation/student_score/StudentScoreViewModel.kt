@@ -1,19 +1,11 @@
 package com.example.studentmanagement.presentation.student_score
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
 class StudentScoreViewModel(
     private val firestore: FirebaseFirestore
 ) : BaseViewModel<StudentScoreViewAction, StudentScoreViewUiState>() {
-
-    private val _studentScores = MutableLiveData<List<StudentScoreDetail>>()
-    val studentScores: LiveData<List<StudentScoreDetail>> = _studentScores
-
-    private val _studentInfo = MutableLiveData<StudentInfo>()
-    val studentInfo: LiveData<StudentInfo> = _studentInfo
 
     override fun setInitialState(): StudentScoreViewUiState = StudentScoreViewUiState()
 
@@ -27,7 +19,6 @@ class StudentScoreViewModel(
     private fun loadStudentScores(studentId: String) {
         setState { copy(isLoading = true, error = null) }
 
-        // First, get student info
         firestore.collection("students")
             .document(studentId)
             .get()
@@ -37,10 +28,13 @@ class StudentScoreViewModel(
                         id = document.id,
                         name = document.getString("name") ?: "",
                         email = document.getString("email") ?: "",
-                        studentId = document.getString("studentId") ?: ""
+                        studentId = document.getString("studentID") ?: ""
                     )
-                    _studentInfo.value = studentInfo
-
+                    setState {
+                        copy(
+                            studentInformation = studentInfo
+                        )
+                    }
                     fetchScores(studentId)
                 } else {
                     setState {
@@ -82,8 +76,7 @@ class StudentScoreViewModel(
                     }
                 }.sortedBy { it.subject }
 
-                _studentScores.value = scores
-                setState { copy(isLoading = false) }
+                setState { copy(isLoading = false, studentScores = scores) }
             }
             .addOnFailureListener { exception ->
                 setState {
@@ -111,15 +104,5 @@ class StudentScoreViewModel(
             else -> 0.0f
         }
     }
-//
-//    fun getGradeForScore(percentage: Float): String {
-//        return when {
-//            percentage >= 90 -> "A"
-//            percentage >= 80 -> "B"
-//            percentage >= 70 -> "C"
-//            percentage >= 60 -> "D"
-//            else -> "F"
-//        }
-//    }
 }
 

@@ -228,9 +228,11 @@ class AttendanceAdapter(
         private fun showPermissionRequestDialog(item: StudentAttendance) {
             MaterialAlertDialogBuilder(itemView.context).setView(R.layout.dialog_permission_request)
                 .show().apply {
-                    findViewById<TextView>(R.id.textViewStudentName)?.text = item.fullName
-                    findViewById<TextView>(R.id.textViewRequestDate)?.text = "Date: ${item.date}"
-                    findViewById<TextView>(R.id.textViewReason)?.text = item.permissionReason
+                    findViewById<TextView>(R.id.permissionStudentName)?.text =
+                        "Name: {${item.fullName}}"
+                    findViewById<TextView>(R.id.permissionRequestedDate)?.text =
+                        "Date: ${item.date}"
+                    findViewById<TextView>(R.id.permissionReason)?.text = "Reason: ${item.permissionReason}"
 
                     findViewById<MaterialButton>(R.id.buttonApprove)?.setOnClickListener {
                         onPermissionAction(item.studentId, true)

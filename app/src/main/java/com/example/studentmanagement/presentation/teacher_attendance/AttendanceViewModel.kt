@@ -17,6 +17,8 @@ class TeacherAttendanceViewModel(
     private val db: FirebaseFirestore, private val auth: FirebaseAuth
 ) : BaseViewModel<TeacherAttendanceEvent, TeacherAttendanceState>() {
 
+    private val savedStatuses = mutableMapOf<String, AttendanceStatus>()
+
     val attendanceAdapter = AttendanceAdapter(onStatusChanged = { studentId, status ->
         onAction(TeacherAttendanceEvent.UpdateStatus(studentId, status))
     }, onPermissionAction = { studentId, approved ->
@@ -35,6 +37,7 @@ class TeacherAttendanceViewModel(
             is TeacherAttendanceEvent.UpdateStatus -> updateStatus(event.studentId, event.status)
             is TeacherAttendanceEvent.SubmitAttendance -> submitAttendance()
             is TeacherAttendanceEvent.SetDate -> {
+                savedStatuses.clear()
                 setState { copy(selectedDate = event.date) }
                 checkAttendanceExists(event.date)
             }
@@ -333,9 +336,5 @@ class TeacherAttendanceViewModel(
                     )
                 }
             }
-    }
-
-    companion object {
-        private val savedStatuses = mutableMapOf<String, AttendanceStatus>()
     }
 }

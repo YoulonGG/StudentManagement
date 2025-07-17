@@ -15,16 +15,20 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.R
+import com.example.studentmanagement.core.ui_components.Dialog
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-
 
 class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
 
     private val viewModel: StudentListViewModel by viewModel()
+    private val adapter = StudentPagingAdapter()
+    private val loadingStateAdapter = SimpleLoadingStateAdapter { adapter.retry() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -37,15 +41,56 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
         val studentListTitle = view.findViewById<TextView>(R.id.toolbarTitle)
         studentListTitle.text = getString(R.string.student_list)
 
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        recyclerView.adapter = adapter.withLoadStateFooter(
+            footer = loadingStateAdapter
+        )
 
         viewModel.onAction(StudentListAction.StudentList)
 
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = viewModel.adapter
+        lifecycleScope.launch {
+            viewModel.pagingDataFlow.collectLatest { pagingData ->
+                adapter.submitData(pagingData)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                state.error?.let {
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            adapter.loadStateFlow.collectLatest { loadStates ->
+                progressBar.visibility = when (loadStates.refresh) {
+                    is LoadState.Loading -> {
+                        if (adapter.itemCount == 0) View.VISIBLE else View.GONE
+                    }
+                    else -> View.GONE
+                }
+
+                val errorState = loadStates.source.append as? LoadState.Error
+                    ?: loadStates.source.prepend as? LoadState.Error
+                    ?: loadStates.append as? LoadState.Error
+                    ?: loadStates.prepend as? LoadState.Error
+                    ?: loadStates.refresh as? LoadState.Error
+
+                errorState?.let {
+                    Dialog.showDialog(
+                        requireContext(),
+                        title = "Error",
+                        description = it.error.message ?: "An error occurred",
+                        onBtnClick = {}
+                    )
+                }
+            }
+        }
 
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 clearIcon.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
                 viewModel.onAction(StudentListAction.SearchStudents(s.toString()))
@@ -68,21 +113,8 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
             false
         }
 
-
         backBtn.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-                recyclerView.visibility =
-                    if (!state.isLoading && state.student.isNotEmpty()) View.VISIBLE else View.GONE
-
-                state.error?.let {
-                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                }
-            }
+            findNavController().popBackStack()
         }
     }
 
