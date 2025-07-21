@@ -18,13 +18,6 @@ import com.example.studentmanagement.R
 
 object Dialog {
 
-    /**
-     * Show a simple custom dialog with title and description
-     * @param context Context (Activity/Fragment context)
-     * @param title Dialog title
-     * @param description Dialog description
-     * @param buttonText Button text (default: "Okay")
-     */
 
     fun showDialog(
         context: Context,
@@ -62,17 +55,6 @@ object Dialog {
         dialog.show()
     }
 
-
-    /**
-     * Show a custom dialog with two action buttons
-     * @param context Context (Activity/Fragment context)
-     * @param title Dialog title
-     * @param description Dialog description
-     * @param positiveButtonText Positive button text (default: "Yes")
-     * @param negativeButtonText Negative button text (default: "No")
-     * @param onPositiveClick Callback for positive button click
-     * @param onNegativeClick Callback for negative button click (optional)
-     */
     fun showTwoButtonDialog(
         context: Context,
         title: String,
@@ -117,6 +99,4 @@ object Dialog {
         }
         dialog.show()
     }
-
-
 }
