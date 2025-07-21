@@ -71,8 +71,6 @@ class LoginViewModel(
                         document.getString("accountType")
                     }
 
-                    Log.d("LoginViewModel", "User account type: $userAccountType, Expected: $expectedAccountType")
-
                     if (userAccountType != null) {
                         if (userAccountType.equals(expectedAccountType, ignoreCase = true)) {
                             setState {

@@ -33,6 +33,11 @@
     <color name="table_row_even">#FFFFFF</color>
     <color name="table_row_odd">#F5F5F5</color>
 
+    <color name="onboarding_bg_1">#FFE9D4</color>
+    <color name="onboarding_bg_2">#D4F5FF</color>
+    <color name="onboarding_bg_3">#FFD4D4</color>
+
+
     <color name="aib_light_blue">#FF2B3C66</color>
     <color name="blue_text_color">#FF0C46C4</color>
     <color name="permission_stroke">#FB8C00</color>

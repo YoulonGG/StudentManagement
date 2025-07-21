@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/splash">
+
     <fragment
         android:id="@+id/splash"
         android:name="com.example.studentmanagement.presentation.splash.SplashFragment"
@@ -19,6 +21,31 @@
         <action
             android:id="@+id/navigate_splash_to_student_screen"
             app:destination="@id/student" />
+
+        <action
+            android:id="@+id/navigate_splash_to_onboarding"
+            app:destination="@id/onboardingFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="com.example.studentmanagement.presentation.onboarding.OnboardingFragment"
+        android:label="Onboarding">
+
+        <action
+            android:id="@+id/navigate_onboarding_to_loginType"
+            app:destination="@id/loginType" />
+
+        <action
+            android:id="@+id/navigate_onboarding_to_teacher_screen"
+            app:destination="@id/teacher" />
+
+        <action
+            android:id="@+id/navigate_onboarding_to_student_screen"
+            app:destination="@id/student" />
+
+
     </fragment>
 
     <fragment

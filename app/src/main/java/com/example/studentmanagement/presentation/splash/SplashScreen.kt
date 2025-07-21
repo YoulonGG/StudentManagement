@@ -21,10 +21,19 @@ class SplashFragment : Fragment(R.layout.activity_splash_screen) {
         val sharedPref = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val isLoggedIn = sharedPref.getBoolean(PreferencesKeys.IS_LOGGED_IN, false)
         val accountType = sharedPref.getString(PreferencesKeys.ACCOUNT_TYPE, null)
-
+        val isOnboardingCompleted = sharedPref.getBoolean(PreferencesKeys.ONBOARDING_COMPLETED, false)
 
         Handler(Looper.getMainLooper()).postDelayed({
             val navController = findNavController()
+
+            if (!isOnboardingCompleted) {
+                navController.navigate(
+                    R.id.navigate_splash_to_onboarding,
+                    null,
+                    animateNav()
+                )
+                return@postDelayed
+            }
 
             if (isLoggedIn && accountType != null) {
                 if (accountType == "teacher") {
@@ -46,7 +55,6 @@ class SplashFragment : Fragment(R.layout.activity_splash_screen) {
                     null,
                     animateNav()
                 )
-
             }
         }, 2500)
     }

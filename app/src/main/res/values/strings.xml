@@ -38,7 +38,7 @@
     <string name="attendance_record">Attendance Record</string>
     <string name="create_student">Create Student</string>
     <string name="student_list">Student List</string>
-    <string name="report_attendance">Report Attendance</string>
+    <string name="report_attendance">Check Attendance</string>
     <string name="subject_details">Subject Details</string>
     <string name="present">Present</string>
     <string name="permission_request">Permission Request</string>

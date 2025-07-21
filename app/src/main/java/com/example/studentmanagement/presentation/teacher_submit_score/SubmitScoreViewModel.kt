@@ -7,6 +7,8 @@ import com.example.studentmanagement.core.base.BaseViewModel
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SubmitScoreViewModel(
     private val firestore: FirebaseFirestore
@@ -55,6 +57,7 @@ class SubmitScoreViewModel(
     }
 
     fun fetchStudentsBySubject(subject: String) {
+        Log.d(TAG, "Fetching students for subject: $subject")
         setState { copy(isLoading = true, error = null, submitSuccess = false) }
 
         firestore.collection("students")
@@ -93,7 +96,6 @@ class SubmitScoreViewModel(
         var completedChunks = 0
 
         fun processChunk(chunk: List<String>) {
-
             firestore.collection("scores")
                 .whereIn("studentId", chunk)
                 .whereEqualTo("subject", subject)
@@ -141,7 +143,13 @@ class SubmitScoreViewModel(
             Log.d(TAG, "Creating score for student: $studentName (ID: $studentId)")
 
             if (existingScore != null) {
-                Log.d(TAG, "Found existing scores for $studentName")
+                Log.d(
+                    TAG, "Found existing scores for $studentName: " +
+                            "assignment=${existingScore.getDouble("assignment")}, " +
+                            "midterm=${existingScore.getDouble("midterm")}, " +
+                            "final=${existingScore.getDouble("final")}, " +
+                            "homework=${existingScore.getDouble("homework")}"
+                )
             }
 
             StudentScore(
@@ -154,7 +162,8 @@ class SubmitScoreViewModel(
             )
         }
 
-        _studentScores.value = scores
+        Log.d(TAG, "Created ${scores.size} student scores")
+        _studentScores.value = scores.toList()
         setState { copy(isLoading = false, submitSuccess = false) }
     }
 
@@ -189,6 +198,7 @@ class SubmitScoreViewModel(
             )
 
             batch.set(docRef, scoreData)
+            Log.d(TAG, "Prepared score for ${score.name}: $scoreData")
         }
 
         batch.commit()
@@ -201,7 +211,10 @@ class SubmitScoreViewModel(
                         error = null
                     )
                 }
-                fetchStudentsBySubject(subject)
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                    delay(500)
+                    fetchStudentsBySubject(subject)
+                }
             }
             .addOnFailureListener { exception ->
                 Log.e(TAG, "Error submitting scores: ${exception.message}", exception)
@@ -233,4 +246,3 @@ class SubmitScoreViewModel(
         }
     }
 }
-

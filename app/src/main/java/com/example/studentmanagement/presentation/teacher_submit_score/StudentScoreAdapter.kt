@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagement.databinding.ItemStudentScoreBinding
 
-
 class StudentScoreAdapter :
     ListAdapter<StudentScore, StudentScoreAdapter.ViewHolder>(ScoreDiffCallback()) {
 
@@ -28,11 +27,15 @@ class StudentScoreAdapter :
         private val binding: ItemStudentScoreBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        private var isUpdating = false
+
         private val scoreWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                updateScore()
+                if (!isUpdating) {
+                    updateScore()
+                }
             }
         }
 
@@ -44,35 +47,58 @@ class StudentScoreAdapter :
         }
 
         fun bind(item: StudentScore) {
+            isUpdating = true
+
             binding.apply {
                 studentNameText.text = item.name
+
                 assignmentScore.setText(
-                    if (item.assignment == 0f) "0" else item.assignment.toInt().toString()
+                    if (item.assignment == 0f) "" else item.assignment.let {
+                        if (it == it.toInt().toFloat()) it.toInt().toString() else it.toString()
+                    }
                 )
                 homeworkScore.setText(
-                    if (item.homework == 0f) "0" else item.homework.toInt().toString()
+                    if (item.homework == 0f) "" else item.homework.let {
+                        if (it == it.toInt().toFloat()) it.toInt().toString() else it.toString()
+                    }
                 )
                 midtermScore.setText(
-                    if (item.midterm == 0f) "0" else item.midterm.toInt().toString()
+                    if (item.midterm == 0f) "" else item.midterm.let {
+                        if (it == it.toInt().toFloat()) it.toInt().toString() else it.toString()
+                    }
                 )
-                finalScore.setText(if (item.final == 0f) "0" else item.final.toInt().toString())
-                totalScore.text = item.total.toInt().toString()
-                averageScore.text = ((item.total / 400) * 100).toInt().toString()
+                finalScore.setText(
+                    if (item.final == 0f) "" else item.final.let {
+                        if (it == it.toInt().toFloat()) it.toInt().toString() else it.toString()
+                    }
+                )
+
+                updateTotalAndAverage(item)
             }
+
+            isUpdating = false
         }
 
         private fun updateScore() {
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 val item = getItem(position)
+
                 binding.apply {
                     item.assignment = assignmentScore.text.toString().toFloatOrNull() ?: 0f
                     item.homework = homeworkScore.text.toString().toFloatOrNull() ?: 0f
                     item.midterm = midtermScore.text.toString().toFloatOrNull() ?: 0f
                     item.final = finalScore.text.toString().toFloatOrNull() ?: 0f
-                    totalScore.text = item.total.toInt().toString()
-                    averageScore.text = ((item.total / 400) * 100).toInt().toString()
+
+                    updateTotalAndAverage(item)
                 }
+            }
+        }
+
+        private fun updateTotalAndAverage(item: StudentScore) {
+            binding.apply {
+                totalScore.text = item.total.toInt().toString()
+                averageScore.text = ((item.total / 400) * 100).toInt().toString()
             }
         }
     }
@@ -84,6 +110,11 @@ class ScoreDiffCallback : DiffUtil.ItemCallback<StudentScore>() {
     }
 
     override fun areContentsTheSame(oldItem: StudentScore, newItem: StudentScore): Boolean {
-        return oldItem == newItem
+        return oldItem.studentId == newItem.studentId &&
+                oldItem.name == newItem.name &&
+                oldItem.assignment == newItem.assignment &&
+                oldItem.homework == newItem.homework &&
+                oldItem.midterm == newItem.midterm &&
+                oldItem.final == newItem.final
     }
 }
