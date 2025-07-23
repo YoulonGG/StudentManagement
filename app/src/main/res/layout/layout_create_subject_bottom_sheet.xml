@@ -45,7 +45,6 @@
             android:padding="12dp"
             android:visibility="gone">
 
-            <!-- Image Thumbnail -->
             <ImageView
                 android:id="@+id/imagePreviewThumbnail"
                 android:layout_width="40dp"
@@ -55,45 +54,28 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:gravity="center_vertical"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        app:tint="@color/on_surface" />
-
-                    <TextView
-                        android:id="@+id/imageFileName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="image.jpg"
-                        android:textColor="@color/on_surface"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:tint="@color/on_surface" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/imageFileName"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Image selected"
+                    android:layout_marginStart="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="image.jpg"
                     android:textColor="@color/on_surface"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
-            <!-- Remove Button -->
             <ImageButton
                 android:id="@+id/buttonRemoveImage"
                 android:layout_width="32dp"
@@ -241,10 +223,10 @@
             android:id="@+id/buttonCancel"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
             android:background="@drawable/common_button"
             android:gravity="center"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
             android:text="Cancel"
             android:textColor="@color/white"
             android:textSize="14sp"
@@ -254,8 +236,8 @@
             android:id="@+id/buttonCreate"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_weight="1"
             android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:background="@drawable/common_button"
             android:gravity="center"
             android:text="Create Subject"

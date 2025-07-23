@@ -15,10 +15,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.resources.StringRes
+import com.example.studentmanagement.core.utils.animateNav
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -47,7 +47,7 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
         genderSpinner = view.findViewById(R.id.genderSpinner)
 
         genderSelection()
-        backButton.setOnClickListener { findNavController().navigateUp() }
+        backButton.setOnClickListener { findNavController().popBackStack() }
 
         signupBtn.setOnClickListener {
             errorText.visibility = View.GONE
@@ -76,9 +76,10 @@ class SignUpFragment : Fragment(R.layout.activity_sign_up_screen) {
                         findNavController().navigate(
                             R.id.action_signUp_to_login,
                             bundleOf("accountType" to "teacher"),
-                            NavOptions.Builder()
-                                .setPopUpTo(R.id.action_signUp_to_login, false)
-                                .build()
+                            animateNav()
+//                            NavOptions.Builder()
+//                                .setPopUpTo(R.id.action_signUp_to_login, false)
+//                                .build()
                         )
                     }
                 }

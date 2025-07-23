@@ -36,8 +36,41 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
         setupRecyclerView()
         setupScrollSynchronization()
         setupSubjectSpinner()
-        setupSubmitButton()
-        observeViewModel()
+        submitButton()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                binding.progressBar.isVisible = state.isLoading
+                binding.submitScoresBtn.isEnabled = !state.isLoading
+
+                state.error?.let { error ->
+                    Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+                }
+
+                if (state.submitSuccess) {
+                    val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
+                    fetchScores(selectedSubject)
+                    Dialog.showDialog(
+                        requireContext(),
+                        title = "Success",
+                        description = "Scores have been successfully submitted.",
+                        onBtnClick = {}
+                    )
+                }
+            }
+        }
+
+        viewModel.studentScores.observe(viewLifecycleOwner) { scores ->
+            scoreAdapter.submitList(scores)
+            binding.submitScoresBtn.isEnabled = scores.isNotEmpty()
+        }
+
+        viewModel.subjects.observe(viewLifecycleOwner) { subjects ->
+            val adapter = binding.subjectSpinner.adapter as ArrayAdapter<String>
+            adapter.clear()
+            adapter.addAll(subjects)
+            adapter.notifyDataSetChanged()
+        }
 
         viewModel.fetchSubjects()
     }
@@ -86,7 +119,7 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
             }
     }
 
-    private fun setupSubmitButton() {
+    private fun submitButton() {
         binding.submitScoresBtn.setOnClickListener {
             val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
             val currentScores = scoreAdapter.currentList
@@ -102,7 +135,12 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
             }
 
             if (currentScores.isEmpty()) {
-                Toast.makeText(requireContext(), "No scores to submit", Toast.LENGTH_SHORT).show()
+                Dialog.showDialog(
+                    requireContext(),
+                    title = "No Scores",
+                    description = "Please add scores for students before submitting.",
+                    onBtnClick = {}
+                )
                 return@setOnClickListener
             }
 
@@ -134,50 +172,6 @@ class SubmitScoreFragment : Fragment(R.layout.fragment_submit_score_screen) {
 
     private fun fetchScores(subject: String) {
         viewModel.fetchStudentsBySubject(subject)
-    }
-
-    private fun observeViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                binding.progressBar.isVisible = state.isLoading
-                binding.submitScoresBtn.isEnabled = !state.isLoading
-
-                state.error?.let { error ->
-                    Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
-                }
-
-                if (state.submitSuccess) {
-                    val selectedSubject = binding.subjectSpinner.selectedItem?.toString() ?: ""
-                    fetchScores(selectedSubject)
-                    Dialog.showDialog(
-                        requireContext(),
-                        title = "Success",
-                        description = "Scores have been successfully submitted.",
-                        onBtnClick = {
-                            findNavController().navigateUp()
-                        }
-                    )
-                }
-            }
-        }
-
-        viewModel.studentScores.observe(viewLifecycleOwner) { scores ->
-            scoreAdapter.submitList(scores)
-            updateAverageScore(scores)
-            binding.submitScoresBtn.isEnabled = scores.isNotEmpty()
-        }
-
-        viewModel.subjects.observe(viewLifecycleOwner) { subjects ->
-            val adapter = binding.subjectSpinner.adapter as ArrayAdapter<String>
-            adapter.clear()
-            adapter.addAll(subjects)
-            adapter.notifyDataSetChanged()
-        }
-    }
-
-    private fun updateAverageScore(scores: List<StudentScore>) {
-        val average = scores.map { it.total }.average().takeIf { !it.isNaN() } ?: 0
-//        binding.averageScoreText.text = getString(R.string.class_average).format(average)
     }
 
     override fun onDestroyView() {

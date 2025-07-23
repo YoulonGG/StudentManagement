@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -28,7 +27,7 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
 
     private val viewModel: StudentListViewModel by viewModel()
     private val adapter = StudentPagingAdapter()
-    private val loadingStateAdapter = SimpleLoadingStateAdapter { adapter.retry() }
+    private val loadingStateAdapter = SimpleLoadingStateAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -58,7 +57,12 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 state.error?.let {
-                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                    Dialog.showDialog(
+                        requireContext(),
+                        title = "Error",
+                        description = it,
+                        onBtnClick = {}
+                    )
                 }
             }
         }
@@ -69,6 +73,7 @@ class StudentListFragment : Fragment(R.layout.fragment_student_list_screen) {
                     is LoadState.Loading -> {
                         if (adapter.itemCount == 0) View.VISIBLE else View.GONE
                     }
+
                     else -> View.GONE
                 }
 

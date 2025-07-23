@@ -33,14 +33,15 @@
     <string name="profile">Profile</string>
     <string name="my_subjects">My Subjects</string>
     <string name="my_scores">My Scores</string>
-    <string name="failed_to_load_student_data">Failed to load student info</string>
+    <string name="failed_to_load_student_data">Failed to load student information.</string>
     <string name="student_id_not_found">Student ID not found</string>
     <string name="attendance_record">Attendance Record</string>
     <string name="create_student">Create Student</string>
     <string name="student_list">Student List</string>
-    <string name="report_attendance">Report Attendance</string>
+    <string name="report_attendance">Check Attendance</string>
     <string name="subject_details">Subject Details</string>
     <string name="present">Present</string>
     <string name="permission_request">Permission Request</string>
     <string name="submit_scores">Submit Scores</string>
+    <string name="subjects">Subjects</string>
 </resources>

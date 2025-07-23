@@ -1,5 +1,6 @@
 package com.example.studentmanagement.presentation.student
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.studentmanagement.R
 import com.example.studentmanagement.core.ui_components.Dialog
+import com.example.studentmanagement.core.utils.animateNav
 import com.example.studentmanagement.data.local.PreferencesKeys
 import com.example.studentmanagement.data.local.PreferencesKeys.ACCOUNT_TYPE
 import com.example.studentmanagement.presentation.activity.MainActivity
@@ -63,6 +65,7 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
         setupRecyclerView()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateStudentCounts(state: StudentUiState) {
         view?.findViewById<TextView>(R.id.studentCount)?.text = "${state.totalStudents}"
         view?.findViewById<TextView>(R.id.maleStudentCount)?.text = "Male : ${state.maleStudents}"
@@ -103,9 +106,7 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
             requireContext(),
             title = "Error",
             description = error,
-            onBtnClick = {
-
-            }
+            onBtnClick = {}
         )
     }
 
@@ -124,7 +125,11 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
                 getString(R.string.ask_permission),
                 R.drawable.student_ask_permission_icon
             ) {
-                findNavController().navigate(R.id.navigate_student_to_ask_permission)
+                findNavController().navigate(
+                    R.id.navigate_student_to_ask_permission,
+                    null,
+                    animateNav()
+                )
             },
             HomeCardItem(
                 2,
@@ -139,7 +144,11 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
                 R.drawable.student_subject_icon
             ) {
                 val bundle = bundleOf("accountType" to "student")
-                findNavController().navigate(R.id.navigate_student_to_subject_list, bundle)
+                findNavController().navigate(
+                    R.id.navigate_student_to_subject_list,
+                    bundle,
+                    animateNav()
+                )
             },
             HomeCardItem(
                 4,
@@ -157,7 +166,11 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
             val bundle = Bundle().apply {
                 putParcelable("student", currentStudent)
             }
-            findNavController().navigate(R.id.navigate_student_to_student_profile, bundle)
+            findNavController().navigate(
+                R.id.navigate_student_to_student_profile,
+                bundle,
+                animateNav()
+            )
         } else {
             showError(getString(R.string.failed_to_load_student_data))
         }
@@ -170,7 +183,11 @@ class StudentScreen : Fragment(R.layout.fragment_student_screen) {
             val bundle = Bundle().apply {
                 putString("studentId", studentId)
             }
-            findNavController().navigate(R.id.navigate_student_to_student_score, bundle)
+            findNavController().navigate(
+                R.id.navigate_student_to_student_score,
+                bundle,
+                animateNav()
+            )
         } else {
             viewModel.onAction(StudentAction.LoadStudentData)
             showError("Student data not available. Please try again.")

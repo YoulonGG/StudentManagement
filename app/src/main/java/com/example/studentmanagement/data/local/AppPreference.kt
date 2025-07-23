@@ -18,6 +18,8 @@ object PreferencesKeys {
     const val TEACHER_AGE = "teacherAge"
     const val TEACHER_GENDER = "teacherGender"
     const val TEACHER_IMAGE_URL = "teacherImageUrl"
+
+    const val ONBOARDING_COMPLETED = "onboarding_completed"
 }
 
 
