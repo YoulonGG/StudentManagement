@@ -39,7 +39,7 @@ val appModule = module {
     single { FirebaseStorage.getInstance() }
     single { Application::class.java }
     single {
-        androidContext().getSharedPreferences("teacher_prefs", Context.MODE_PRIVATE)
+        androidContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
     }
 
 
